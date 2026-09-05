@@ -42,4 +42,18 @@ class LichChieu extends Model
     {
         return $this->belongsTo(PhongChieu::class, 'maPhong', 'maPhong');
     }
+    public function tinhGiaVe(string $loaiGhe): float
+{
+    return match ($loaiGhe) {
+        'THUONG' => (float) $this->giaVeCoBan,
+
+        'VIP' => (float) $this->giaVeCoBan * 1.2,
+
+        'DOI' => (float) $this->giaVeCoBan * 1.2 * 2,
+
+        default => throw new \InvalidArgumentException(
+            "Loại ghế không hợp lệ: {$loaiGhe}"
+        ),
+    };
+}
 }

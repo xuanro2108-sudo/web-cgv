@@ -29,4 +29,8 @@ class KhachHang extends Model
         'ngaySinh' => 'date',
         'ngayDangKy' => 'date',
     ];
+    public function taiKhoan()
+{
+    return $this->hasOne(TaiKhoan::class, 'maKH', 'maKH');
+}
 }

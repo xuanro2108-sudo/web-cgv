@@ -27,4 +27,8 @@ class NhanVien extends Model
     protected $casts = [
         'ngayVaoLam' => 'date',
     ];
+    public function taiKhoan()
+{
+    return $this->hasOne(TaiKhoan::class, 'maNV', 'maNV');
+}
 }
