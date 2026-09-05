@@ -1,15 +1,17 @@
+
 <?php
 
-use App\Http\Controllers\Api\AuthController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\PhimController;
 
+// ==================== AUTHENTICATION ====================
 
 // Đăng ký khách hàng
 Route::post(
     '/auth/register',
     [AuthController::class, 'register']
 );
-
 
 // Đăng nhập khách hàng
 Route::post(
@@ -35,5 +37,17 @@ Route::middleware('auth:sanctum')->group(function () {
         '/auth/logout',
         [AuthController::class, 'logout']
     );
-
 });
+
+// ==================== PHIM ====================
+
+// API test
+Route::get('/test', function () {
+    return response()->json([
+        'message' => 'API CGV hoạt động!'
+    ]);
+});
+
+// CRUD phim
+Route::apiResource('phims', PhimController::class)
+    ->parameters(['phims' => 'maPhim']);
