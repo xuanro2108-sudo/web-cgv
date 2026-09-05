@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Phim;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class PhimController extends Controller
 {
