@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
-class TaiKhoan extends Model
+class TaiKhoan extends Authenticatable
 {
+    use HasApiTokens;
+
     protected $table = 'tai_khoans';
 
     protected $primaryKey = 'maTK';
@@ -15,25 +18,43 @@ class TaiKhoan extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-    'maTK',
-    'tenDangNhap',
-    'matKhau',
-    'vaiTro',
-    'maKH',
-    'maNV',
-    'trangThai',
-];
+        'maTK',
+        'tenDangNhap',
+        'matKhau',
+        'vaiTro',
+        'maKH',
+        'maNV',
+        'trangThai',
+    ];
 
     protected $hidden = [
         'matKhau',
     ];
-    public function khachHang()
+    public function getAuthPasswordName(): string
 {
-    return $this->belongsTo(KhachHang::class, 'maKH', 'maKH');
+    return 'matKhau';
 }
 
-public function nhanVien()
+public function getAuthPassword(): string
 {
-    return $this->belongsTo(NhanVien::class, 'maNV', 'maNV');
+    return $this->matKhau;
 }
+
+    public function khachHang()
+    {
+        return $this->belongsTo(
+            KhachHang::class,
+            'maKH',
+            'maKH'
+        );
+    }
+
+    public function nhanVien()
+    {
+        return $this->belongsTo(
+            NhanVien::class,
+            'maNV',
+            'maNV'
+        );
+    }
 }
