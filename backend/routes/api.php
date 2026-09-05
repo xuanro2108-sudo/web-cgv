@@ -15,15 +15,13 @@ Route::post(
 Route::post(
     '/auth/customer/login',
     [AuthController::class, 'loginCustomer']
-);
-
+)->middleware('throttle:5,1');
 
 // Đăng nhập nhân viên / quản lý
 Route::post(
     '/auth/internal/login',
     [AuthController::class, 'loginInternal']
-);
-
+)->middleware('throttle:5,1');
 
 // API yêu cầu đã đăng nhập
 Route::middleware('auth:sanctum')->group(function () {

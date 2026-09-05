@@ -30,6 +30,15 @@ class TaiKhoan extends Authenticatable
     protected $hidden = [
         'matKhau',
     ];
+    public function getAuthPasswordName(): string
+{
+    return 'matKhau';
+}
+
+public function getAuthPassword(): string
+{
+    return $this->matKhau;
+}
 
     public function khachHang()
     {
