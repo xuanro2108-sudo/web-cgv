@@ -88,19 +88,21 @@ Route::get('/test', function () {
     ]);
 });
 
-// CRUD phim
+// Nội dung công khai
 Route::apiResource('phims', PhimController::class)
+    ->only(['index', 'show'])
     ->parameters(['phims' => 'maPhim']);
 Route::apiResource('lich-chieus', LichChieuController::class)
+    ->only(['index', 'show'])
     ->parameters(['lich-chieus' => 'maLichChieu']);
 Route::apiResource('phong-chieus', PhongChieuController::class)
-    ->only(['index', 'show', 'update'])
+    ->only(['index', 'show'])
     ->parameters(['phong-chieus' => 'maPhong']);
 Route::apiResource('so-do-ghes', SoDoGheController::class)
     ->only(['index', 'show'])
     ->parameters(['so-do-ghes' => 'maSoDo']);
 Route::apiResource('ghes', GheController::class)
-    ->only(['index', 'show', 'update'])
+    ->only(['index', 'show'])
     ->parameters(['ghes' => 'maGhe']);
 Route::apiResource('ve-ghes', VeGheController::class)
     ->middleware('auth:sanctum')
@@ -110,3 +112,19 @@ Route::apiResource('ve-ghes', VeGheController::class)
 Route::apiResource('combos', ComboSanPhamController::class)
     ->only(['index', 'show'])
     ->parameters(['combos' => 'maCombo']);
+
+// Thao tác quản trị nội dung
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('phims', PhimController::class)
+        ->only(['store', 'update', 'destroy'])
+        ->parameters(['phims' => 'maPhim']);
+    Route::apiResource('lich-chieus', LichChieuController::class)
+        ->only(['store', 'update', 'destroy'])
+        ->parameters(['lich-chieus' => 'maLichChieu']);
+    Route::apiResource('phong-chieus', PhongChieuController::class)
+        ->only(['update'])
+        ->parameters(['phong-chieus' => 'maPhong']);
+    Route::apiResource('ghes', GheController::class)
+        ->only(['update'])
+        ->parameters(['ghes' => 'maGhe']);
+});

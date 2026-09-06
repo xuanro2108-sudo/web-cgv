@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Ghe;
+use App\Models\OrderAccess;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -55,6 +56,8 @@ class GheController extends Controller
     // Chỉ được sửa trạng thái ghế
     public function update(Request $request, string $maGhe)
     {
+        OrderAccess::staff($request);
+
         $ghe = Ghe::findOrFail($maGhe);
 
         $data = $request->validate([
@@ -62,8 +65,8 @@ class GheController extends Controller
                 'required',
                 Rule::in([
                     'HOAT_DONG',
-                    'KHOA'
-                ])
+                    'KHOA',
+                ]),
             ],
         ]);
 

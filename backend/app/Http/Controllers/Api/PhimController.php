@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\OrderAccess;
 use App\Models\Phim;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-
 
 class PhimController extends Controller
 {
@@ -25,6 +25,8 @@ class PhimController extends Controller
      */
     public function store(Request $request)
     {
+        OrderAccess::staff($request);
+
         $data = $request->validate([
             'maPhim' => ['required', 'string', 'max:50', 'unique:phims,maPhim'],
             'tenPhim' => ['required', 'string', 'max:255'],
@@ -66,6 +68,8 @@ class PhimController extends Controller
      */
     public function update(Request $request, string $maPhim)
     {
+        OrderAccess::staff($request);
+
         $phim = Phim::findOrFail($maPhim);
 
         $data = $request->validate([
@@ -93,8 +97,10 @@ class PhimController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $maPhim)
+    public function destroy(Request $request, string $maPhim)
     {
+        OrderAccess::staff($request);
+
         $phim = Phim::findOrFail($maPhim);
         $phim->delete();
 
