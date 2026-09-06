@@ -1,0 +1,514 @@
+/* ================================
+   TOÀN BỘ TRANG
+================================ */
+
+.customer-page {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  color: #222;
+}
+
+
+/* ================================
+   HEADER
+================================ */
+
+.customer-header {
+  width: 100%;
+  background-color: #ffffff;
+}
+
+
+/* Thanh đỏ nhỏ trên cùng */
+.header-top {
+  height: 34px;
+
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  padding: 0 70px;
+
+  background-color: #b5121b;
+}
+
+
+/* Đăng nhập | Đăng ký */
+.header-top-right {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  color: white;
+
+  font-size: 14px;
+}
+
+.header-top-right span {
+  cursor: pointer;
+}
+
+.header-top-right span:hover {
+  text-decoration: underline;
+}
+
+
+/* Phần header chính */
+.header-main {
+  min-height: 92px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 40px;
+
+  padding: 15px 70px;
+
+  background-color: #ffffff;
+
+  border-bottom: 1px solid #dddddd;
+
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+
+/* ================================
+   LOGO
+================================ */
+
+.cgv-logo {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 250px;
+}
+
+
+/* Chữ CGV */
+.cgv-name {
+  color: #e31837;
+
+  font-size: 46px;
+  font-weight: 900;
+
+  line-height: 1;
+
+  letter-spacing: -2px;
+}
+
+
+/* Tên chi nhánh */
+.cgv-branch {
+  margin-top: 7px;
+
+  color: #555555;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  letter-spacing: 0.5px;
+}
+
+
+/* ================================
+   MENU
+================================ */
+
+.customer-nav {
+  display: flex;
+  align-items: center;
+
+  gap: 30px;
+
+  flex-wrap: wrap;
+}
+
+.customer-nav a {
+  position: relative;
+
+  color: #222222;
+
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  transition: 0.2s;
+}
+
+.customer-nav a:hover {
+  color: #e31837;
+}
+
+
+/* Gạch dưới khi hover */
+.customer-nav a::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  bottom: -7px;
+
+  width: 0;
+  height: 2px;
+
+  background-color: #e31837;
+
+  transition: width 0.2s;
+}
+
+.customer-nav a:hover::after {
+  width: 100%;
+}
+
+
+/* ================================
+   KHU VỰC LOGIN / REGISTER
+================================ */
+
+.login-page {
+  min-height: 650px;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  padding: 55px 20px 70px;
+}
+
+
+/* Khung chính */
+.login-box {
+  width: 100%;
+  max-width: 620px;
+
+  background-color: #ffffff;
+
+  border-radius: 8px;
+
+  border: 1px solid #e5e5e5;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+
+/* ================================
+   TAB ĐĂNG NHẬP / ĐĂNG KÝ
+================================ */
+
+.auth-tabs {
+  width: 100%;
+
+  display: flex;
+}
+
+
+/* Tab bình thường */
+.auth-tab {
+  width: 50%;
+
+  padding: 18px 10px;
+
+  border: none;
+
+  background-color: #eeeeee;
+
+  color: #444444;
+
+  font-size: 18px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+
+/* Tab đang được chọn */
+.auth-tab.active {
+  background-color: #e31837;
+  color: #ffffff;
+}
+
+
+/* Hover tab chưa chọn */
+.auth-tab:not(.active):hover {
+  background-color: #dddddd;
+}
+
+
+/* ================================
+   NỘI DUNG FORM
+================================ */
+
+.login-box > div:not(.auth-tabs) {
+  padding: 32px 42px 40px;
+}
+
+
+/* Tiêu đề */
+.login-title {
+  margin-bottom: 28px;
+
+  color: #333333;
+
+  text-align: center;
+
+  font-size: 25px;
+  font-weight: 700;
+}
+
+
+/* ================================
+   FORM
+================================ */
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* Label */
+.login-form label {
+  margin-bottom: 8px;
+
+  color: #333333;
+
+  font-size: 15px;
+  font-weight: 600;
+}
+
+
+/* Input + select */
+.login-form input,
+.login-form select {
+  width: 100%;
+
+  min-height: 46px;
+
+  margin-bottom: 20px;
+
+  padding: 11px 14px;
+
+  border: 1px solid #cccccc;
+
+  border-radius: 5px;
+
+  background-color: #fafafa;
+
+  color: #222222;
+
+  font-size: 15px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background-color 0.2s;
+}
+
+
+/* Khi bấm vào input */
+.login-form input:focus,
+.login-form select:focus {
+  border-color: #e31837;
+
+  background-color: #ffffff;
+
+  box-shadow:
+    0 0 0 3px rgba(227, 24, 55, 0.1);
+}
+
+
+/* Placeholder */
+.login-form input::placeholder {
+  color: #999999;
+}
+
+
+/* ================================
+   QUÊN MẬT KHẨU
+================================ */
+
+.forgot-password {
+  align-self: flex-end;
+
+  margin-top: -7px;
+  margin-bottom: 22px;
+
+  color: #e31837;
+
+  font-size: 14px;
+
+  text-decoration: none;
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+}
+
+
+/* ================================
+   BUTTON
+================================ */
+
+.login-button {
+  width: 100%;
+
+  min-height: 48px;
+
+  margin-top: 5px;
+
+  padding: 12px 20px;
+
+  border: none;
+
+  border-radius: 25px;
+
+  background-color: #e31837;
+
+  color: #ffffff;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
+}
+
+.login-button:hover {
+  background-color: #bd102c;
+}
+
+.login-button:active {
+  transform: scale(0.99);
+}
+
+
+/* ================================
+   FORM ĐĂNG KÝ
+================================ */
+
+/*
+  Form đăng ký có nhiều ô hơn đăng nhập.
+  Giữ khoảng cách vừa phải để không quá dài.
+*/
+
+.login-form select {
+  cursor: pointer;
+}
+
+
+/* ================================
+   RESPONSIVE TABLET
+================================ */
+
+@media (max-width: 1000px) {
+
+  .header-main {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    padding: 20px 35px;
+  }
+
+  .customer-nav {
+    gap: 20px;
+  }
+
+  .header-top {
+    padding: 0 35px;
+  }
+}
+
+
+/* ================================
+   RESPONSIVE MOBILE
+================================ */
+
+@media (max-width: 650px) {
+
+  .header-top {
+    padding: 0 20px;
+  }
+
+  .header-main {
+    padding: 18px 20px;
+  }
+
+  .cgv-name {
+    font-size: 38px;
+  }
+
+  .cgv-branch {
+    font-size: 12px;
+  }
+
+  .customer-nav {
+    gap: 14px;
+  }
+
+  .customer-nav a {
+    font-size: 12px;
+  }
+
+  .login-page {
+    padding: 30px 12px;
+  }
+
+  .login-box > div:not(.auth-tabs) {
+    padding: 25px 20px 30px;
+  }
+
+  .auth-tab {
+    padding: 15px 5px;
+
+    font-size: 15px;
+  }
+
+  .login-title {
+    font-size: 21px;
+  }
+}
+.login-error {
+  margin-bottom: 18px;
+  padding: 10px 12px;
+
+  border-radius: 5px;
+
+  background-color: #ffe5e5;
+
+  color: #c1121f;
+
+  font-size: 14px;
+}
+
+.login-success {
+  margin-bottom: 18px;
+  padding: 10px 12px;
+
+  border-radius: 5px;
+
+  background-color: #e8f7e8;
+
+  color: #247a32;
+
+  font-size: 14px;
+}
+
+.login-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
