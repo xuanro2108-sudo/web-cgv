@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\OrderAccess;
 use App\Models\PhongChieu;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -19,7 +20,7 @@ class PhongChieuController extends Controller
 
             $query->where(function ($q) use ($keyword) {
                 $q->where('maPhong', 'like', "%{$keyword}%")
-                  ->orWhere('tenPhong', 'like', "%{$keyword}%");
+                    ->orWhere('tenPhong', 'like', "%{$keyword}%");
             });
         }
 
@@ -45,6 +46,8 @@ class PhongChieuController extends Controller
     // Chỉ sửa tên và trạng thái
     public function update(Request $request, string $maPhong)
     {
+        OrderAccess::staff($request);
+
         $phongChieu = PhongChieu::findOrFail($maPhong);
 
         $data = $request->validate([
@@ -52,15 +55,15 @@ class PhongChieuController extends Controller
                 'sometimes',
                 'required',
                 'string',
-                'max:255'
+                'max:255',
             ],
             'trangThai' => [
                 'sometimes',
                 'required',
                 Rule::in([
                     'HOAT_DONG',
-                    'NGUNG_HOAT_DONG'
-                ])
+                    'NGUNG_HOAT_DONG',
+                ]),
             ],
         ]);
 

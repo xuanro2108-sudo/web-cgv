@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\LichChieu;
+use App\Models\OrderAccess;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class LichChieuController extends Controller
 {
@@ -27,6 +30,8 @@ class LichChieuController extends Controller
      */
     public function store(Request $request)
     {
+        OrderAccess::staff($request);
+
         $data = $request->validate([
             'maLichChieu' => ['required', 'string', 'max:50', 'unique:lich_chieus,maLichChieu'],
             'maPhim' => ['required', 'exists:phims,maPhim'],
@@ -37,7 +42,7 @@ class LichChieuController extends Controller
             'giaVeCoBan' => ['required', 'numeric', 'min:0'],
             'trangThai' => [
                 'required',
-                Rule::in(['HOAT_DONG', 'NGUNG_HOAT_DONG'])
+                Rule::in(['HOAT_DONG', 'NGUNG_HOAT_DONG']),
             ],
         ]);
 
@@ -68,6 +73,8 @@ class LichChieuController extends Controller
      */
     public function update(Request $request, string $maLichChieu)
     {
+        OrderAccess::staff($request);
+
         $lichChieu = LichChieu::findOrFail($maLichChieu);
 
         $data = $request->validate([
@@ -80,9 +87,24 @@ class LichChieuController extends Controller
             'trangThai' => [
                 'sometimes',
                 'required',
-                Rule::in(['HOAT_DONG', 'NGUNG_HOAT_DONG'])
+                Rule::in(['HOAT_DONG', 'NGUNG_HOAT_DONG']),
             ],
         ]);
+
+        $gioBatDau = Carbon::createFromFormat(
+            'H:i',
+            $data['gioBatDau'] ?? $lichChieu->gioBatDau->format('H:i')
+        );
+        $gioKetThuc = Carbon::createFromFormat(
+            'H:i',
+            $data['gioKetThuc'] ?? $lichChieu->gioKetThuc->format('H:i')
+        );
+
+        if ($gioKetThuc->lessThanOrEqualTo($gioBatDau)) {
+            throw ValidationException::withMessages([
+                'gioKetThuc' => 'gioKetThuc phải sau gioBatDau.',
+            ]);
+        }
 
         $lichChieu->update($data);
 
@@ -95,8 +117,10 @@ class LichChieuController extends Controller
     /**
      * Xóa lịch chiếu
      */
-    public function destroy(string $maLichChieu)
+    public function destroy(Request $request, string $maLichChieu)
     {
+        OrderAccess::staff($request);
+
         $lichChieu = LichChieu::findOrFail($maLichChieu);
 
         $lichChieu->delete();

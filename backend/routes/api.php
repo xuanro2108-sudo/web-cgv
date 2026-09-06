@@ -7,11 +7,13 @@ use App\Http\Controllers\Api\DonHangComboController;
 use App\Http\Controllers\Api\DonHangController;
 use App\Http\Controllers\Api\DonHangKhuyenMaiController;
 use App\Http\Controllers\Api\GheController;
+use App\Http\Controllers\Api\HoSoKhachHangController;
 use App\Http\Controllers\Api\HuyDonController;
 use App\Http\Controllers\Api\KhuyenMaiController;
 use App\Http\Controllers\Api\LichChieuController;
 use App\Http\Controllers\Api\PhimController;
 use App\Http\Controllers\Api\PhongChieuController;
+use App\Http\Controllers\Api\SanPhamController;
 use App\Http\Controllers\Api\SoDoGheController;
 use App\Http\Controllers\Api\ThanhToanController;
 use App\Http\Controllers\Api\VeGheController;
@@ -39,6 +41,11 @@ Route::post(
 
 // API yêu cầu đã đăng nhập
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('ho-so', [HoSoKhachHangController::class, 'show']);
+    Route::patch('ho-so', [HoSoKhachHangController::class, 'update']);
+    Route::patch('ho-so/mat-khau', [HoSoKhachHangController::class, 'password'])->middleware('throttle:5,1');
+    Route::get('quan-ly/san-phams', [SanPhamController::class, 'management']);
+    Route::apiResource('san-phams', SanPhamController::class)->only(['store', 'update', 'destroy'])->parameters(['san-phams' => 'maSP']);
     Route::post('don-hangs/{maDonHang}/thanh-toan', [ThanhToanController::class, 'store']);
     Route::get('don-hangs/{maDonHang}/thanh-toan', [ThanhToanController::class, 'show']);
     Route::post('thanh-toans/{maTT}/xac-nhan', [ThanhToanController::class, 'confirm'])->middleware('throttle:20,1');
@@ -71,6 +78,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 // ==================== PHIM ====================
+Route::apiResource('san-phams', SanPhamController::class)->only(['index', 'show'])->parameters(['san-phams' => 'maSP']);
 Route::apiResource('khuyen-mais', KhuyenMaiController::class)->only(['index', 'show'])->parameters(['khuyen-mais' => 'maKM']);
 
 // API test
@@ -80,19 +88,21 @@ Route::get('/test', function () {
     ]);
 });
 
-// CRUD phim
+// Nội dung công khai
 Route::apiResource('phims', PhimController::class)
+    ->only(['index', 'show'])
     ->parameters(['phims' => 'maPhim']);
 Route::apiResource('lich-chieus', LichChieuController::class)
+    ->only(['index', 'show'])
     ->parameters(['lich-chieus' => 'maLichChieu']);
 Route::apiResource('phong-chieus', PhongChieuController::class)
-    ->only(['index', 'show', 'update'])
+    ->only(['index', 'show'])
     ->parameters(['phong-chieus' => 'maPhong']);
 Route::apiResource('so-do-ghes', SoDoGheController::class)
     ->only(['index', 'show'])
     ->parameters(['so-do-ghes' => 'maSoDo']);
 Route::apiResource('ghes', GheController::class)
-    ->only(['index', 'show', 'update'])
+    ->only(['index', 'show'])
     ->parameters(['ghes' => 'maGhe']);
 Route::apiResource('ve-ghes', VeGheController::class)
     ->middleware('auth:sanctum')
@@ -102,3 +112,19 @@ Route::apiResource('ve-ghes', VeGheController::class)
 Route::apiResource('combos', ComboSanPhamController::class)
     ->only(['index', 'show'])
     ->parameters(['combos' => 'maCombo']);
+
+// Thao tác quản trị nội dung
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('phims', PhimController::class)
+        ->only(['store', 'update', 'destroy'])
+        ->parameters(['phims' => 'maPhim']);
+    Route::apiResource('lich-chieus', LichChieuController::class)
+        ->only(['store', 'update', 'destroy'])
+        ->parameters(['lich-chieus' => 'maLichChieu']);
+    Route::apiResource('phong-chieus', PhongChieuController::class)
+        ->only(['update'])
+        ->parameters(['phong-chieus' => 'maPhong']);
+    Route::apiResource('ghes', GheController::class)
+        ->only(['update'])
+        ->parameters(['ghes' => 'maGhe']);
+});
