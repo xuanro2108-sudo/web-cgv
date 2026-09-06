@@ -35,6 +35,7 @@ class OrderAccess
 
     public static function editable(DonHang $order): void
     {
+        abort_if($order->daHetHan(), 409, 'Đơn đã hết thời hạn giữ chỗ.');
         abort_unless($order->trangThai === 'CHO_THANH_TOAN', 409, 'Đơn không còn được phép chỉnh sửa.');
         abort_if($order->thanhToan()->where('trangThai', 'CHO_THANH_TOAN')->exists(), 409, 'Đơn đang có yêu cầu thanh toán.');
     }
