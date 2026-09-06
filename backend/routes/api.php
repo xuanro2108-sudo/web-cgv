@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\DonHangComboController;
 use App\Http\Controllers\Api\DonHangController;
 use App\Http\Controllers\Api\DonHangKhuyenMaiController;
 use App\Http\Controllers\Api\GheController;
+use App\Http\Controllers\Api\HoSoKhachHangController;
 use App\Http\Controllers\Api\HuyDonController;
 use App\Http\Controllers\Api\KhuyenMaiController;
 use App\Http\Controllers\Api\LichChieuController;
@@ -40,6 +41,9 @@ Route::post(
 
 // API yêu cầu đã đăng nhập
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('ho-so', [HoSoKhachHangController::class, 'show']);
+    Route::patch('ho-so', [HoSoKhachHangController::class, 'update']);
+    Route::patch('ho-so/mat-khau', [HoSoKhachHangController::class, 'password'])->middleware('throttle:5,1');
     Route::get('quan-ly/san-phams', [SanPhamController::class, 'management']);
     Route::apiResource('san-phams', SanPhamController::class)->only(['store', 'update', 'destroy'])->parameters(['san-phams' => 'maSP']);
     Route::post('don-hangs/{maDonHang}/thanh-toan', [ThanhToanController::class, 'store']);
