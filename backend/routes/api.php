@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\ComboSanPhamController;
 use App\Http\Controllers\Api\DonHangComboController;
 use App\Http\Controllers\Api\DonHangController;
 use App\Http\Controllers\Api\GheController;
+use App\Http\Controllers\Api\HuyDonController;
 use App\Http\Controllers\Api\LichChieuController;
 use App\Http\Controllers\Api\PhimController;
 use App\Http\Controllers\Api\PhongChieuController;
@@ -35,6 +36,7 @@ Route::post(
 
 // API yêu cầu đã đăng nhập
 Route::middleware('auth:sanctum')->group(function () {
+    Route::patch('don-hangs/{maDonHang}/huy', HuyDonController::class);
     Route::post('don-hangs/{maDonHang}/combos', [DonHangComboController::class, 'store']);
     Route::patch('don-hangs/{maDonHang}/combos/{maCombo}', [DonHangComboController::class, 'update']);
     Route::delete('don-hangs/{maDonHang}/combos/{maCombo}', [DonHangComboController::class, 'destroy']);
@@ -81,6 +83,7 @@ Route::apiResource('ghes', GheController::class)
     ->only(['index', 'show', 'update'])
     ->parameters(['ghes' => 'maGhe']);
 Route::apiResource('ve-ghes', VeGheController::class)
+    ->middleware('auth:sanctum')
     ->only(['index', 'show', 'store', 'update'])
     ->parameters(['ve-ghes' => 'maVe']);
 

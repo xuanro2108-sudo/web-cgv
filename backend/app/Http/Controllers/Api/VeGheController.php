@@ -3,307 +3,103 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\VeGhe;
 use App\Models\Ghe;
 use App\Models\LichChieu;
+use App\Models\OrderAccess;
+use App\Models\VeGhe;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 class VeGheController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
-        $query = VeGhe::with([
-            'donHang',
-            'lichChieu.phim',
-            'lichChieu.phongChieu',
-            'ghe'
-        ]);
-
+        $customer = OrderAccess::customer($request);
+        $query = VeGhe::with(['lichChieu.phim', 'ghe'])->whereHas('donHang', fn ($q) => $q->where('maKH', $customer->maKH));
         if ($request->filled('maLichChieu')) {
+            $request->validate(['maLichChieu' => ['string', 'max:255']]);
             $query->where('maLichChieu', $request->maLichChieu);
         }
 
-        if ($request->filled('maGhe')) {
-            $query->where('maGhe', $request->maGhe);
-        }
-
-        if ($request->filled('trangThai')) {
-            $query->where('trangThai', $request->trangThai);
-        }
-
-        $veGhes = $query
-            ->orderBy('maVe')
-            ->paginate(20);
-
-        return response()->json($veGhes);
+        return response()->json($query->orderBy('maVe')->paginate(20));
     }
 
-    public function show(string $maVe)
+    public function show(Request $request, string $maVe): JsonResponse
     {
-        $veGhe = VeGhe::with([
-            'donHang',
-            'lichChieu.phim',
-            'lichChieu.phongChieu',
-            'ghe'
-        ])->findOrFail($maVe);
+        $customer = OrderAccess::customer($request);
+        $ticket = VeGhe::with(['lichChieu.phim', 'ghe'])->whereHas('donHang', fn ($q) => $q->where('maKH', $customer->maKH))->findOrFail($maVe);
 
-        return response()->json([
-            'message' => 'Lấy thông tin vé ghế thành công',
-            'data' => $veGhe,
-        ]);
+        return response()->json(['data' => $ticket]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'maDonHang' => ['required', 'exists:don_hangs,maDonHang'],
-            'maLichChieu' => ['required', 'exists:lich_chieus,maLichChieu'],
-            'maGhe' => ['required', 'exists:ghes,maGhe'],
+            'maDonHang' => ['required', 'string'], 'maLichChieu' => ['required', 'string'], 'maGhe' => ['required', 'string'],
         ]);
-
-        $result = DB::transaction(function () use ($data) {
-
-            // Lấy lịch chiếu
-            $lichChieu = LichChieu::findOrFail($data['maLichChieu']);
-
-            // Lấy ghế được chọn
-            $ghe = Ghe::findOrFail($data['maGhe']);
-
-            // Kiểm tra ghế có thuộc sơ đồ của phòng chiếu không
-            if ($ghe->soDoGhe->maPhong !== $lichChieu->maPhong) {
-                abort(
-                    422,
-                    'Ghế không thuộc phòng chiếu của lịch chiếu này.'
-                );
+        $tickets = DB::transaction(function () use ($request, $data) {
+            $order = OrderAccess::owned($request, $data['maDonHang']);
+            OrderAccess::editable($order);
+            $show = LichChieu::with('phongChieu')->findOrFail($data['maLichChieu']);
+            $startsAt = $show->ngayChieu->copy()->setTimeFromTimeString($show->gioBatDau->format('H:i:s'));
+            abort_unless($show->trangThai === 'HOAT_DONG' && $show->phongChieu->trangThai === 'HOAT_DONG' && $startsAt->isFuture(), 422, 'Suất chiếu không còn nhận đặt vé.');
+            abort_if($order->veGhes()->whereIn('trangThai', ['GIU_CHO', 'DA_DAT'])->where('maLichChieu', '!=', $show->maLichChieu)->exists(), 422, 'Một đơn chỉ được đặt một suất chiếu.');
+            $seat = Ghe::with('soDoGhe')->findOrFail($data['maGhe']);
+            abort_unless($seat->soDoGhe && $seat->soDoGhe->maPhong === $show->maPhong, 422, 'Ghế không thuộc phòng chiếu.');
+            $ids = [$seat->maGhe];
+            if ($seat->loaiGhe === 'DOI') {
+                $partner = Ghe::where('maSoDo', $seat->maSoDo)->where('hang', $seat->hang)
+                    ->where('cot', $seat->cot % 2 === 1 ? $seat->cot + 1 : $seat->cot - 1)->where('loaiGhe', 'DOI')->first();
+                abort_unless($partner, 422, 'Không tìm thấy ghế đôi còn lại.');
+                $ids[] = $partner->maGhe;
             }
-
-            /*
-             * ==========================================
-             * XỬ LÝ GHẾ ĐÔI
-             * ==========================================
-             */
-            if ($ghe->loaiGhe === 'DOI') {
-
-                // Xác định ghế còn lại trong cặp
-                $cot = (int) $ghe->cot;
-
-                $cotCap = ($cot % 2 === 1)
-                    ? $cot + 1
-                    : $cot - 1;
-
-                $gheCap = Ghe::where('maSoDo', $ghe->maSoDo)
-                    ->where('hang', $ghe->hang)
-                    ->where('cot', $cotCap)
-                    ->where('loaiGhe', 'DOI')
-                    ->first();
-
-                if (!$gheCap) {
-                    abort(
-                        422,
-                        'Không tìm thấy ghế còn lại của cặp ghế đôi.'
-                    );
-                }
-
-                // Khóa cả 2 ghế để tránh 2 người đặt cùng lúc
-                $gheList = Ghe::whereIn('maGhe', [
-                    $ghe->maGhe,
-                    $gheCap->maGhe
-                ])
-                    ->orderBy('maGhe')
-                    ->lockForUpdate()
-                    ->get();
-
-                // Kiểm tra cả 2 ghế phải hoạt động
-                foreach ($gheList as $seat) {
-                    if ($seat->trangThai !== 'HOAT_DONG') {
-                        abort(
-                            422,
-                            "Ghế {$seat->maGhe} hiện không hoạt động."
-                        );
-                    }
-                }
-
-                // Kiểm tra cả 2 ghế chưa được giữ/đặt
-                $daDat = VeGhe::where('maLichChieu', $data['maLichChieu'])
-                    ->whereIn('maGhe', [
-                        $ghe->maGhe,
-                        $gheCap->maGhe
-                    ])
-                    ->whereIn('trangThai', ['GIU_CHO', 'DA_DAT'])
-                    ->exists();
-
-                if ($daDat) {
-                    abort(
-                        422,
-                        'Một hoặc cả hai ghế trong cặp đã được giữ hoặc đặt.'
-                    );
-                }
-
-                // Giá của 1 ghế vật lý = giá VIP
-                $giaMoiGhe = $lichChieu->tinhGiaVe('VIP');
-
-                $veGhes = collect();
-
-                // Tạo vé cho CẢ 2 ghế
-                foreach ($gheList as $seat) {
-                    $veGhes->push(
-                        VeGhe::create([
-                            'maDonHang' => $data['maDonHang'],
-                            'maLichChieu' => $data['maLichChieu'],
-                            'maGhe' => $seat->maGhe,
-                            'giaVe' => $giaMoiGhe,
-                            'trangThai' => 'GIU_CHO',
-                            'ngayTao' => now(),
-                        ])
-                    );
-                }
-
-                return $veGhes;
+            $seats = Ghe::whereIn('maGhe', $ids)->orderBy('maGhe')->lockForUpdate()->get();
+            foreach ($seats as $item) {
+                abort_unless($item->trangThai === 'HOAT_DONG', 422, 'Ghế không hoạt động.');
             }
-
-            /*
-             * ==========================================
-             * XỬ LÝ GHẾ THƯỜNG / VIP
-             * ==========================================
-             */
-
-            $ghe = Ghe::where('maGhe', $ghe->maGhe)
-                ->lockForUpdate()
-                ->firstOrFail();
-
-            // Kiểm tra trạng thái ghế
-            if ($ghe->trangThai !== 'HOAT_DONG') {
-                abort(422, 'Ghế hiện không hoạt động.');
+            abort_if(VeGhe::where('maLichChieu', $show->maLichChieu)->whereIn('maGhe', $ids)->whereIn('trangThai', ['GIU_CHO', 'DA_DAT'])->exists(), 409, 'Ghế đã được giữ hoặc đặt.');
+            $tickets = new Collection;
+            foreach ($seats as $item) {
+                $tickets->push($order->veGhes()->create([
+                    'maVe' => 'VE'.Str::ulid(), 'maLichChieu' => $show->maLichChieu, 'maGhe' => $item->maGhe,
+                    'giaVe' => round($show->tinhGiaVe($item->loaiGhe === 'DOI' ? 'VIP' : $item->loaiGhe), 2),
+                    'trangThai' => 'GIU_CHO', 'ngayTao' => now(),
+                ]));
             }
+            $order->update(['tongTien' => $order->tinhTongTien()]);
 
-            // Kiểm tra ghế đã được giữ/đặt chưa
-            $daDat = VeGhe::where('maLichChieu', $data['maLichChieu'])
-                ->where('maGhe', $data['maGhe'])
-                ->whereIn('trangThai', ['GIU_CHO', 'DA_DAT'])
-                ->exists();
+            return $tickets->load('ghe');
+        }, 3);
 
-            if ($daDat) {
-                abort(
-                    422,
-                    'Ghế đã được giữ hoặc đặt trong lịch chiếu này.'
-                );
-            }
-
-            // Tính giá theo loại ghế
-            $giaVe = $lichChieu->tinhGiaVe($ghe->loaiGhe);
-
-            $veGhe = VeGhe::create([
-                'maDonHang' => $data['maDonHang'],
-                'maLichChieu' => $data['maLichChieu'],
-                'maGhe' => $data['maGhe'],
-                'giaVe' => $giaVe,
-                'trangThai' => 'GIU_CHO',
-                'ngayTao' => now(),
-            ]);
-
-            return collect([$veGhe]);
-        });
-
-        $result->load([
-            'donHang',
-            'lichChieu.phim',
-            'lichChieu.phongChieu',
-            'ghe'
-        ]);
-
-        return response()->json([
-            'message' => $result->count() === 2
-                ? 'Giữ cặp ghế đôi thành công'
-                : 'Giữ ghế thành công',
-            'data' => $result,
-        ], 201);
+        return response()->json(['data' => $tickets], 201);
     }
 
-    public function update(Request $request, string $maVe)
+    public function update(Request $request, string $maVe): JsonResponse
     {
-        $veGhe = VeGhe::findOrFail($maVe);
-
-        $data = $request->validate([
-            'trangThai' => [
-                'required',
-                Rule::in([
-                    'TRONG',
-                    'GIU_CHO',
-                    'DA_DAT',
-                    'DA_HUY'
-                ])
-            ],
-        ]);
-
-        DB::transaction(function () use ($veGhe, $data) {
-
-            // Khóa vé hiện tại
-            $veGhe->lockForUpdate();
-
-            // Nếu là ghế đôi thì cập nhật cả cặp
-            $ghe = $veGhe->ghe;
-
-            if ($ghe->loaiGhe === 'DOI') {
-
-                $cot = (int) $ghe->cot;
-
-                $cotCap = ($cot % 2 === 1)
-                    ? $cot + 1
-                    : $cot - 1;
-
-                $gheCap = Ghe::where('maSoDo', $ghe->maSoDo)
-                    ->where('hang', $ghe->hang)
-                    ->where('cot', $cotCap)
-                    ->where('loaiGhe', 'DOI')
-                    ->first();
-
-                if (!$gheCap) {
-                    abort(
-                        422,
-                        'Không tìm thấy ghế còn lại của cặp ghế đôi.'
-                    );
-                }
-
-                $veCap = VeGhe::where('maLichChieu', $veGhe->maLichChieu)
-                    ->where('maGhe', $gheCap->maGhe)
-                    ->lockForUpdate()
-                    ->first();
-
-                if (!$veCap) {
-                    abort(
-                        422,
-                        'Không tìm thấy vé của ghế còn lại trong cặp.'
-                    );
-                }
-
-                // Cập nhật cả 2 vé
-                $veGhe->update([
-                    'trangThai' => $data['trangThai']
-                ]);
-
-                $veCap->update([
-                    'trangThai' => $data['trangThai']
-                ]);
-
-                return;
+        $request->validate(['trangThai' => ['required', 'in:DA_HUY']]);
+        $customer = OrderAccess::customer($request);
+        $ticket = VeGhe::whereHas('donHang', fn ($q) => $q->where('maKH', $customer->maKH))->findOrFail($maVe);
+        $order = DB::transaction(function () use ($request, $ticket) {
+            $order = OrderAccess::owned($request, $ticket->maDonHang);
+            OrderAccess::editable($order);
+            $ticket = $order->veGhes()->findOrFail($ticket->maVe);
+            abort_unless($ticket->trangThai === 'GIU_CHO', 409, 'Vé không còn giữ chỗ.');
+            $seat = $ticket->ghe;
+            $ids = [$seat->maGhe];
+            if ($seat->loaiGhe === 'DOI') {
+                $partner = Ghe::where('maSoDo', $seat->maSoDo)->where('hang', $seat->hang)
+                    ->where('cot', $seat->cot % 2 === 1 ? $seat->cot + 1 : $seat->cot - 1)->where('loaiGhe', 'DOI')->firstOrFail();
+                $ids[] = $partner->maGhe;
             }
+            $order->veGhes()->where('maLichChieu', $ticket->maLichChieu)->whereIn('maGhe', $ids)->where('trangThai', 'GIU_CHO')->update(['trangThai' => 'DA_HUY']);
+            $order->update(['tongTien' => $order->tinhTongTien()]);
 
-            // Ghế thường / VIP
-            $veGhe->update([
-                'trangThai' => $data['trangThai']
-            ]);
-        });
+            return $order->load('veGhes');
+        }, 3);
 
-        return response()->json([
-            'message' => 'Cập nhật trạng thái vé ghế thành công',
-            'data' => VeGhe::with([
-                'donHang',
-                'lichChieu.phim',
-                'lichChieu.phongChieu',
-                'ghe'
-            ])->findOrFail($maVe),
-        ]);
+        return response()->json(['data' => $order]);
     }
 }

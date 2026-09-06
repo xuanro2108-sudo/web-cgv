@@ -27,12 +27,34 @@ class DonHang extends Model
         'tongTien',
         'maQR',
         'trangThai',
+        'hetHanLuc',
     ];
 
     protected $casts = [
         'ngayDat' => 'datetime',
+        'hetHanLuc' => 'datetime',
         'tongTien' => 'decimal:2',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (DonHang $order): void {
+            $order->hetHanLuc ??= now()->addMinutes(10);
+        });
+    }
+
+    public function daHetHan(): bool
+    {
+        return ($this->hetHanLuc ?? $this->ngayDat->copy()->addMinutes(10))->lte(now());
+    }
+
+    /** The caller must hold the order row lock inside a transaction. */
+    public function huy(string $status = 'DA_HUY'): void
+    {
+        $this->veGhes()->where('trangThai', 'GIU_CHO')->update(['trangThai' => 'DA_HUY']);
+        $this->thanhToan()->where('trangThai', 'CHO_THANH_TOAN')->update(['trangThai' => 'DA_HUY']);
+        $this->update(['trangThai' => $status]);
+    }
 
     // Đơn hàng thuộc về một khách hàng
     public function khachHang(): BelongsTo
