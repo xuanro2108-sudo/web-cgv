@@ -9,7 +9,7 @@ use App\Http\Controllers\Api\PhongChieuController;
 use App\Http\Controllers\Api\SoDoGheController;
 use App\Http\Controllers\Api\GheController;
 use App\Http\Controllers\Api\VeGheController;
-
+use App\Http\Controllers\Api\DonHangController;
 // ==================== AUTHENTICATION ====================
 
 // Đăng ký khách hàng
@@ -42,6 +42,9 @@ Route::middleware('auth:sanctum')->group(function () {
         '/auth/logout',
         [AuthController::class, 'logout']
     );
+    Route::apiResource('don-hangs', DonHangController::class)
+    ->only(['index', 'store', 'show'])
+    ->parameters(['don-hangs' => 'maDonHang']);
 });
 
 // ==================== PHIM ====================
