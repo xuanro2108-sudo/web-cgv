@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./LoginCustomer.css";
+import Header from "../components/common/Header/Header";
 
-function LoginCustomer() {
+function LoginCustomer({ initialTab = "login" }) {
   // =========================
   // CHUYỂN TRANG
   // =========================
@@ -11,7 +12,7 @@ function LoginCustomer() {
   // =========================
   // TAB ĐĂNG NHẬP / ĐĂNG KÝ
   // =========================
-  const [activeTab, setActiveTab] = useState("login");
+const [activeTab, setActiveTab] = useState(initialTab);
 
   // =========================
   // DỮ LIỆU ĐĂNG NHẬP
@@ -326,81 +327,8 @@ function LoginCustomer() {
   return (
     <div className="customer-page">
 
-      {/* =========================
-          HEADER
-      ========================= */}
-      <header className="customer-header">
-
-        <div className="header-top">
-
-          <div className="header-top-right">
-
-            <span
-              onClick={() =>
-                setActiveTab("login")
-              }
-            >
-              Đăng nhập
-            </span>
-
-            <span>|</span>
-
-            <span
-              onClick={() =>
-                setActiveTab("register")
-              }
-            >
-              Đăng ký
-            </span>
-
-          </div>
-
-        </div>
-
-        <div className="header-main">
-
-          {/* LOGO */}
-          <div className="cgv-logo">
-
-            <span className="cgv-name">
-              CGV
-            </span>
-
-            <span className="cgv-branch">
-              AEON MALL HÀ ĐÔNG
-            </span>
-
-          </div>
-
-          {/* MENU */}
-          <nav className="customer-nav">
-
-            <a href="#">
-              LỊCH CHIẾU
-            </a>
-
-            <a href="#">
-              PHIM
-            </a>
-
-            <a href="#">
-              GIÁ VÉ
-            </a>
-
-            <a href="#">
-              TIN TỨC & ƯU ĐÃI
-            </a>
-
-            <a href="#">
-              THÀNH VIÊN
-            </a>
-
-          </nav>
-
-        </div>
-
-      </header>
-
+      
+      <Header />
       {/* =========================
           LOGIN / REGISTER
       ========================= */}

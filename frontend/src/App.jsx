@@ -62,10 +62,11 @@ function App() {
             KHÁCH HÀNG
         ========================= */}
 
-        <Route
-          path="/"
-          element={<LoginCustomer />}
-        />
+<Route
+  path="/"
+  element={<LoginCustomer />}
+/>
+/
 
         <Route
           path="/home"

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./HomeCustomer.css";
+import Header from "../components/common/Header/Header";
 
 function HomeCustomer() {
   const navigate = useNavigate();
@@ -85,84 +86,7 @@ function HomeCustomer() {
   return (
     <div className="home-customer">
 
-      {/* =========================
-          THANH TRÊN CÙNG
-      ========================= */}
-      <div className="home-top-bar">
-
-        <div className="home-user">
-
-          <span>
-            Xin chào,{" "}
-            <strong>
-              {khachHang?.hoTen || "Khách hàng"}
-            </strong>
-          </span>
-
-          <span className="home-separator">
-            |
-          </span>
-
-          <button
-            type="button"
-            className="logout-button"
-            onClick={handleLogout}
-            disabled={logoutLoading}
-          >
-            {logoutLoading
-              ? "ĐANG ĐĂNG XUẤT..."
-              : "ĐĂNG XUẤT"}
-          </button>
-
-        </div>
-
-      </div>
-
-
-      {/* =========================
-          HEADER
-      ========================= */}
-      <header className="home-header">
-
-        <div className="home-logo">
-
-          <span className="home-cgv">
-            CGV
-          </span>
-
-          <span className="home-branch">
-            AEON MALL HÀ ĐÔNG
-          </span>
-
-        </div>
-
-
-        <nav className="home-nav">
-
-          <a href="#">
-            LỊCH CHIẾU
-          </a>
-
-          <a href="#">
-            PHIM
-          </a>
-
-          <a href="#">
-            GIÁ VÉ
-          </a>
-
-          <a href="#">
-            TIN TỨC & ƯU ĐÃI
-          </a>
-
-          <a href="#">
-            THÀNH VIÊN
-          </a>
-
-        </nav>
-
-      </header>
-
+    <Header />
 
       {/* =========================
           NỘI DUNG
