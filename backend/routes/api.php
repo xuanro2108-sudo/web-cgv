@@ -5,12 +5,15 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ComboSanPhamController;
 use App\Http\Controllers\Api\DonHangComboController;
 use App\Http\Controllers\Api\DonHangController;
+use App\Http\Controllers\Api\DonHangKhuyenMaiController;
 use App\Http\Controllers\Api\GheController;
 use App\Http\Controllers\Api\HuyDonController;
+use App\Http\Controllers\Api\KhuyenMaiController;
 use App\Http\Controllers\Api\LichChieuController;
 use App\Http\Controllers\Api\PhimController;
 use App\Http\Controllers\Api\PhongChieuController;
 use App\Http\Controllers\Api\SoDoGheController;
+use App\Http\Controllers\Api\ThanhToanController;
 use App\Http\Controllers\Api\VeGheController;
 use Illuminate\Support\Facades\Route;
 
@@ -36,6 +39,14 @@ Route::post(
 
 // API yêu cầu đã đăng nhập
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('don-hangs/{maDonHang}/thanh-toan', [ThanhToanController::class, 'store']);
+    Route::get('don-hangs/{maDonHang}/thanh-toan', [ThanhToanController::class, 'show']);
+    Route::post('thanh-toans/{maTT}/xac-nhan', [ThanhToanController::class, 'confirm'])->middleware('throttle:20,1');
+    Route::post('thanh-toans/{maTT}/gia-lap', [ThanhToanController::class, 'simulate'])->middleware('throttle:20,1');
+    Route::post('don-hangs/{maDonHang}/khuyen-mai/kiem-tra', [DonHangKhuyenMaiController::class, 'check']);
+    Route::post('don-hangs/{maDonHang}/khuyen-mai', [DonHangKhuyenMaiController::class, 'store']);
+    Route::delete('don-hangs/{maDonHang}/khuyen-mai', [DonHangKhuyenMaiController::class, 'destroy']);
+    Route::apiResource('khuyen-mais', KhuyenMaiController::class)->only(['store', 'update', 'destroy'])->parameters(['khuyen-mais' => 'maKM']);
     Route::patch('don-hangs/{maDonHang}/huy', HuyDonController::class);
     Route::post('don-hangs/{maDonHang}/combos', [DonHangComboController::class, 'store']);
     Route::patch('don-hangs/{maDonHang}/combos/{maCombo}', [DonHangComboController::class, 'update']);
@@ -60,6 +71,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 // ==================== PHIM ====================
+Route::apiResource('khuyen-mais', KhuyenMaiController::class)->only(['index', 'show'])->parameters(['khuyen-mais' => 'maKM']);
 
 // API test
 Route::get('/test', function () {

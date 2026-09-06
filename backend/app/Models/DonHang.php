@@ -116,26 +116,20 @@ class DonHang extends Model
         );
     }
 
-    public function tinhTongTien(): float
+    public function tamTinh(): float
     {
         $tongTienVe = $this->veGhes()->whereIn('trangThai', ['GIU_CHO', 'DA_DAT'])->sum('giaVe');
 
         $tongTienCombo = $this->chiTietComboDonHangs()->sum('thanhTien');
 
-        $tamTinh = $tongTienVe + $tongTienCombo;
+        return round((float) $tongTienVe + (float) $tongTienCombo, 2);
+    }
 
-        $tienGiam = 0;
+    public function tinhTongTien(): float
+    {
+        $subtotal = $this->tamTinh();
+        $promotion = $this->khuyenMai()->first();
 
-        if ($this->khuyenMai) {
-            if ($tamTinh >= $this->khuyenMai->donToiThieu) {
-                if ($this->khuyenMai->hinhThuc === 'GIAM_PHAN_TRAM') {
-                    $tienGiam = $tamTinh * ($this->khuyenMai->giaTri / 100);
-                } elseif ($this->khuyenMai->hinhThuc === 'GIAM_GIA') {
-                    $tienGiam = $this->khuyenMai->giaTri;
-                }
-            }
-        }
-
-        return round(max(0, $tamTinh - $tienGiam), 2);
+        return round($subtotal - ($promotion?->tienGiam($subtotal) ?? 0), 2);
     }
 }
