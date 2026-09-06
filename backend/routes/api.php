@@ -1,16 +1,18 @@
 
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\PhimController;
+use App\Http\Controllers\Api\ComboSanPhamController;
+use App\Http\Controllers\Api\DonHangComboController;
+use App\Http\Controllers\Api\DonHangController;
+use App\Http\Controllers\Api\GheController;
 use App\Http\Controllers\Api\LichChieuController;
+use App\Http\Controllers\Api\PhimController;
 use App\Http\Controllers\Api\PhongChieuController;
 use App\Http\Controllers\Api\SoDoGheController;
-use App\Http\Controllers\Api\GheController;
 use App\Http\Controllers\Api\VeGheController;
-use App\Http\Controllers\Api\DonHangController;
-use App\Http\Controllers\Api\ComboSanPhamController;
+use Illuminate\Support\Facades\Route;
+
 // ==================== AUTHENTICATION ====================
 
 // Đăng ký khách hàng
@@ -33,6 +35,9 @@ Route::post(
 
 // API yêu cầu đã đăng nhập
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('don-hangs/{maDonHang}/combos', [DonHangComboController::class, 'store']);
+    Route::patch('don-hangs/{maDonHang}/combos/{maCombo}', [DonHangComboController::class, 'update']);
+    Route::delete('don-hangs/{maDonHang}/combos/{maCombo}', [DonHangComboController::class, 'destroy']);
 
     Route::get(
         '/auth/me',
@@ -44,12 +49,12 @@ Route::middleware('auth:sanctum')->group(function () {
         [AuthController::class, 'logout']
     );
     Route::apiResource('don-hangs', DonHangController::class)
-    ->only(['index', 'store', 'show'])
-    ->parameters(['don-hangs' => 'maDonHang']);
+        ->only(['index', 'store', 'show'])
+        ->parameters(['don-hangs' => 'maDonHang']);
 
     Route::apiResource('combos', ComboSanPhamController::class)
-    ->only(['store', 'update', 'destroy'])
-    ->parameters(['combos' => 'maCombo']);
+        ->only(['store', 'update', 'destroy'])
+        ->parameters(['combos' => 'maCombo']);
 });
 
 // ==================== PHIM ====================
@@ -57,7 +62,7 @@ Route::middleware('auth:sanctum')->group(function () {
 // API test
 Route::get('/test', function () {
     return response()->json([
-        'message' => 'API CGV hoạt động!'
+        'message' => 'API CGV hoạt động!',
     ]);
 });
 
@@ -78,7 +83,6 @@ Route::apiResource('ghes', GheController::class)
 Route::apiResource('ve-ghes', VeGheController::class)
     ->only(['index', 'show', 'store', 'update'])
     ->parameters(['ve-ghes' => 'maVe']);
-
 
 Route::apiResource('combos', ComboSanPhamController::class)
     ->only(['index', 'show'])
