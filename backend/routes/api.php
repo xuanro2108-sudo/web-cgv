@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\KhuyenMaiController;
 use App\Http\Controllers\Api\LichChieuController;
 use App\Http\Controllers\Api\PhimController;
 use App\Http\Controllers\Api\PhongChieuController;
+use App\Http\Controllers\Api\SanPhamController;
 use App\Http\Controllers\Api\SoDoGheController;
 use App\Http\Controllers\Api\ThanhToanController;
 use App\Http\Controllers\Api\VeGheController;
@@ -39,6 +40,8 @@ Route::post(
 
 // API yêu cầu đã đăng nhập
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('quan-ly/san-phams', [SanPhamController::class, 'management']);
+    Route::apiResource('san-phams', SanPhamController::class)->only(['store', 'update', 'destroy'])->parameters(['san-phams' => 'maSP']);
     Route::post('don-hangs/{maDonHang}/thanh-toan', [ThanhToanController::class, 'store']);
     Route::get('don-hangs/{maDonHang}/thanh-toan', [ThanhToanController::class, 'show']);
     Route::post('thanh-toans/{maTT}/xac-nhan', [ThanhToanController::class, 'confirm'])->middleware('throttle:20,1');
@@ -71,6 +74,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 // ==================== PHIM ====================
+Route::apiResource('san-phams', SanPhamController::class)->only(['index', 'show'])->parameters(['san-phams' => 'maSP']);
 Route::apiResource('khuyen-mais', KhuyenMaiController::class)->only(['index', 'show'])->parameters(['khuyen-mais' => 'maKM']);
 
 // API test
