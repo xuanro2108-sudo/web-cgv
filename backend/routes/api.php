@@ -4,6 +4,11 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PhimController;
+use App\Http\Controllers\Api\LichChieuController;
+use App\Http\Controllers\Api\PhongChieuController;
+use App\Http\Controllers\Api\SoDoGheController;
+use App\Http\Controllers\Api\GheController;
+use App\Http\Controllers\Api\VeGheController;
 
 // ==================== AUTHENTICATION ====================
 
@@ -51,3 +56,17 @@ Route::get('/test', function () {
 // CRUD phim
 Route::apiResource('phims', PhimController::class)
     ->parameters(['phims' => 'maPhim']);
+Route::apiResource('lich-chieus', LichChieuController::class)
+    ->parameters(['lich-chieus' => 'maLichChieu']);
+Route::apiResource('phong-chieus', PhongChieuController::class)
+    ->only(['index', 'show', 'update'])
+    ->parameters(['phong-chieus' => 'maPhong']);
+Route::apiResource('so-do-ghes', SoDoGheController::class)
+    ->only(['index', 'show'])
+    ->parameters(['so-do-ghes' => 'maSoDo']);
+Route::apiResource('ghes', GheController::class)
+    ->only(['index', 'show', 'update'])
+    ->parameters(['ghes' => 'maGhe']);
+Route::apiResource('ve-ghes', VeGheController::class)
+    ->only(['index', 'show', 'store', 'update'])
+    ->parameters(['ve-ghes' => 'maVe']);
