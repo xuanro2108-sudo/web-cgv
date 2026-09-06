@@ -89,7 +89,9 @@ class AuthController extends Controller
             // Tạo tài khoản khách hàng
             $taiKhoan = TaiKhoan::create([
                 'maTK' => $maTK,
-                'tenDangNhap' => $data['tenDangNhap'],
+
+                'tenDangNhap' =>
+                    $data['tenDangNhap'],
 
                 'matKhau' => Hash::make(
                     $data['matKhau']
@@ -117,14 +119,93 @@ class AuthController extends Controller
 
     // =========================
     // LOGIN KHÁCH HÀNG
+    // EMAIL HOẶC SỐ ĐIỆN THOẠI
     // =========================
     public function loginCustomer(Request $request)
     {
-        return $this->login(
-            $request,
-            ['KHACH_HANG'],
-            'customer'
-        );
+        $data = $request->validate([
+            'identifier' => 'required|string',
+            'matKhau' => 'required|string',
+        ]);
+
+        // Tìm khách hàng bằng email hoặc số điện thoại
+        $khachHang = KhachHang::where(
+            'email',
+            $data['identifier']
+        )
+            ->orWhere(
+                'soDienThoai',
+                $data['identifier']
+            )
+            ->first();
+
+        if (!$khachHang) {
+            return response()->json([
+                'message' =>
+                    'Email, số điện thoại hoặc mật khẩu không đúng'
+            ], 401);
+        }
+
+        // Tìm tài khoản của khách hàng
+        $taiKhoan = TaiKhoan::where(
+            'maKH',
+            $khachHang->maKH
+        )
+            ->where(
+                'vaiTro',
+                'KHACH_HANG'
+            )
+            ->first();
+
+        if (!$taiKhoan) {
+            return response()->json([
+                'message' =>
+                    'Email, số điện thoại hoặc mật khẩu không đúng'
+            ], 401);
+        }
+
+        // Kiểm tra mật khẩu
+        if (!Hash::check(
+            $data['matKhau'],
+            $taiKhoan->matKhau
+        )) {
+            return response()->json([
+                'message' =>
+                    'Email, số điện thoại hoặc mật khẩu không đúng'
+            ], 401);
+        }
+
+        // Kiểm tra trạng thái
+        if ($taiKhoan->trangThai !== 'HOAT_DONG') {
+            return response()->json([
+                'message' =>
+                    'Tài khoản đã bị khóa'
+            ], 403);
+        }
+
+        // Tạo token
+        $token = $taiKhoan
+            ->createToken(
+                'customer',
+                [$taiKhoan->vaiTro]
+            )
+            ->plainTextToken;
+
+        return response()->json([
+            'message' => 'Đăng nhập thành công',
+
+            'token' => $token,
+
+            'taiKhoan' => [
+                'maTK' => $taiKhoan->maTK,
+                'tenDangNhap' =>
+                    $taiKhoan->tenDangNhap,
+                'vaiTro' =>
+                    $taiKhoan->vaiTro,
+            ],
+
+            'khachHang' => $khachHang,
+        ]);
     }
 
 
@@ -133,7 +214,7 @@ class AuthController extends Controller
     // =========================
     public function loginInternal(Request $request)
     {
-        return $this->login(
+        return $this->loginInternalAccount(
             $request,
             ['NHAN_VIEN', 'QUAN_LY'],
             'dashboard'
@@ -142,9 +223,9 @@ class AuthController extends Controller
 
 
     // =========================
-    // XỬ LÝ LOGIN CHUNG
+    // XỬ LÝ LOGIN NỘI BỘ
     // =========================
-    private function login(
+    private function loginInternalAccount(
         Request $request,
         array $roles,
         string $tokenName
@@ -176,7 +257,11 @@ class AuthController extends Controller
             ], 401);
         }
 
-        if (!in_array($taiKhoan->vaiTro, $roles)) {
+        if (!in_array(
+            $taiKhoan->vaiTro,
+            $roles,
+            true
+        )) {
             return response()->json([
                 'message' =>
                     'Bạn không có quyền đăng nhập tại đây'
@@ -206,7 +291,8 @@ class AuthController extends Controller
                 'maTK' => $taiKhoan->maTK,
                 'tenDangNhap' =>
                     $taiKhoan->tenDangNhap,
-                'vaiTro' => $taiKhoan->vaiTro,
+                'vaiTro' =>
+                    $taiKhoan->vaiTro,
             ],
         ]);
     }
