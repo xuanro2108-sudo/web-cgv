@@ -9,7 +9,8 @@ use App\Http\Controllers\Api\PhongChieuController;
 use App\Http\Controllers\Api\SoDoGheController;
 use App\Http\Controllers\Api\GheController;
 use App\Http\Controllers\Api\VeGheController;
-
+use App\Http\Controllers\Api\DonHangController;
+use App\Http\Controllers\Api\ComboSanPhamController;
 // ==================== AUTHENTICATION ====================
 
 // Đăng ký khách hàng
@@ -42,6 +43,13 @@ Route::middleware('auth:sanctum')->group(function () {
         '/auth/logout',
         [AuthController::class, 'logout']
     );
+    Route::apiResource('don-hangs', DonHangController::class)
+    ->only(['index', 'store', 'show'])
+    ->parameters(['don-hangs' => 'maDonHang']);
+
+    Route::apiResource('combos', ComboSanPhamController::class)
+    ->only(['store', 'update', 'destroy'])
+    ->parameters(['combos' => 'maCombo']);
 });
 
 // ==================== PHIM ====================
@@ -70,3 +78,8 @@ Route::apiResource('ghes', GheController::class)
 Route::apiResource('ve-ghes', VeGheController::class)
     ->only(['index', 'show', 'store', 'update'])
     ->parameters(['ve-ghes' => 'maVe']);
+
+
+Route::apiResource('combos', ComboSanPhamController::class)
+    ->only(['index', 'show'])
+    ->parameters(['combos' => 'maCombo']);
