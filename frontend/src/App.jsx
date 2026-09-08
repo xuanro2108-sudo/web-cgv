@@ -66,8 +66,6 @@ function App() {
   path="/"
   element={<LoginCustomer />}
 />
-/
-
         <Route
           path="/home"
           element={

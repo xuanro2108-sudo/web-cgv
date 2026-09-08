@@ -60,7 +60,47 @@ class VeGheController extends Controller
             foreach ($seats as $item) {
                 abort_unless($item->trangThai === 'HOAT_DONG', 422, 'Ghế không hoạt động.');
             }
-            abort_if(VeGhe::where('maLichChieu', $show->maLichChieu)->whereIn('maGhe', $ids)->whereIn('trangThai', ['GIU_CHO', 'DA_DAT'])->exists(), 409, 'Ghế đã được giữ hoặc đặt.');
+            VeGhe::where('maLichChieu', $show->maLichChieu)
+                ->whereIn('maGhe', $ids)
+                ->where('trangThai', 'GIU_CHO')
+                ->whereHas('donHang', function ($query) {
+                    $query
+                        ->where('trangThai', 'CHO_THANH_TOAN')
+                        ->where(function ($expiryQuery) {
+                            $expiryQuery
+                                ->where('hetHanLuc', '<=', now())
+                                ->orWhere(function ($fallbackQuery) {
+                                    $fallbackQuery
+                                        ->whereNull('hetHanLuc')
+                                        ->where('ngayDat', '<=', now()->subMinutes(10));
+                                });
+                        });
+                })
+                ->update(['trangThai' => 'DA_HUY']);
+            abort_if(
+                VeGhe::where('maLichChieu', $show->maLichChieu)
+                    ->whereIn('maGhe', $ids)
+                    ->whereIn('trangThai', ['GIU_CHO', 'DA_DAT'])
+                    ->whereHas('donHang', function ($query) {
+                        $query->where('trangThai', 'DA_THANH_TOAN')
+                            ->orWhere(function ($pendingQuery) {
+                                $pendingQuery
+                                    ->where('trangThai', 'CHO_THANH_TOAN')
+                                    ->where(function ($expiryQuery) {
+                                        $expiryQuery
+                                            ->where('hetHanLuc', '>', now())
+                                            ->orWhere(function ($fallbackQuery) {
+                                                $fallbackQuery
+                                                    ->whereNull('hetHanLuc')
+                                                    ->where('ngayDat', '>', now()->subMinutes(10));
+                                            });
+                                    });
+                            });
+                    })
+                    ->exists(),
+                409,
+                'Ghế đã được giữ hoặc đặt.'
+            );
             $tickets = new Collection;
             foreach ($seats as $item) {
                 $tickets->push($order->veGhes()->create([
