@@ -99,6 +99,9 @@ const [activeTab, setActiveTab] = useState(initialTab);
     setLoginMessage("");
     setLoginLoading(true);
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
     try {
       const response = await fetch(
         "http://127.0.0.1:8000/api/auth/customer/login",
@@ -109,6 +112,7 @@ const [activeTab, setActiveTab] = useState(initialTab);
             "Content-Type": "application/json",
             Accept: "application/json",
           },
+          signal: controller.signal,
 
           body: JSON.stringify({
             identifier: loginData.identifier,
@@ -175,10 +179,13 @@ const [activeTab, setActiveTab] = useState(initialTab);
       );
 
       setLoginError(
-        "Không thể kết nối đến máy chủ."
+        error.name === "AbortError"
+          ? "Máy chủ phản hồi quá lâu. Vui lòng kiểm tra trạng thái MySQL và thử lại."
+          : "Không thể kết nối đến máy chủ."
       );
 
     } finally {
+      clearTimeout(timeoutId);
       setLoginLoading(false);
     }
   };
