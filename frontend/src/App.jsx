@@ -15,11 +15,13 @@ import ComboSelection from "./pages/ComboSelection";
 
 import LoginInternal from "./pages/LoginInternal";
 import Dashboard from "./pages/Dashboard";
+import CustomerManagement from "./pages/CustomerManagement";
+import PromotionManagement from "./pages/PromotionManagement";
 
 // =========================
 // BẢO VỆ DASHBOARD
 // =========================
-function InternalRoute({ children }) {
+function InternalRoute({ children, managerOnly = false }) {
   const token = localStorage.getItem("token");
   const vaiTro = localStorage.getItem("vaiTro");
 
@@ -38,6 +40,10 @@ function InternalRoute({ children }) {
         replace
       />
     );
+  }
+
+  if (managerOnly && vaiTro !== "QUAN_LY") {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;
@@ -153,6 +159,28 @@ function App() {
           element={
             <InternalRoute>
               <Dashboard />
+            </InternalRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard/khach-hang"
+          element={
+            <InternalRoute managerOnly>
+              <Dashboard>
+                <CustomerManagement />
+              </Dashboard>
+            </InternalRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard/khuyen-mai"
+          element={
+            <InternalRoute managerOnly>
+              <Dashboard>
+                <PromotionManagement />
+              </Dashboard>
             </InternalRoute>
           }
         />
