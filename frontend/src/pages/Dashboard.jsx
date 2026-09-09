@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 
-function Dashboard() {
+function Dashboard({ children }) {
   const navigate = useNavigate();
+  const customerPage = useLocation().pathname === "/dashboard/khach-hang";
+  const promotionPage = useLocation().pathname === "/dashboard/khuyen-mai";
 
   const taiKhoan = JSON.parse(
     localStorage.getItem("taiKhoan") || "null"
@@ -65,10 +67,10 @@ function Dashboard() {
     },
 
     {
-      title: "Khách hàng",
+      title: "Tài khoản",
       description:
-        "Tra cứu và quản lý thông tin khách hàng.",
-      roles: ["QUAN_LY", "NHAN_VIEN"],
+        "Tra cứu và quản lý tài khoản khách hàng.",
+      roles: ["QUAN_LY"],
       path: "/dashboard/khach-hang",
     },
 
@@ -114,6 +116,10 @@ function Dashboard() {
   // MỞ CHỨC NĂNG
   // =========================
   const handleOpenFunction = (path) => {
+    if (["/dashboard/khach-hang", "/dashboard/khuyen-mai"].includes(path)) {
+      navigate(path);
+      return;
+    }
     /*
       Tạm thời chưa tạo các trang con.
       Khi làm module nào thì mình sẽ mở navigate(path).
@@ -217,7 +223,8 @@ function Dashboard() {
 
           <button
             type="button"
-            className="dashboard-menu-item active"
+            className={`dashboard-menu-item ${!customerPage && !promotionPage ? "active" : ""}`}
+            onClick={() => navigate("/dashboard")}
           >
             Trang chính
           </button>
@@ -239,12 +246,16 @@ function Dashboard() {
                 Đơn hàng & vé
               </button>
 
-              <button
-                type="button"
-                className="dashboard-menu-item"
-              >
-                Khách hàng
-              </button>
+              {vaiTro === "QUAN_LY" && (
+                <button
+                  type="button"
+                  className={`dashboard-menu-item ${customerPage ? "active" : ""}`}
+                  onClick={() => navigate("/dashboard/khach-hang")}
+                  aria-current={customerPage ? "page" : undefined}
+                >
+                  Tài khoản
+                </button>
+              )}
 
               <button
                 type="button"
@@ -274,7 +285,9 @@ function Dashboard() {
 
               <button
                 type="button"
-                className="dashboard-menu-item"
+                className={`dashboard-menu-item ${promotionPage ? "active" : ""}`}
+                onClick={() => navigate("/dashboard/khuyen-mai")}
+                aria-current={promotionPage ? "page" : undefined}
               >
                 Khuyến mãi
               </button>
@@ -321,7 +334,7 @@ function Dashboard() {
       ========================= */}
       <main className="dashboard-main">
 
-        <section className="dashboard-panel">
+        {children || <section className="dashboard-panel">
 
           <div className="dashboard-heading">
 
@@ -376,7 +389,7 @@ function Dashboard() {
 
           </div>
 
-        </section>
+        </section>}
 
       </main>
 

@@ -17,37 +17,65 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $data = $request->validate([
-            'hoTen' => 'required|string|max:255',
+            'hoTen' => [
+                'required',
+                'string',
+                'max:255',
+            ],
 
-            'soDienThoai' =>
-                'required|string|max:20|unique:khach_hangs,soDienThoai',
+            'soDienThoai' => [
+                'required',
+                'regex:/^0[0-9]{9}$/',
+                'unique:khach_hangs,soDienThoai',
+            ],
 
-            'email' =>
-                'required|email|max:255|unique:khach_hangs,email',
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                'regex:/^[A-Za-z0-9._%+\-]+@gmail\.com$/i',
+                'unique:khach_hangs,email',
+            ],
 
-            'ngaySinh' =>
-                'nullable|date|before_or_equal:today',
+            'ngaySinh' => [
+                'nullable',
+                'date',
+                'before_or_equal:today',
+            ],
 
-            'gioiTinh' =>
-                'nullable|in:NAM,NU',
+            'gioiTinh' => [
+                'nullable',
+                'in:NAM,NU',
+            ],
 
-            'tenDangNhap' =>
-                'required|string|max:100|unique:tai_khoans,tenDangNhap',
-
-            'matKhau' =>
-                'required|string|min:6|confirmed',
+            'matKhau' => [
+                'required',
+                'string',
+                'min:6',
+                'confirmed',
+            ],
         ]);
+
+        // Chuẩn hóa email
+        $data['email'] = strtolower(
+            trim($data['email'])
+        );
 
         $result = DB::transaction(function () use ($data) {
 
-            // Sinh mã khách hàng
+            // =========================
+            // SINH MÃ KHÁCH HÀNG
+            // =========================
             $lastKhachHang = KhachHang::orderBy(
                 'maKH',
                 'desc'
             )->first();
 
             $nextKH = $lastKhachHang
-                ? ((int) substr($lastKhachHang->maKH, 2)) + 1
+                ? ((int) substr(
+                    $lastKhachHang->maKH,
+                    2
+                )) + 1
                 : 1;
 
             $maKH = 'KH' . str_pad(
@@ -57,14 +85,19 @@ class AuthController extends Controller
                 STR_PAD_LEFT
             );
 
-            // Sinh mã tài khoản
+            // =========================
+            // SINH MÃ TÀI KHOẢN
+            // =========================
             $lastTaiKhoan = TaiKhoan::orderBy(
                 'maTK',
                 'desc'
             )->first();
 
             $nextTK = $lastTaiKhoan
-                ? ((int) substr($lastTaiKhoan->maTK, 2)) + 1
+                ? ((int) substr(
+                    $lastTaiKhoan->maTK,
+                    2
+                )) + 1
                 : 1;
 
             $maTK = 'TK' . str_pad(
@@ -74,68 +107,128 @@ class AuthController extends Controller
                 STR_PAD_LEFT
             );
 
-            // Tạo khách hàng
+            // =========================
+            // TẠO KHÁCH HÀNG
+            // =========================
             $khachHang = KhachHang::create([
                 'maKH' => $maKH,
-                'hoTen' => $data['hoTen'],
-                'soDienThoai' => $data['soDienThoai'],
-                'email' => $data['email'],
-                'ngaySinh' => $data['ngaySinh'] ?? null,
-                'gioiTinh' => $data['gioiTinh'] ?? null,
-                'ngayDangKy' => now()->toDateString(),
-                'trangThai' => 'HOAT_DONG',
+
+                'hoTen' =>
+                    $data['hoTen'],
+
+                'soDienThoai' =>
+                    $data['soDienThoai'],
+
+                'email' =>
+                    $data['email'],
+
+                'ngaySinh' =>
+                    $data['ngaySinh'] ?? null,
+
+                'gioiTinh' =>
+                    $data['gioiTinh'] ?? null,
+
+                'ngayDangKy' =>
+                    now()->toDateString(),
+
+                'trangThai' =>
+                    'HOAT_DONG',
             ]);
 
-            // Tạo tài khoản khách hàng
+            // =========================
+            // TẠO TÀI KHOẢN
+            // Email được dùng làm
+            // tenDangNhap khách hàng
+            // =========================
             $taiKhoan = TaiKhoan::create([
-                'maTK' => $maTK,
+                'maTK' =>
+                    $maTK,
 
                 'tenDangNhap' =>
-                    $data['tenDangNhap'],
+                    $data['email'],
 
-                'matKhau' => Hash::make(
-                    $data['matKhau']
-                ),
+                'matKhau' =>
+                    Hash::make(
+                        $data['matKhau']
+                    ),
 
-                'vaiTro' => 'KHACH_HANG',
-                'maKH' => $maKH,
-                'maNV' => null,
-                'trangThai' => 'HOAT_DONG',
+                'vaiTro' =>
+                    'KHACH_HANG',
+
+                'maKH' =>
+                    $maKH,
+
+                'maNV' =>
+                    null,
+
+                'trangThai' =>
+                    'HOAT_DONG',
             ]);
 
             return [
-                'khachHang' => $khachHang,
-                'taiKhoan' => $taiKhoan,
+                'khachHang' =>
+                    $khachHang,
+
+                'taiKhoan' =>
+                    $taiKhoan,
             ];
         });
 
         return response()->json([
-            'message' => 'Đăng ký thành công',
-            'khachHang' => $result['khachHang'],
-            'taiKhoan' => $result['taiKhoan'],
+            'message' =>
+                'Đăng ký thành công',
+
+            'khachHang' =>
+                $result['khachHang'],
+
+            'taiKhoan' =>
+                $result['taiKhoan'],
         ], 201);
     }
 
 
     // =========================
-    // LOGIN KHÁCH HÀNG
-    // EMAIL HOẶC SỐ ĐIỆN THOẠI
+    // ĐĂNG NHẬP KHÁCH HÀNG
+    // EMAIL HOẶC SĐT
     // =========================
     public function loginCustomer(Request $request)
     {
         $data = $request->validate([
-            'identifier' => 'required|string',
-            'matKhau' => 'required|string',
+            'identifier' => [
+                'required',
+                'string',
+            ],
+
+            'matKhau' => [
+                'required',
+                'string',
+            ],
         ]);
 
-        // Tìm khách hàng bằng email hoặc số điện thoại
+        $identifier = trim(
+            $data['identifier']
+        );
+
+        // Nếu nhập email thì đưa về chữ thường
+        if (filter_var(
+            $identifier,
+            FILTER_VALIDATE_EMAIL
+        )) {
+            $identifier = strtolower(
+                $identifier
+            );
+        }
+
+        // =========================
+        // TÌM KHÁCH HÀNG
+        // =========================
         $khachHang = KhachHang::where(
             'email',
-            $data['identifier']
+            $identifier
         )
             ->orWhere(
                 'soDienThoai',
-                $data['identifier']
+                $identifier
             )
             ->first();
 
@@ -146,7 +239,9 @@ class AuthController extends Controller
             ], 401);
         }
 
-        // Tìm tài khoản của khách hàng
+        // =========================
+        // TÌM TÀI KHOẢN
+        // =========================
         $taiKhoan = TaiKhoan::where(
             'maKH',
             $khachHang->maKH
@@ -164,7 +259,9 @@ class AuthController extends Controller
             ], 401);
         }
 
-        // Kiểm tra mật khẩu
+        // =========================
+        // KIỂM TRA MẬT KHẨU
+        // =========================
         if (!Hash::check(
             $data['matKhau'],
             $taiKhoan->matKhau
@@ -175,15 +272,22 @@ class AuthController extends Controller
             ], 401);
         }
 
-        // Kiểm tra trạng thái
-        if ($taiKhoan->trangThai !== 'HOAT_DONG') {
+        // =========================
+        // KIỂM TRA TRẠNG THÁI
+        // =========================
+        if (
+            $taiKhoan->trangThai !==
+            'HOAT_DONG'
+        ) {
             return response()->json([
                 'message' =>
                     'Tài khoản đã bị khóa'
             ], 403);
         }
 
-        // Tạo token
+        // =========================
+        // TẠO TOKEN
+        // =========================
         $token = $taiKhoan
             ->createToken(
                 'customer',
@@ -192,19 +296,25 @@ class AuthController extends Controller
             ->plainTextToken;
 
         return response()->json([
-            'message' => 'Đăng nhập thành công',
+            'message' =>
+                'Đăng nhập thành công',
 
-            'token' => $token,
+            'token' =>
+                $token,
 
             'taiKhoan' => [
-                'maTK' => $taiKhoan->maTK,
+                'maTK' =>
+                    $taiKhoan->maTK,
+
                 'tenDangNhap' =>
                     $taiKhoan->tenDangNhap,
+
                 'vaiTro' =>
                     $taiKhoan->vaiTro,
             ],
 
-            'khachHang' => $khachHang,
+            'khachHang' =>
+                $khachHang,
         ]);
     }
 
@@ -216,7 +326,10 @@ class AuthController extends Controller
     {
         return $this->loginInternalAccount(
             $request,
-            ['NHAN_VIEN', 'QUAN_LY'],
+            [
+                'NHAN_VIEN',
+                'QUAN_LY',
+            ],
             'dashboard'
         );
     }
@@ -231,8 +344,15 @@ class AuthController extends Controller
         string $tokenName
     ) {
         $data = $request->validate([
-            'tenDangNhap' => 'required|string',
-            'matKhau' => 'required|string',
+            'tenDangNhap' => [
+                'required',
+                'string',
+            ],
+
+            'matKhau' => [
+                'required',
+                'string',
+            ],
         ]);
 
         $taiKhoan = TaiKhoan::where(
@@ -268,7 +388,10 @@ class AuthController extends Controller
             ], 403);
         }
 
-        if ($taiKhoan->trangThai !== 'HOAT_DONG') {
+        if (
+            $taiKhoan->trangThai !==
+            'HOAT_DONG'
+        ) {
             return response()->json([
                 'message' =>
                     'Tài khoản đã bị khóa'
@@ -283,14 +406,19 @@ class AuthController extends Controller
             ->plainTextToken;
 
         return response()->json([
-            'message' => 'Đăng nhập thành công',
+            'message' =>
+                'Đăng nhập thành công',
 
-            'token' => $token,
+            'token' =>
+                $token,
 
             'taiKhoan' => [
-                'maTK' => $taiKhoan->maTK,
+                'maTK' =>
+                    $taiKhoan->maTK,
+
                 'tenDangNhap' =>
                     $taiKhoan->tenDangNhap,
+
                 'vaiTro' =>
                     $taiKhoan->vaiTro,
             ],
@@ -299,20 +427,29 @@ class AuthController extends Controller
 
 
     // =========================
-    // THÔNG TIN NGƯỜI ĐĂNG NHẬP
+    // THÔNG TIN TÀI KHOẢN
     // =========================
     public function me(Request $request)
     {
-        $taiKhoan = $request->user();
+        $taiKhoan =
+            $request->user();
 
-        if ($taiKhoan->vaiTro === 'KHACH_HANG') {
-            $taiKhoan->load('khachHang');
+        if (
+            $taiKhoan->vaiTro ===
+            'KHACH_HANG'
+        ) {
+            $taiKhoan->load(
+                'khachHang'
+            );
         } else {
-            $taiKhoan->load('nhanVien');
+            $taiKhoan->load(
+                'nhanVien'
+            );
         }
 
         return response()->json([
-            'taiKhoan' => $taiKhoan
+            'taiKhoan' =>
+                $taiKhoan
         ]);
     }
 
@@ -327,7 +464,8 @@ class AuthController extends Controller
             ?->delete();
 
         return response()->json([
-            'message' => 'Đăng xuất thành công'
+            'message' =>
+                'Đăng xuất thành công'
         ]);
     }
 }
