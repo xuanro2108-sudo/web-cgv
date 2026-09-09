@@ -4,28 +4,17 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import CustomerLayout from "./layouts/CustomerLayout";
 
 import LoginCustomer from "./pages/LoginCustomer";
 import HomeCustomer from "./pages/HomeCustomer";
+import MovieShowtimes from "./pages/MovieShowtimes";
+import SeatSelection from "./pages/SeatSelection";
+import Payment from "./pages/Payment";
+import ComboSelection from "./pages/ComboSelection";
 
 import LoginInternal from "./pages/LoginInternal";
 import Dashboard from "./pages/Dashboard";
-import CustomerManagement from "./pages/CustomerManagement";
-import PromotionManagement from "./pages/PromotionManagement";
-
-// =========================
-// BẢO VỆ TRANG KHÁCH HÀNG
-// =========================
-function CustomerRoute({ children }) {
-  const token = localStorage.getItem("token");
-  const vaiTro = localStorage.getItem("vaiTro");
-
-  if (!token || vaiTro !== "KHACH_HANG") {
-    return <Navigate to="/" replace />;
-  }
-
-  return children;
-}
 
 // =========================
 // BẢO VỆ DASHBOARD
@@ -54,29 +43,101 @@ function InternalRoute({ children }) {
   return children;
 }
 
+function CustomerRoute({ children }) {
+  const token = localStorage.getItem("token");
+  const vaiTro = localStorage.getItem("vaiTro");
+
+  if (!token || vaiTro !== "KHACH_HANG") {
+    return <Navigate to="/login" replace state={{ from: window.location.pathname }} />;
+  }
+
+  return children;
+}
+
 function App() {
   return (
     <BrowserRouter>
-
       <Routes>
 
         {/* =========================
-            KHÁCH HÀNG
+            TRANG CHỦ CÔNG KHAI
         ========================= */}
 
-<Route
-  path="/"
-  element={<LoginCustomer />}
-/>
         <Route
-          path="/home"
+          path="/"
+          element={<Navigate to="/home" replace />}
+        />
+
+        <Route
+            path="/home"
+            element={
+              <CustomerLayout>
+                  <HomeCustomer />
+              </CustomerLayout>
+            }
+          />
+
+        <Route
+          path="/dat-ve/:maPhim"
           element={
             <CustomerRoute>
-              <HomeCustomer />
+              <CustomerLayout>
+                <MovieShowtimes />
+              </CustomerLayout>
             </CustomerRoute>
           }
         />
 
+        <Route
+          path="/chon-ghe/:maLichChieu"
+          element={
+            <CustomerRoute>
+              <CustomerLayout>
+                <SeatSelection />
+              </CustomerLayout>
+            </CustomerRoute>
+          }
+        />
+
+        <Route
+          path="/thanh-toan/:maDonHang"
+          element={
+            <CustomerRoute>
+              <CustomerLayout>
+                <Payment />
+              </CustomerLayout>
+            </CustomerRoute>
+          }
+        />
+
+        <Route
+          path="/chon-combo/:maDonHang"
+          element={
+            <CustomerRoute>
+              <CustomerLayout>
+                <ComboSelection />
+              </CustomerLayout>
+            </CustomerRoute>
+          }
+        />
+
+        {/* =========================
+            ĐĂNG NHẬP / ĐĂNG KÝ
+        ========================= */}
+
+        <Route
+          path="/login"
+          element={
+            <LoginCustomer initialTab="login" />
+          }
+        />
+
+        <Route
+          path="/register"
+          element={
+            <LoginCustomer initialTab="register" />
+          }
+        />
 
         {/* =========================
             NHÂN VIÊN / QUẢN LÝ
@@ -96,23 +157,7 @@ function App() {
           }
         />
 
-        <Route
-          path="/dashboard/khach-hang"
-          element={
-            <InternalRoute>
-              {localStorage.getItem("vaiTro") === "QUAN_LY" ? (
-                <Dashboard><CustomerManagement /></Dashboard>
-              ) : <Navigate to="/dashboard" replace />}
-            </InternalRoute>
-          }
-        />
-        <Route path="/dashboard/khuyen-mai" element={
-          <InternalRoute>
-            {localStorage.getItem("vaiTro") === "QUAN_LY" ? <Dashboard><PromotionManagement /></Dashboard> : <Navigate to="/dashboard" replace />}
-          </InternalRoute>
-        } />
       </Routes>
-
     </BrowserRouter>
   );
 }

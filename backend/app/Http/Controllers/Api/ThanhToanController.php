@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\TicketConfirmationMail;
 use App\Models\DonHang;
 use App\Models\OrderAccess;
 use App\Models\ThanhToan;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -20,9 +22,16 @@ class ThanhToanController extends Controller
 
     public function store(Request $request, string $maDonHang): JsonResponse
     {
-        $data = $request->validate(['phuongThuc' => ['required', 'in:TIEN_MAT,GIA_LAP']]);
+        $data = $request->validate(['phuongThuc' => ['required', 'in:SEPAY_QR,GIA_LAP']]);
         if ($data['phuongThuc'] === 'GIA_LAP') {
             $this->mockEnabled();
+        }
+        if ($data['phuongThuc'] === 'SEPAY_QR') {
+            abort_unless(
+                config('payments.sepay.bank') && config('payments.sepay.account_number'),
+                503,
+                'Thanh toán QR chưa được cấu hình.'
+            );
         }
         $payment = DB::transaction(function () use ($request, $maDonHang, $data) {
             $order = OrderAccess::owned($request, $maDonHang);
@@ -49,7 +58,7 @@ class ThanhToanController extends Controller
             return $payment;
         }, 3);
 
-        return response()->json(['data' => $payment], 201);
+        return response()->json(['data' => $this->paymentPayload($payment)], 201);
     }
 
     public function show(Request $request, string $maDonHang): JsonResponse
@@ -57,7 +66,67 @@ class ThanhToanController extends Controller
         $customer = OrderAccess::customer($request);
         $order = DonHang::where('maKH', $customer->maKH)->findOrFail($maDonHang);
 
-        return response()->json(['data' => $order->thanhToan()->firstOrFail()]);
+        return response()->json(['data' => $this->paymentPayload($order->thanhToan()->firstOrFail())]);
+    }
+
+    public function webhook(Request $request): JsonResponse
+    {
+        $configuredKey = (string) config('payments.sepay.webhook_key');
+        $authorization = (string) $request->header('Authorization');
+        $providedKey = (string) ($request->header('X-SePay-API-Key') ?: $request->bearerToken());
+        if ($providedKey === '' && str_starts_with(strtolower($authorization), 'apikey ')) {
+            $providedKey = trim(substr($authorization, 7));
+        }
+        abort_unless($configuredKey !== '' && hash_equals($configuredKey, $providedKey), 401, 'Webhook không hợp lệ.');
+
+        $data = $request->validate([
+            'transferType' => ['nullable', 'string'],
+            'transferAmount' => ['nullable', 'numeric', 'min:0'],
+            'amount' => ['nullable', 'numeric', 'min:0'],
+            'content' => ['nullable', 'string'],
+            'description' => ['nullable', 'string'],
+            'transactionContent' => ['nullable', 'string'],
+        ]);
+        abort_unless(strtolower((string) ($data['transferType'] ?? 'in')) === 'in', 422, 'Chỉ chấp nhận giao dịch tiền vào.');
+
+        $content = implode(' ', array_filter([
+            $data['content'] ?? null,
+            $data['description'] ?? null,
+            $data['transactionContent'] ?? null,
+        ]));
+        $amount = (float) ($data['transferAmount'] ?? $data['amount'] ?? 0);
+        $payment = ThanhToan::where('phuongThuc', 'SEPAY_QR')
+            ->whereIn('trangThai', ['CHO_THANH_TOAN', 'THANH_CONG'])
+            ->get()
+            ->first(fn (ThanhToan $candidate) => Str::contains($content, $candidate->maGiaoDich));
+
+        abort_unless($payment, 404, 'Không tìm thấy yêu cầu thanh toán.');
+        abort_unless((int) round($amount * 100) === (int) round((float) $payment->soTien * 100), 422, 'Số tiền chuyển khoản không khớp.');
+        if ($payment->trangThai === 'THANH_CONG') {
+            if (! $payment->emailDaGui) {
+                $this->sendTicketEmail($payment);
+            }
+
+            return response()->json(['success' => true, 'data' => $payment]);
+        }
+
+        $result = DB::transaction(function () use ($payment) {
+            $order = DonHang::whereKey($payment->maDonHang)->lockForUpdate()->firstOrFail();
+            $lockedPayment = $order->thanhToan()->lockForUpdate()->firstOrFail();
+            abort_unless($lockedPayment->trangThai === 'CHO_THANH_TOAN', 409, 'Thanh toán đã được xử lý.');
+            abort_unless($order->trangThai === 'CHO_THANH_TOAN' && ! $order->daHetHan(), 409, 'Đơn hàng không còn hiệu lực.');
+
+            $lockedPayment->update(['trangThai' => 'THANH_CONG', 'ngayThanhToan' => now()]);
+            $order->veGhes()->where('trangThai', 'GIU_CHO')->update(['trangThai' => 'DA_DAT']);
+            $order->update(['trangThai' => 'DA_THANH_TOAN', 'maQR' => 'QR'.Str::random(40)]);
+
+            return $lockedPayment->fresh();
+        }, 3);
+
+        if (! $result->emailDaGui) {
+            $this->sendTicketEmail($result);
+        }
+        return response()->json(['success' => true, 'data' => $result]);
     }
 
     public function confirm(Request $request, string $maTT): JsonResponse
@@ -84,7 +153,7 @@ class ThanhToanController extends Controller
         $result = DB::transaction(function () use ($request, $candidate, $mock, $staffId) {
             $order = $mock ? OrderAccess::owned($request, $candidate->maDonHang) : DonHang::whereKey($candidate->maDonHang)->lockForUpdate()->firstOrFail();
             $payment = $order->thanhToan()->lockForUpdate()->firstOrFail();
-            abort_unless($payment->phuongThuc === ($mock ? 'GIA_LAP' : 'TIEN_MAT'), 409, 'Sai phương thức thanh toán.');
+            abort_unless($payment->phuongThuc === 'GIA_LAP' && $mock, 409, 'Sai phương thức thanh toán.');
             abort_unless(hash_equals($payment->maGiaoDich, $request->string('maGiaoDich')->toString()), 409, 'Yêu cầu thanh toán đã thay đổi.');
             if (! $mock) {
                 abort_unless((int) round((float) $request->soTien * 100) === (int) round((float) $payment->soTien * 100), 422, 'Số tiền xác nhận không khớp.');
@@ -117,6 +186,61 @@ class ThanhToanController extends Controller
         $status = $result['status'];
         unset($result['status']);
 
+        if (($result['data']->trangThai ?? null) === 'THANH_CONG' && ! $result['data']->emailDaGui) {
+            $this->sendTicketEmail($result['data']);
+        }
+
         return response()->json($result, $status);
+    }
+
+    private function sendTicketEmail(ThanhToan $payment): void
+    {
+        $order = DonHang::with([
+            'khachHang',
+            'veGhes.ghe',
+            'veGhes.lichChieu.phim',
+            'veGhes.lichChieu.phongChieu',
+        ])->findOrFail($payment->maDonHang);
+        $email = $order->khachHang?->email;
+
+        abort_unless($email, 422, 'Khách hàng chưa có email để nhận vé.');
+
+        $ticketData = implode('|', [
+            'CGV-TICKET',
+            'ticket='.$order->maQR,
+            'order='.$order->maDonHang,
+            'movie='.$order->veGhes->first()?->lichChieu?->phim?->tenPhim,
+            'seats='.$order->veGhes
+                ->map(fn ($ticket) => ($ticket->ghe?->hang ?? '').($ticket->ghe?->cot ?? ''))
+                ->filter()
+                ->join(','),
+        ]);
+        $ticketQrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=500x500&format=png&data='
+            .rawurlencode($ticketData);
+
+        Mail::to($email)->send(new TicketConfirmationMail($order, $payment, $ticketQrUrl));
+        $payment->update(['emailDaGui' => true]);
+    }
+
+    private function paymentPayload(ThanhToan $payment): array
+    {
+        $payload = $payment->toArray();
+        if ($payment->phuongThuc === 'SEPAY_QR') {
+            $payload['qrUrl'] = sprintf(
+                'https://img.vietqr.io/image/%s-%s-%s.png?amount=%s&addInfo=%s&accountName=%s',
+                rawurlencode((string) config('payments.sepay.bank')),
+                rawurlencode((string) config('payments.sepay.account_number')),
+                rawurlencode((string) config('payments.sepay.template', 'compact2')),
+                rawurlencode((string) $payment->soTien),
+                rawurlencode($payment->maGiaoDich),
+                rawurlencode((string) config('payments.sepay.account_name'))
+            );
+            $payload['transferContent'] = $payment->maGiaoDich;
+            $payload['bank'] = config('payments.sepay.bank');
+            $payload['accountNumber'] = config('payments.sepay.account_number');
+            $payload['accountName'] = config('payments.sepay.account_name');
+        }
+
+        return $payload;
     }
 }

@@ -12,6 +12,8 @@ function Header() {
 
     const token = localStorage.getItem("token");
 
+const isLoggedIn = Boolean(token && khachHang);
+
     const handleLogout = async () => {
         if (!token) {
             clearLoginData();
@@ -64,7 +66,7 @@ function Header() {
             <div className="header-top">
                 <div className="header-container header-login">
 
-                    {token ? (
+                    {isLoggedIn ? (
                         <>
                             <span>
                                 Xin chào,{" "}
@@ -101,21 +103,20 @@ function Header() {
                 <div className="header-container header-content">
 
                     <a href="/home" className="logo">
-                        <div className="logo-cgv">CGV</div>
-
-                        <div className="logo-subtitle">
-                            AEON MALL HÀ ĐÔNG
-                        </div>
+                        <img
+                            className="logo-image"
+                            src="/banners/cgvlogo.png"
+                            alt="CGV AEON MALL HÀ ĐÔNG"
+                        />
                     </a>
 
                     <nav className="header-menu">
 
-                        <a href="/lich-chieu">
-                            LỊCH CHIẾU
-                        </a>
-
                         <a href="/phim">
                             PHIM
+                        </a>
+                        <a href="/lich-chieu">
+                            VÉ CỦA TÔI
                         </a>
 
                         <a href="/tin-tuc">

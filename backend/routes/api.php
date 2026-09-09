@@ -20,6 +20,9 @@ use App\Http\Controllers\Api\ThanhToanController;
 use App\Http\Controllers\Api\VeGheController;
 use Illuminate\Support\Facades\Route;
 
+Route::post('webhooks/sepay', [ThanhToanController::class, 'webhook'])
+    ->middleware('throttle:120,1');
+
 // ==================== AUTHENTICATION ====================
 
 // Đăng ký khách hàng

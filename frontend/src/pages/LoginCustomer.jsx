@@ -1,27 +1,19 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./LoginCustomer.css";
+import Header from "../components/common/Header/Header";
 
-function LoginCustomer() {
+function LoginCustomer({ initialTab = "login" }) {
+  // =========================
+  // CHUYỂN TRANG
+  // =========================
   const navigate = useNavigate();
+  const location = useLocation();
 
   // =========================
-  // NGÀY HIỆN TẠI
-  // Dùng làm ngày sinh tối đa
+  // TAB ĐĂNG NHẬP / ĐĂNG KÝ
   // =========================
-  const today = new Date();
-
-  const maxBirthDate =
-    today.getFullYear() +
-    "-" +
-    String(today.getMonth() + 1).padStart(2, "0") +
-    "-" +
-    String(today.getDate()).padStart(2, "0");
-
-  // =========================
-  // TAB LOGIN / REGISTER
-  // =========================
-  const [activeTab, setActiveTab] = useState("login");
+const [activeTab, setActiveTab] = useState(initialTab);
 
   // =========================
   // DỮ LIỆU ĐĂNG NHẬP
@@ -44,6 +36,7 @@ function LoginCustomer() {
     email: "",
     ngaySinh: "",
     gioiTinh: "",
+    tenDangNhap: "",
     matKhau: "",
     matKhau_confirmation: "",
   });
@@ -73,7 +66,7 @@ function LoginCustomer() {
   const handleRegisterChange = (e) => {
     const { name, value } = e.target;
 
-    // Số điện thoại chỉ cho nhập số
+    // Chỉ cho số điện thoại nhập số
     if (name === "soDienThoai") {
       const onlyNumbers = value.replace(/\D/g, "");
 
@@ -98,7 +91,7 @@ function LoginCustomer() {
   };
 
   // =========================
-  // ĐĂNG NHẬP
+  // ĐĂNG NHẬP KHÁCH HÀNG
   // =========================
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -119,7 +112,7 @@ function LoginCustomer() {
           },
 
           body: JSON.stringify({
-            identifier: loginData.identifier.trim(),
+            identifier: loginData.identifier,
             matKhau: loginData.matKhau,
           }),
         }
@@ -127,6 +120,7 @@ function LoginCustomer() {
 
       const data = await response.json();
 
+      // Nếu đăng nhập lỗi
       if (!response.ok) {
         setLoginError(
           data.message || "Đăng nhập không thành công."
@@ -136,8 +130,9 @@ function LoginCustomer() {
       }
 
       // =========================
-      // LƯU TOKEN
+      // LƯU THÔNG TIN ĐĂNG NHẬP
       // =========================
+
       localStorage.setItem(
         "token",
         data.token
@@ -164,8 +159,15 @@ function LoginCustomer() {
         "Đăng nhập thành công!"
       );
 
-      // Chuyển sang trang chủ
-      navigate("/home");
+      console.log(
+        "Đăng nhập thành công:",
+        data
+      );
+
+      // =========================
+      // CHUYỂN SANG TRANG CHỦ
+      // =========================
+      navigate(location.state?.from || "/home", { replace: true });
 
     } catch (error) {
       console.error(
@@ -183,7 +185,7 @@ function LoginCustomer() {
   };
 
   // =========================
-  // ĐĂNG KÝ
+  // ĐĂNG KÝ KHÁCH HÀNG
   // =========================
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
@@ -192,41 +194,13 @@ function LoginCustomer() {
     setRegisterMessage("");
 
     // =========================
-    // KIỂM TRA SĐT
+    // KIỂM TRA SỐ ĐIỆN THOẠI
     // =========================
     const phoneRegex = /^0[0-9]{9}$/;
 
     if (!phoneRegex.test(registerData.soDienThoai)) {
       setRegisterError(
-        "Số điện thoại phải gồm 10 chữ số và bắt đầu bằng số 0."
-      );
-
-      return;
-    }
-
-    // =========================
-    // KIỂM TRA GMAIL
-    // =========================
-    const gmailRegex =
-      /^[A-Za-z0-9._%+-]+@gmail\.com$/i;
-
-    if (!gmailRegex.test(registerData.email.trim())) {
-      setRegisterError(
-        "Email phải có định dạng @gmail.com."
-      );
-
-      return;
-    }
-
-    // =========================
-    // KIỂM TRA NGÀY SINH
-    // =========================
-    if (
-      registerData.ngaySinh &&
-      registerData.ngaySinh > maxBirthDate
-    ) {
-      setRegisterError(
-        "Ngày sinh không được lớn hơn ngày hiện tại."
+        "Số điện thoại phải gồm 10 số và bắt đầu bằng số 0."
       );
 
       return;
@@ -243,6 +217,9 @@ function LoginCustomer() {
       return;
     }
 
+    // =========================
+    // KIỂM TRA XÁC NHẬN MẬT KHẨU
+    // =========================
     if (
       registerData.matKhau !==
       registerData.matKhau_confirmation
@@ -257,13 +234,6 @@ function LoginCustomer() {
     setRegisterLoading(true);
 
     try {
-      const dataToSend = {
-        ...registerData,
-        email: registerData.email
-          .trim()
-          .toLowerCase(),
-      };
-
       const response = await fetch(
         "http://127.0.0.1:8000/api/auth/register",
         {
@@ -274,7 +244,7 @@ function LoginCustomer() {
             Accept: "application/json",
           },
 
-          body: JSON.stringify(dataToSend),
+          body: JSON.stringify(registerData),
         }
       );
 
@@ -285,8 +255,9 @@ function LoginCustomer() {
       // =========================
       if (!response.ok) {
         if (data.errors) {
-          const firstError =
-            Object.values(data.errors)[0];
+          const firstError = Object.values(
+            data.errors
+          )[0];
 
           setRegisterError(
             Array.isArray(firstError)
@@ -312,24 +283,23 @@ function LoginCustomer() {
 
       // Điền sẵn email vào form đăng nhập
       setLoginData({
-        identifier: registerData.email
-          .trim()
-          .toLowerCase(),
+        identifier: registerData.email,
         matKhau: "",
       });
 
-      // Xóa form đăng ký
+      // Xóa dữ liệu form đăng ký
       setRegisterData({
         hoTen: "",
         soDienThoai: "",
         email: "",
         ngaySinh: "",
         gioiTinh: "",
+        tenDangNhap: "",
         matKhau: "",
         matKhau_confirmation: "",
       });
 
-      // Chuyển về tab đăng nhập
+      // Sau 1 giây chuyển sang đăng nhập
       setTimeout(() => {
         setActiveTab("login");
 
@@ -358,80 +328,8 @@ function LoginCustomer() {
   return (
     <div className="customer-page">
 
-      {/* =========================
-          HEADER
-      ========================= */}
-      <header className="customer-header">
-
-        <div className="header-top">
-
-          <div className="header-top-right">
-
-            <span
-              onClick={() =>
-                setActiveTab("login")
-              }
-            >
-              Đăng nhập
-            </span>
-
-            <span>|</span>
-
-            <span
-              onClick={() =>
-                setActiveTab("register")
-              }
-            >
-              Đăng ký
-            </span>
-
-          </div>
-
-        </div>
-
-        <div className="header-main">
-
-          <div className="cgv-logo">
-
-            <span className="cgv-name">
-              CGV
-            </span>
-
-            <span className="cgv-branch">
-              AEON MALL HÀ ĐÔNG
-            </span>
-
-          </div>
-
-          <nav className="customer-nav">
-
-            <a href="#">
-              LỊCH CHIẾU
-            </a>
-
-            <a href="#">
-              PHIM
-            </a>
-
-            <a href="#">
-              GIÁ VÉ
-            </a>
-
-            <a href="#">
-              TIN TỨC & ƯU ĐÃI
-            </a>
-
-            <a href="#">
-              THÀNH VIÊN
-            </a>
-
-          </nav>
-
-        </div>
-
-      </header>
-
-
+      
+      <Header />
       {/* =========================
           LOGIN / REGISTER
       ========================= */}
@@ -439,7 +337,9 @@ function LoginCustomer() {
 
         <div className="login-box">
 
-          {/* TAB */}
+          {/* =========================
+              TAB
+          ========================= */}
           <div className="auth-tabs">
 
             <button
@@ -472,9 +372,8 @@ function LoginCustomer() {
 
           </div>
 
-
           {/* =========================
-              FORM LOGIN
+              FORM ĐĂNG NHẬP
           ========================= */}
           {activeTab === "login" && (
 
@@ -502,7 +401,6 @@ function LoginCustomer() {
                   required
                 />
 
-
                 <label>
                   Mật khẩu
                 </label>
@@ -516,7 +414,6 @@ function LoginCustomer() {
                   required
                 />
 
-
                 <a
                   href="#"
                   className="forgot-password"
@@ -524,20 +421,19 @@ function LoginCustomer() {
                   Quên mật khẩu?
                 </a>
 
-
+                {/* LỖI */}
                 {loginError && (
                   <p className="login-error">
                     {loginError}
                   </p>
                 )}
 
-
+                {/* THÀNH CÔNG */}
                 {loginMessage && (
                   <p className="login-success">
                     {loginMessage}
                   </p>
                 )}
-
 
                 <button
                   type="submit"
@@ -555,9 +451,8 @@ function LoginCustomer() {
 
           )}
 
-
           {/* =========================
-              FORM REGISTER
+              FORM ĐĂNG KÝ
           ========================= */}
           {activeTab === "register" && (
 
@@ -586,7 +481,6 @@ function LoginCustomer() {
                   required
                 />
 
-
                 {/* SỐ ĐIỆN THOẠI */}
                 <label>
                   Số điện thoại
@@ -604,7 +498,6 @@ function LoginCustomer() {
                   required
                 />
 
-
                 {/* EMAIL */}
                 <label>
                   Email
@@ -613,14 +506,11 @@ function LoginCustomer() {
                 <input
                   type="email"
                   name="email"
-                  placeholder="Ví dụ: example@gmail.com"
+                  placeholder="Nhập email"
                   value={registerData.email}
                   onChange={handleRegisterChange}
-                  pattern="[A-Za-z0-9._%+-]+@gmail\.com"
-                  title="Email phải có định dạng @gmail.com"
                   required
                 />
-
 
                 {/* NGÀY SINH */}
                 <label>
@@ -632,9 +522,7 @@ function LoginCustomer() {
                   name="ngaySinh"
                   value={registerData.ngaySinh}
                   onChange={handleRegisterChange}
-                  max={maxBirthDate}
                 />
-
 
                 {/* GIỚI TÍNH */}
                 <label>
@@ -661,6 +549,19 @@ function LoginCustomer() {
 
                 </select>
 
+                {/* TÊN ĐĂNG NHẬP */}
+                <label>
+                  Tên đăng nhập
+                </label>
+
+                <input
+                  type="text"
+                  name="tenDangNhap"
+                  placeholder="Nhập tên đăng nhập"
+                  value={registerData.tenDangNhap}
+                  onChange={handleRegisterChange}
+                  required
+                />
 
                 {/* MẬT KHẨU */}
                 <label>
@@ -676,7 +577,6 @@ function LoginCustomer() {
                   minLength="6"
                   required
                 />
-
 
                 {/* XÁC NHẬN MẬT KHẨU */}
                 <label>
@@ -695,20 +595,19 @@ function LoginCustomer() {
                   required
                 />
 
-
+                {/* LỖI ĐĂNG KÝ */}
                 {registerError && (
                   <p className="login-error">
                     {registerError}
                   </p>
                 )}
 
-
+                {/* THÀNH CÔNG */}
                 {registerMessage && (
                   <p className="login-success">
                     {registerMessage}
                   </p>
                 )}
-
 
                 <button
                   type="submit"

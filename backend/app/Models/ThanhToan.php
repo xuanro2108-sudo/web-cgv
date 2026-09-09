@@ -23,11 +23,13 @@ class ThanhToan extends Model
         'phuongThuc',
         'ngayThanhToan',
         'trangThai',
+        'emailDaGui',
     ];
 
     protected $casts = [
         'soTien' => 'decimal:2',
         'ngayThanhToan' => 'datetime',
+        'emailDaGui' => 'boolean',
     ];
 
     // Thanh toán thuộc về một đơn hàng
