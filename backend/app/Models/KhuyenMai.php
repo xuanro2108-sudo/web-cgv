@@ -35,6 +35,7 @@ class KhuyenMai extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
+        'hinhAnh',
         'maKM',
         'tenKM',
         'hinhThuc',

@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\KhuyenMaiController;
 use App\Http\Controllers\Api\LichChieuController;
 use App\Http\Controllers\Api\PhimController;
 use App\Http\Controllers\Api\PhongChieuController;
+use App\Http\Controllers\Api\QuanLyKhachHangController;
 use App\Http\Controllers\Api\SanPhamController;
 use App\Http\Controllers\Api\SoDoGheController;
 use App\Http\Controllers\Api\ThanhToanController;
@@ -41,6 +42,11 @@ Route::post(
 
 // API yêu cầu đã đăng nhập
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('quan-ly/khach-hangs', [QuanLyKhachHangController::class, 'index']);
+    Route::get('quan-ly/khuyen-mais', [KhuyenMaiController::class, 'management']);
+    Route::patch('quan-ly/khach-hangs/{maKH}/trang-thai', [QuanLyKhachHangController::class, 'status']);
+    Route::get('quan-ly/khach-hangs/{maKH}/giao-dich', [QuanLyKhachHangController::class, 'history']);
+    Route::delete('quan-ly/khach-hangs/{maKH}', [QuanLyKhachHangController::class, 'destroy']);
     Route::get('ho-so', [HoSoKhachHangController::class, 'show']);
     Route::patch('ho-so', [HoSoKhachHangController::class, 'update']);
     Route::patch('ho-so/mat-khau', [HoSoKhachHangController::class, 'password'])->middleware('throttle:5,1');
