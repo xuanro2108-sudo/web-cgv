@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./LoginCustomer.css";
 import Header from "../components/common/Header/Header";
 
@@ -8,6 +8,7 @@ function LoginCustomer({ initialTab = "login" }) {
   // CHUYỂN TRANG
   // =========================
   const navigate = useNavigate();
+  const location = useLocation();
 
   // =========================
   // TAB ĐĂNG NHẬP / ĐĂNG KÝ
@@ -166,7 +167,7 @@ const [activeTab, setActiveTab] = useState(initialTab);
       // =========================
       // CHUYỂN SANG TRANG CHỦ
       // =========================
-      navigate("/home");
+      navigate(location.state?.from || "/home", { replace: true });
 
     } catch (error) {
       console.error(

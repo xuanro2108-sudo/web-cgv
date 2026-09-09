@@ -1,291 +1,437 @@
-/* ================================
-   TOÀN TRANG
-================================ */
-
 .home-customer {
-  min-height: 100vh;
-
-  background-color: #f5f5f5;
-
-  color: #222222;
+    min-height: 100vh;
+    background: #f5f5f5;
+    color: #222;
 }
 
-
-/* ================================
-   THANH TRÊN
-================================ */
-
-.home-top-bar {
-  height: 36px;
-
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-
-  padding: 0 70px;
-
-  background-color: #e31837;
-
-  color: white;
+.home-hero {
+    position: relative;
+    aspect-ratio: 2.76 / 1;
+    overflow: hidden;
+    background: #171717;
+    color: #fff;
 }
 
-.home-user {
-  display: flex;
-  align-items: center;
-
-  gap: 10px;
-
-  font-size: 14px;
+.hero-slide {
+    position: absolute;
+    inset: 0;
+    background-color: #171717;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transform: scale(1.03);
+    transition: opacity 0.55s ease, transform 5s ease;
 }
 
-.home-separator {
-  opacity: 0.7;
+.hero-slide.active {
+    opacity: 1;
+    transform: scale(1);
 }
 
-
-/* ================================
-   NÚT ĐĂNG XUẤT
-================================ */
-
-.logout-button {
-  padding: 0;
-
-  border: none;
-
-  background: transparent;
-
-  color: white;
-
-  font-size: 14px;
-  font-weight: 700;
-
-  cursor: pointer;
+.hero-copy {
+    position: relative;
+    z-index: 1;
+    max-width: 590px;
 }
 
-.logout-button:hover {
-  text-decoration: underline;
+.hero-copy > span {
+    color: #ffab91;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
 }
 
-.logout-button:disabled {
-  opacity: 0.7;
-
-  cursor: not-allowed;
+.hero-copy h1 {
+    margin: 15px 0 12px;
+    font-size: clamp(34px, 5vw, 62px);
+    line-height: 1.05;
+    text-transform: uppercase;
 }
 
-
-/* ================================
-   HEADER
-================================ */
-
-.home-header {
-  min-height: 95px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 40px;
-
-  padding: 15px 70px;
-
-  background-color: white;
-
-  border-bottom: 1px solid #dddddd;
-
-  box-shadow:
-    0 2px 5px rgba(0, 0, 0, 0.05);
+.hero-copy p {
+    max-width: 430px;
+    color: #f5f5f5;
+    font-size: 17px;
 }
 
-
-/* ================================
-   LOGO
-================================ */
-
-.home-logo {
-  display: flex;
-  flex-direction: column;
-
-  min-width: 250px;
+.hero-copy button {
+    margin-top: 18px;
+    padding: 13px 22px;
+    border: 0;
+    border-radius: 3px;
+    background: #ff7043;
+    color: #222;
+    font-weight: 700;
+    cursor: pointer;
 }
 
-.home-cgv {
-  color: #e31837;
-
-  font-size: 46px;
-  font-weight: 900;
-
-  line-height: 1;
-
-  letter-spacing: -2px;
+.hero-copy button:hover {
+    background: #ffab91;
 }
 
-.home-branch {
-  margin-top: 7px;
-
-  color: #555555;
-
-  font-size: 13px;
-  font-weight: 700;
-
-  letter-spacing: 0.5px;
+.hero-control {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    width: 42px;
+    height: 62px;
+    border: 0;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.45);
+    color: #fff;
+    font-size: 40px;
+    line-height: 1;
+    cursor: pointer;
+    transform: translateY(-50%);
 }
 
-
-/* ================================
-   MENU
-================================ */
-
-.home-nav {
-  display: flex;
-  align-items: center;
-
-  gap: 30px;
+.hero-control:hover {
+    background: rgba(198, 40, 40, 0.85);
 }
 
-.home-nav a {
-  color: #222222;
+.hero-control-prev { left: 22px; }
+.hero-control-next { right: 22px; }
 
-  text-decoration: none;
-
-  font-size: 14px;
-  font-weight: 700;
-
-  transition: 0.2s;
+.hero-dots {
+    position: absolute;
+    z-index: 2;
+    bottom: 22px;
+    left: 50%;
+    display: flex;
+    gap: 8px;
+    transform: translateX(-50%);
 }
 
-.home-nav a:hover {
-  color: #e31837;
+.hero-dots button {
+    width: 9px;
+    height: 9px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.55);
+    cursor: pointer;
 }
 
-
-/* ================================
-   NỘI DUNG
-================================ */
-
-.home-content {
-  width: 100%;
-  max-width: 1200px;
-
-  margin: 0 auto;
-
-  padding: 50px 30px;
+.hero-dots button.active {
+    width: 25px;
+    border-radius: 8px;
+    background: #ef5350;
 }
 
-
-/* ================================
-   CHÀO KHÁCH HÀNG
-================================ */
-
-.welcome-section {
-  margin-bottom: 35px;
+.home-movies {
+    width: min(1530px, calc(100% - 60px));
+    margin: 0 auto;
+    padding: 38px 0 60px;
 }
 
-.welcome-section h1 {
-  margin-bottom: 10px;
-
-  font-size: 30px;
-
-  color: #333333;
+.movie-content-layout {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1100px) 150px;
+    gap: 42px;
+    align-items: start;
+    justify-content: center;
 }
 
-.welcome-section p {
-  color: #666666;
-
-  font-size: 16px;
+.movie-content {
+    min-width: 0;
 }
 
-
-/* ================================
-   PHIM
-================================ */
-
-.home-placeholder {
-  padding: 35px;
-
-  background-color: white;
-
-  border-radius: 8px;
-
-  border: 1px solid #eeeeee;
-
-  box-shadow:
-    0 4px 15px rgba(0, 0, 0, 0.08);
+.side-banner {
+    min-height: 520px;
+    border-radius: 10px;
+    background-position: center;
+    background-size: cover;
+    box-shadow: 0 8px 24px rgba(100, 20, 20, 0.18);
 }
 
-.home-placeholder h2 {
-  margin-bottom: 15px;
-
-  color: #e31837;
-
-  font-size: 24px;
+.side-banner-left {
+    background-image: url("/banners/side-left.svg");
 }
 
-.home-placeholder p {
-  color: #666666;
+.side-banner-right {
+    background-image: url("/banners/side-right.svg");
 }
 
+.movie-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid #d8d8d8;
+}
 
-/* ================================
-   TABLET
-================================ */
+.movie-tabs button {
+    padding: 0 18px 14px;
+    border: 0;
+    border-bottom: 4px solid transparent;
+    background: transparent;
+    color: #222;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.movie-tabs button.active,
+.movie-tabs button:hover {
+    border-bottom-color: #d9534f;
+    color: #c62828;
+}
+
+.movie-list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.movie-card {
+    overflow: hidden;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+}
+
+.movie-poster {
+    display: block;
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+    background: #e8e8e8;
+}
+
+.movie-poster-button {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: #e8e8e8;
+    cursor: pointer;
+}
+
+.movie-poster-button::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+    background: rgba(0, 0, 0, 0.38);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.movie-poster-button:hover::after,
+.movie-poster-button:focus-visible::after {
+    opacity: 1;
+}
+
+.movie-play-button {
+    position: absolute;
+    z-index: 1;
+    top: 50%;
+    left: 50%;
+    display: flex;
+    width: 68px;
+    height: 68px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #fff;
+    color: #d84315;
+    font-size: 28px;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.movie-poster-button:hover .movie-play-button,
+.movie-poster-button:focus-visible .movie-play-button {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.movie-poster-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #777;
+}
+
+.movie-card-content {
+    padding: 14px;
+}
+
+.movie-card h3 {
+    margin: 0 0 8px;
+    font-size: 17px;
+}
+
+.movie-card p {
+    margin: 0 0 8px;
+    color: #666;
+}
+
+.movie-card span {
+    color: #555;
+    font-size: 14px;
+}
+
+.buy-ticket-button {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 11px 14px;
+    border: 0;
+    border-radius: 7px;
+    background: #d9534f;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.buy-ticket-button:hover {
+    background: #c62828;
+}
+
+.buy-ticket-button span {
+    color: #ffd33d;
+    font-size: 18px;
+}
+
+.movie-message,
+.movies-error {
+    padding: 30px 0;
+    color: #666;
+    text-align: center;
+}
+
+.movies-error {
+    color: #c62828;
+}
+
+.trailer-modal-backdrop {
+    position: fixed;
+    z-index: 20;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.76);
+}
+
+.trailer-modal {
+    position: relative;
+    width: min(900px, 100%);
+    padding: 28px 44px 44px;
+    background: #fff;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+.trailer-modal h2 {
+    margin: 0 0 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #e5e5e5;
+    color: #333;
+    font-size: 22px;
+}
+
+.trailer-close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    border: 0;
+    background: transparent;
+    color: #777;
+    font-size: 32px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.trailer-frame {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #000;
+}
+
+.trailer-frame iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.trailer-unavailable {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.trailer-unavailable a {
+    color: #c62828;
+    font-weight: 700;
+}
 
 @media (max-width: 900px) {
+    .movie-content-layout {
+        grid-template-columns: 1fr;
+    }
 
-  .home-top-bar {
-    padding: 0 30px;
-  }
+    .side-banner {
+        display: none;
+    }
 
-  .home-header {
-    flex-direction: column;
-
-    align-items: flex-start;
-
-    padding: 20px 30px;
-  }
-
-  .home-nav {
-    flex-wrap: wrap;
-
-    gap: 20px;
-  }
+    .movie-list {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 }
 
-
-/* ================================
-   MOBILE
-================================ */
-
 @media (max-width: 600px) {
+    .home-hero {
+        aspect-ratio: 2.76 / 1;
+    }
 
-  .home-top-bar {
-    padding: 0 15px;
-  }
+    .hero-control {
+        width: 34px;
+        height: 48px;
+        font-size: 30px;
+    }
 
-  .home-header {
-    padding: 18px 20px;
-  }
+    .hero-control-prev { left: 10px; }
+    .hero-control-next { right: 10px; }
 
-  .home-cgv {
-    font-size: 38px;
-  }
+    .home-movies {
+        width: calc(100% - 30px);
+        padding-top: 28px;
+    }
 
-  .home-nav {
-    gap: 15px;
-  }
+    .movie-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
 
-  .home-nav a {
-    font-size: 12px;
-  }
+    .movie-tabs {
+        justify-content: flex-start;
+        gap: 0;
+        overflow-x: auto;
+    }
 
-  .home-content {
-    padding: 30px 15px;
-  }
+    .movie-tabs button {
+        flex: 0 0 auto;
+        padding: 0 10px 12px;
+        font-size: 13px;
+    }
 
-  .welcome-section h1 {
-    font-size: 24px;
-  }
+    .movie-poster {
+        height: 220px;
+    }
 
-  .home-placeholder {
-    padding: 25px 20px;
-  }
+    .trailer-modal {
+        padding: 24px 16px 16px;
+    }
+
+    .trailer-modal h2 {
+        padding-right: 24px;
+        font-size: 18px;
+    }
 }

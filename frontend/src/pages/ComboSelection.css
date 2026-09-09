@@ -1,0 +1,68 @@
+.combo-page { min-height: 100vh; padding: 42px 20px 80px; background: linear-gradient(135deg, #fff7f7, #f5f6f8); }
+.combo-container { width: min(1180px, 100%); margin: 0 auto; }
+.checkout-grid { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 24px; align-items: start; }
+.checkout-main { display: grid; gap: 18px; }
+.checkout-section { padding: 28px 30px; border-radius: 16px; background: #fff; box-shadow: 0 10px 30px rgba(45,35,30,.08); }
+.checkout-section h1, .checkout-section h2 { margin: 0 0 18px; color: #c62828; }
+.customer-grid, .booking-info { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.customer-grid div, .booking-info div { display: grid; gap: 5px; }
+.customer-grid span, .booking-info span { color: #777; font-size: 13px; }
+.customer-grid strong, .booking-info strong { color: #333; }
+.booking-info { grid-template-columns: repeat(2, 1fr); }
+.combo-panel, .combo-summary { padding: 30px; border-radius: 20px; background: #fff; box-shadow: 0 14px 40px rgba(45,35,30,.09); }
+.combo-panel h1 { margin: 0 0 6px; color: #c62828; }
+.combo-subtitle { margin: 0 0 24px; color: #777; }
+.combo-list { display: grid; gap: 14px; }
+.combo-card { display: grid; grid-template-columns: 110px minmax(0, 1fr) auto; gap: 18px; align-items: center; padding: 14px; border: 1px solid #eee; border-radius: 14px; }
+.combo-card img, .combo-image-placeholder { width: 110px; height: 90px; border-radius: 10px; object-fit: cover; background: #fff0f0; color: #c62828; display: grid; place-items: center; font-weight: 800; }
+.combo-info h2 { margin: 0 0 6px; font-size: 17px; }
+.combo-info p { margin: 0 0 8px; color: #777; font-size: 13px; }
+.combo-info strong, .combo-total strong { color: #c62828; }
+.combo-quantity { display: flex; align-items: center; gap: 10px; }
+.combo-quantity button { width: 30px; height: 30px; border: 0; border-radius: 6px; background: #d9534f; color: #fff; font-size: 20px; cursor: pointer; }
+.combo-quantity button:disabled { opacity: .55; cursor: wait; }
+.promotion-box { display: grid; gap: 10px; margin-top: 24px; }
+.promotion-box h2 { margin: 0; font-size: 18px; }
+.promotion-box p { margin: 0; color: #777; font-size: 13px; }
+.promotion-select { width: 100%; padding: 12px 14px; border: 1px solid #d9534f; border-radius: 8px; background: #fff1f1; color: #333; font-size: 14px; cursor: pointer; }
+.promotion-select:disabled { opacity: .65; cursor: wait; }
+.promotion-empty { padding: 10px; border-radius: 8px; background: #f7f7f7; }
+.combo-summary { position: sticky; top: 24px; }
+.continue-button { width: 100%; min-height: 52px; border: 0; border-radius: 10px; background: linear-gradient(135deg, #d9534f, #c62828); color: #fff; font-weight: 700; cursor: pointer; box-shadow: 0 8px 16px rgba(198,40,40,.2); }
+.continue-button:hover:not(:disabled) { background: #b71c1c; }
+.continue-button:disabled { background: #c5c6c8; cursor: not-allowed; box-shadow: none; }
+.checkout-summary { padding: 28px; }
+.movie-summary { display: grid; grid-template-columns: 112px 1fr; gap: 16px; align-items: center; margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid #eee; }
+.movie-summary img, .movie-summary-placeholder { width: 112px; height: 154px; border-radius: 8px; object-fit: cover; background: #fff0f0; color: #c62828; display: grid; place-items: center; font-size: 22px; font-weight: 800; }
+.movie-summary h3 { margin: 0 0 8px; color: #333; font-size: 18px; line-height: 1.25; }
+.movie-summary p { margin: 0 0 7px; padding: 0; border: 0; font-size: 13px; }
+.ticket-summary { display: grid; gap: 12px; margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid #eee; }
+.ticket-summary div { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.ticket-summary span { color: #777; font-size: 13px; }
+.ticket-summary strong { color: #333; font-size: 13px; text-align: right; }
+.payment-method-box { display: grid; gap: 12px; }
+.payment-option { display: flex; align-items: flex-start; gap: 12px; padding: 14px; border: 1px solid #ddd; border-radius: 10px; cursor: pointer; }
+.payment-option.active { border-color: #d9534f; background: #fff1f1; }
+.payment-option input { margin-top: 3px; accent-color: #d9534f; }
+.payment-option span { display: grid; gap: 4px; }
+.payment-option small { color: #777; }
+.sepay-qr-box { display: grid; justify-items: center; gap: 8px; margin-top: 4px; padding: 18px; border: 1px solid #f0caca; border-radius: 12px; background: #fff8f8; text-align: center; }
+.sepay-qr-box img { width: 220px; height: 220px; object-fit: contain; }
+.sepay-qr-box strong { color: #c62828; font-size: 18px; }
+.sepay-qr-box span, .sepay-qr-box small { color: #666; font-size: 13px; }
+.sepay-qr-box b { color: #333; }
+.payment-success { display: grid; gap: 6px; padding: 16px; border: 1px solid #a5d6a7; border-radius: 10px; background: #edf7ee; color: #2e7d32; }
+.payment-success strong { font-size: 18px; }
+.payment-success span { color: #356b38; font-size: 14px; }
+.combo-summary h2 { margin-top: 0; color: #c62828; }
+.combo-summary p { padding-bottom: 16px; border-bottom: 1px solid #eee; color: #555; }
+.combo-breakdown { display: grid; grid-template-columns: 1fr auto; gap: 9px; padding: 16px 0; border-bottom: 1px solid #eee; color: #666; font-size: 14px; }
+.combo-breakdown b { color: #444; font-weight: 600; }
+.combo-breakdown .discount-amount { color: #2e7d32; }
+.combo-total { display: flex; justify-content: space-between; margin: 24px 0; font-size: 17px; }
+.combo-timer { margin-bottom: 22px; padding: 15px; border-radius: 10px; background: #fff1f1; text-align: center; color: #666; }
+.combo-timer b { display: block; margin-top: 5px; color: #c62828; font-size: 28px; }
+.combo-error { color: #c62828; }
+.combo-message { padding: 60px 20px; text-align: center; }
+@media (max-width: 850px) { .checkout-grid { grid-template-columns: 1fr; } .combo-summary { position: static; } .customer-grid { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .combo-page { padding: 25px 12px 50px; } .checkout-section, .combo-summary { padding: 20px 16px; } .combo-card { grid-template-columns: 78px minmax(0, 1fr); gap: 12px; } .combo-card img, .combo-image-placeholder { width: 78px; height: 72px; } .combo-quantity { grid-column: 2; justify-content: flex-end; } .booking-info { grid-template-columns: 1fr; } .movie-summary { grid-template-columns: 96px 1fr; } .movie-summary img, .movie-summary-placeholder { width: 96px; height: 132px; } }

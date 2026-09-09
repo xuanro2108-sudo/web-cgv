@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\LichChieu;
+use App\Models\VeGhe;
 use App\Models\OrderAccess;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -17,10 +18,57 @@ class LichChieuController extends Controller
      */
     public function index()
     {
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
+        $today = $now->toDateString();
+        $currentTime = $now->format('H:i:s');
+
         $lichChieus = LichChieu::with(['phim', 'phongChieu'])
+            ->where('trangThai', 'HOAT_DONG')
+            ->where(function ($query) use ($today, $currentTime) {
+                $query
+                    ->whereDate('ngayChieu', '>', $today)
+                    ->orWhere(function ($todayQuery) use ($today, $currentTime) {
+                        $todayQuery
+                            ->whereDate('ngayChieu', $today)
+                            ->whereTime('gioBatDau', '>=', $currentTime);
+                    });
+            })
             ->orderBy('ngayChieu')
             ->orderBy('gioBatDau')
             ->paginate(10);
+
+        $lichChieus->getCollection()->transform(function (LichChieu $lichChieu) {
+            $seats = $lichChieu->phongChieu?->soDoGhe?->ghes;
+            $totalSeats = $seats
+                ? $seats->where('trangThai', 'HOAT_DONG')->count()
+                : 0;
+            $occupiedSeats = VeGhe::where('maLichChieu', $lichChieu->maLichChieu)
+                ->whereIn('trangThai', ['GIU_CHO', 'DA_DAT'])
+                ->whereHas('donHang', function ($query) {
+                    $query->where('trangThai', 'DA_THANH_TOAN')
+                        ->orWhere(function ($pendingQuery) {
+                            $pendingQuery
+                                ->where('trangThai', 'CHO_THANH_TOAN')
+                                ->where(function ($expiryQuery) {
+                                    $expiryQuery
+                                        ->where('hetHanLuc', '>', now())
+                                        ->orWhere(function ($fallbackQuery) {
+                                            $fallbackQuery
+                                                ->whereNull('hetHanLuc')
+                                                ->where('ngayDat', '>', now()->subMinutes(10));
+                                        });
+                                });
+                        });
+                })
+                ->count();
+
+            $lichChieu->setAttribute(
+                'gheTrong',
+                max(0, $totalSeats - $occupiedSeats)
+            );
+
+            return $lichChieu;
+        });
 
         return response()->json($lichChieus);
     }
@@ -59,8 +107,36 @@ class LichChieuController extends Controller
      */
     public function show(string $maLichChieu)
     {
-        $lichChieu = LichChieu::with(['phim', 'phongChieu'])
+        $lichChieu = LichChieu::with(['phim', 'phongChieu.soDoGhe.ghes'])
             ->findOrFail($maLichChieu);
+        $occupiedSeatIds = VeGhe::where('maLichChieu', $maLichChieu)
+            ->whereIn('trangThai', ['GIU_CHO', 'DA_DAT'])
+            ->whereHas('donHang', function ($query) {
+                $query->where('trangThai', 'DA_THANH_TOAN')
+                    ->orWhere(function ($pendingQuery) {
+                        $pendingQuery
+                            ->where('trangThai', 'CHO_THANH_TOAN')
+                            ->where(function ($expiryQuery) {
+                                $expiryQuery
+                                    ->where('hetHanLuc', '>', now())
+                                    ->orWhere(function ($fallbackQuery) {
+                                        $fallbackQuery
+                                            ->whereNull('hetHanLuc')
+                                            ->where('ngayDat', '>', now()->subMinutes(10));
+                                    });
+                            });
+                    });
+            })
+            ->pluck('maGhe')
+            ->all();
+
+        if ($lichChieu->phongChieu?->soDoGhe) {
+            $lichChieu->phongChieu->soDoGhe->ghes->each(function ($ghe) use ($occupiedSeatIds) {
+                if (in_array($ghe->maGhe, $occupiedSeatIds, true)) {
+                    $ghe->setAttribute('trangThai', 'DA_DAT');
+                }
+            });
+        }
 
         return response()->json([
             'message' => 'Lấy thông tin lịch chiếu thành công',

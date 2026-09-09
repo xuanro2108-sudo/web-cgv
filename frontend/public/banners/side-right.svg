@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 700">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="1" x2="1" y2="0">
+      <stop stop-color="#430b17"/>
+      <stop offset=".5" stop-color="#b71c1c"/>
+      <stop offset="1" stop-color="#ff7043"/>
+    </linearGradient>
+  </defs>
+  <rect width="300" height="700" rx="18" fill="url(#bg)"/>
+  <path d="M-20 530L320 160M-50 650L290 280M30 730L350 380" stroke="#fff" stroke-opacity=".12" stroke-width="34"/>
+  <circle cx="150" cy="220" r="94" fill="none" stroke="#ffd54f" stroke-width="3" opacity=".8"/>
+  <circle cx="150" cy="220" r="72" fill="none" stroke="#ffd54f" stroke-width="1" opacity=".6"/>
+  <text x="150" y="70" fill="#fff" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" font-weight="700">CGV CINEMA</text>
+  <text x="150" y="205" fill="#ffd54f" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" font-weight="700">MOVIE</text>
+  <text x="150" y="240" fill="#fff" text-anchor="middle" font-family="Arial,sans-serif" font-size="32" font-weight="800">NIGHT</text>
+  <text x="150" y="275" fill="#fff" text-anchor="middle" font-family="Arial,sans-serif" font-size="15">PHIM HAY - GHẾ ĐẸP</text>
+  <path d="M45 355h210" stroke="#ffd54f" stroke-width="2"/>
+  <text x="150" y="420" fill="#fff" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700">ĐẶT VÉ ONLINE</text>
+  <text x="150" y="455" fill="#ffe082" text-anchor="middle" font-family="Arial,sans-serif" font-size="14">Nhanh chóng và tiện lợi</text>
+  <rect x="65" y="510" width="170" height="48" rx="24" fill="#ffd54f"/>
+  <text x="150" y="541" fill="#7f1018" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="700">XEM LỊCH CHIẾU</text>
+  <text x="150" y="640" fill="#fff" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" opacity=".75">THƯỞNG THỨC ĐIỆN ẢNH</text>
+</svg>
