@@ -1,18 +1,27 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./LoginCustomer.css";
-import Header from "../components/common/Header/Header";
 
-function LoginCustomer({ initialTab = "login" }) {
-  // =========================
-  // CHUYỂN TRANG
-  // =========================
+function LoginCustomer() {
   const navigate = useNavigate();
 
   // =========================
-  // TAB ĐĂNG NHẬP / ĐĂNG KÝ
+  // NGÀY HIỆN TẠI
+  // Dùng làm ngày sinh tối đa
   // =========================
-const [activeTab, setActiveTab] = useState(initialTab);
+  const today = new Date();
+
+  const maxBirthDate =
+    today.getFullYear() +
+    "-" +
+    String(today.getMonth() + 1).padStart(2, "0") +
+    "-" +
+    String(today.getDate()).padStart(2, "0");
+
+  // =========================
+  // TAB LOGIN / REGISTER
+  // =========================
+  const [activeTab, setActiveTab] = useState("login");
 
   // =========================
   // DỮ LIỆU ĐĂNG NHẬP
@@ -35,7 +44,6 @@ const [activeTab, setActiveTab] = useState(initialTab);
     email: "",
     ngaySinh: "",
     gioiTinh: "",
-    tenDangNhap: "",
     matKhau: "",
     matKhau_confirmation: "",
   });
@@ -65,7 +73,7 @@ const [activeTab, setActiveTab] = useState(initialTab);
   const handleRegisterChange = (e) => {
     const { name, value } = e.target;
 
-    // Chỉ cho số điện thoại nhập số
+    // Số điện thoại chỉ cho nhập số
     if (name === "soDienThoai") {
       const onlyNumbers = value.replace(/\D/g, "");
 
@@ -90,7 +98,7 @@ const [activeTab, setActiveTab] = useState(initialTab);
   };
 
   // =========================
-  // ĐĂNG NHẬP KHÁCH HÀNG
+  // ĐĂNG NHẬP
   // =========================
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -98,9 +106,6 @@ const [activeTab, setActiveTab] = useState(initialTab);
     setLoginError("");
     setLoginMessage("");
     setLoginLoading(true);
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     try {
       const response = await fetch(
@@ -112,10 +117,9 @@ const [activeTab, setActiveTab] = useState(initialTab);
             "Content-Type": "application/json",
             Accept: "application/json",
           },
-          signal: controller.signal,
 
           body: JSON.stringify({
-            identifier: loginData.identifier,
+            identifier: loginData.identifier.trim(),
             matKhau: loginData.matKhau,
           }),
         }
@@ -123,7 +127,6 @@ const [activeTab, setActiveTab] = useState(initialTab);
 
       const data = await response.json();
 
-      // Nếu đăng nhập lỗi
       if (!response.ok) {
         setLoginError(
           data.message || "Đăng nhập không thành công."
@@ -133,9 +136,8 @@ const [activeTab, setActiveTab] = useState(initialTab);
       }
 
       // =========================
-      // LƯU THÔNG TIN ĐĂNG NHẬP
+      // LƯU TOKEN
       // =========================
-
       localStorage.setItem(
         "token",
         data.token
@@ -162,14 +164,7 @@ const [activeTab, setActiveTab] = useState(initialTab);
         "Đăng nhập thành công!"
       );
 
-      console.log(
-        "Đăng nhập thành công:",
-        data
-      );
-
-      // =========================
-      // CHUYỂN SANG TRANG CHỦ
-      // =========================
+      // Chuyển sang trang chủ
       navigate("/home");
 
     } catch (error) {
@@ -179,19 +174,16 @@ const [activeTab, setActiveTab] = useState(initialTab);
       );
 
       setLoginError(
-        error.name === "AbortError"
-          ? "Máy chủ phản hồi quá lâu. Vui lòng kiểm tra trạng thái MySQL và thử lại."
-          : "Không thể kết nối đến máy chủ."
+        "Không thể kết nối đến máy chủ."
       );
 
     } finally {
-      clearTimeout(timeoutId);
       setLoginLoading(false);
     }
   };
 
   // =========================
-  // ĐĂNG KÝ KHÁCH HÀNG
+  // ĐĂNG KÝ
   // =========================
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
@@ -200,13 +192,41 @@ const [activeTab, setActiveTab] = useState(initialTab);
     setRegisterMessage("");
 
     // =========================
-    // KIỂM TRA SỐ ĐIỆN THOẠI
+    // KIỂM TRA SĐT
     // =========================
     const phoneRegex = /^0[0-9]{9}$/;
 
     if (!phoneRegex.test(registerData.soDienThoai)) {
       setRegisterError(
-        "Số điện thoại phải gồm 10 số và bắt đầu bằng số 0."
+        "Số điện thoại phải gồm 10 chữ số và bắt đầu bằng số 0."
+      );
+
+      return;
+    }
+
+    // =========================
+    // KIỂM TRA GMAIL
+    // =========================
+    const gmailRegex =
+      /^[A-Za-z0-9._%+-]+@gmail\.com$/i;
+
+    if (!gmailRegex.test(registerData.email.trim())) {
+      setRegisterError(
+        "Email phải có định dạng @gmail.com."
+      );
+
+      return;
+    }
+
+    // =========================
+    // KIỂM TRA NGÀY SINH
+    // =========================
+    if (
+      registerData.ngaySinh &&
+      registerData.ngaySinh > maxBirthDate
+    ) {
+      setRegisterError(
+        "Ngày sinh không được lớn hơn ngày hiện tại."
       );
 
       return;
@@ -223,9 +243,6 @@ const [activeTab, setActiveTab] = useState(initialTab);
       return;
     }
 
-    // =========================
-    // KIỂM TRA XÁC NHẬN MẬT KHẨU
-    // =========================
     if (
       registerData.matKhau !==
       registerData.matKhau_confirmation
@@ -240,6 +257,13 @@ const [activeTab, setActiveTab] = useState(initialTab);
     setRegisterLoading(true);
 
     try {
+      const dataToSend = {
+        ...registerData,
+        email: registerData.email
+          .trim()
+          .toLowerCase(),
+      };
+
       const response = await fetch(
         "http://127.0.0.1:8000/api/auth/register",
         {
@@ -250,7 +274,7 @@ const [activeTab, setActiveTab] = useState(initialTab);
             Accept: "application/json",
           },
 
-          body: JSON.stringify(registerData),
+          body: JSON.stringify(dataToSend),
         }
       );
 
@@ -261,9 +285,8 @@ const [activeTab, setActiveTab] = useState(initialTab);
       // =========================
       if (!response.ok) {
         if (data.errors) {
-          const firstError = Object.values(
-            data.errors
-          )[0];
+          const firstError =
+            Object.values(data.errors)[0];
 
           setRegisterError(
             Array.isArray(firstError)
@@ -289,23 +312,24 @@ const [activeTab, setActiveTab] = useState(initialTab);
 
       // Điền sẵn email vào form đăng nhập
       setLoginData({
-        identifier: registerData.email,
+        identifier: registerData.email
+          .trim()
+          .toLowerCase(),
         matKhau: "",
       });
 
-      // Xóa dữ liệu form đăng ký
+      // Xóa form đăng ký
       setRegisterData({
         hoTen: "",
         soDienThoai: "",
         email: "",
         ngaySinh: "",
         gioiTinh: "",
-        tenDangNhap: "",
         matKhau: "",
         matKhau_confirmation: "",
       });
 
-      // Sau 1 giây chuyển sang đăng nhập
+      // Chuyển về tab đăng nhập
       setTimeout(() => {
         setActiveTab("login");
 
@@ -334,8 +358,80 @@ const [activeTab, setActiveTab] = useState(initialTab);
   return (
     <div className="customer-page">
 
-      
-      <Header />
+      {/* =========================
+          HEADER
+      ========================= */}
+      <header className="customer-header">
+
+        <div className="header-top">
+
+          <div className="header-top-right">
+
+            <span
+              onClick={() =>
+                setActiveTab("login")
+              }
+            >
+              Đăng nhập
+            </span>
+
+            <span>|</span>
+
+            <span
+              onClick={() =>
+                setActiveTab("register")
+              }
+            >
+              Đăng ký
+            </span>
+
+          </div>
+
+        </div>
+
+        <div className="header-main">
+
+          <div className="cgv-logo">
+
+            <span className="cgv-name">
+              CGV
+            </span>
+
+            <span className="cgv-branch">
+              AEON MALL HÀ ĐÔNG
+            </span>
+
+          </div>
+
+          <nav className="customer-nav">
+
+            <a href="#">
+              LỊCH CHIẾU
+            </a>
+
+            <a href="#">
+              PHIM
+            </a>
+
+            <a href="#">
+              GIÁ VÉ
+            </a>
+
+            <a href="#">
+              TIN TỨC & ƯU ĐÃI
+            </a>
+
+            <a href="#">
+              THÀNH VIÊN
+            </a>
+
+          </nav>
+
+        </div>
+
+      </header>
+
+
       {/* =========================
           LOGIN / REGISTER
       ========================= */}
@@ -343,9 +439,7 @@ const [activeTab, setActiveTab] = useState(initialTab);
 
         <div className="login-box">
 
-          {/* =========================
-              TAB
-          ========================= */}
+          {/* TAB */}
           <div className="auth-tabs">
 
             <button
@@ -378,8 +472,9 @@ const [activeTab, setActiveTab] = useState(initialTab);
 
           </div>
 
+
           {/* =========================
-              FORM ĐĂNG NHẬP
+              FORM LOGIN
           ========================= */}
           {activeTab === "login" && (
 
@@ -407,6 +502,7 @@ const [activeTab, setActiveTab] = useState(initialTab);
                   required
                 />
 
+
                 <label>
                   Mật khẩu
                 </label>
@@ -420,6 +516,7 @@ const [activeTab, setActiveTab] = useState(initialTab);
                   required
                 />
 
+
                 <a
                   href="#"
                   className="forgot-password"
@@ -427,19 +524,20 @@ const [activeTab, setActiveTab] = useState(initialTab);
                   Quên mật khẩu?
                 </a>
 
-                {/* LỖI */}
+
                 {loginError && (
                   <p className="login-error">
                     {loginError}
                   </p>
                 )}
 
-                {/* THÀNH CÔNG */}
+
                 {loginMessage && (
                   <p className="login-success">
                     {loginMessage}
                   </p>
                 )}
+
 
                 <button
                   type="submit"
@@ -457,8 +555,9 @@ const [activeTab, setActiveTab] = useState(initialTab);
 
           )}
 
+
           {/* =========================
-              FORM ĐĂNG KÝ
+              FORM REGISTER
           ========================= */}
           {activeTab === "register" && (
 
@@ -487,6 +586,7 @@ const [activeTab, setActiveTab] = useState(initialTab);
                   required
                 />
 
+
                 {/* SỐ ĐIỆN THOẠI */}
                 <label>
                   Số điện thoại
@@ -504,6 +604,7 @@ const [activeTab, setActiveTab] = useState(initialTab);
                   required
                 />
 
+
                 {/* EMAIL */}
                 <label>
                   Email
@@ -512,11 +613,14 @@ const [activeTab, setActiveTab] = useState(initialTab);
                 <input
                   type="email"
                   name="email"
-                  placeholder="Nhập email"
+                  placeholder="Ví dụ: example@gmail.com"
                   value={registerData.email}
                   onChange={handleRegisterChange}
+                  pattern="[A-Za-z0-9._%+-]+@gmail\.com"
+                  title="Email phải có định dạng @gmail.com"
                   required
                 />
+
 
                 {/* NGÀY SINH */}
                 <label>
@@ -528,7 +632,9 @@ const [activeTab, setActiveTab] = useState(initialTab);
                   name="ngaySinh"
                   value={registerData.ngaySinh}
                   onChange={handleRegisterChange}
+                  max={maxBirthDate}
                 />
+
 
                 {/* GIỚI TÍNH */}
                 <label>
@@ -555,19 +661,6 @@ const [activeTab, setActiveTab] = useState(initialTab);
 
                 </select>
 
-                {/* TÊN ĐĂNG NHẬP */}
-                <label>
-                  Tên đăng nhập
-                </label>
-
-                <input
-                  type="text"
-                  name="tenDangNhap"
-                  placeholder="Nhập tên đăng nhập"
-                  value={registerData.tenDangNhap}
-                  onChange={handleRegisterChange}
-                  required
-                />
 
                 {/* MẬT KHẨU */}
                 <label>
@@ -583,6 +676,7 @@ const [activeTab, setActiveTab] = useState(initialTab);
                   minLength="6"
                   required
                 />
+
 
                 {/* XÁC NHẬN MẬT KHẨU */}
                 <label>
@@ -601,19 +695,20 @@ const [activeTab, setActiveTab] = useState(initialTab);
                   required
                 />
 
-                {/* LỖI ĐĂNG KÝ */}
+
                 {registerError && (
                   <p className="login-error">
                     {registerError}
                   </p>
                 )}
 
-                {/* THÀNH CÔNG */}
+
                 {registerMessage && (
                   <p className="login-success">
                     {registerMessage}
                   </p>
                 )}
+
 
                 <button
                   type="submit"
