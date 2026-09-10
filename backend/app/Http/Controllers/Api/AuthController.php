@@ -338,93 +338,53 @@ class AuthController extends Controller
     // =========================
     // XỬ LÝ LOGIN NỘI BỘ
     // =========================
-    private function loginInternalAccount(
-        Request $request,
-        array $roles,
-        string $tokenName
-    ) {
-        $data = $request->validate([
-            'tenDangNhap' => [
-                'required',
-                'string',
-            ],
+    private function loginInternalAccount(Request $request, array $roles, string $tokenName)
+{
+    $data = $request->validate([
+        'email' => [
+            'required',
+            'email',
+            'regex:/^[A-Za-z0-9._%+\-]+@gmail\.com$/i',
+        ],
+        'matKhau' => ['required', 'string'],
+    ]);
 
-            'matKhau' => [
-                'required',
-                'string',
-            ],
-        ]);
+    $email = strtolower(trim($data['email']));
 
-        $taiKhoan = TaiKhoan::where(
-            'tenDangNhap',
-            $data['tenDangNhap']
-        )->first();
+    $taiKhoan = TaiKhoan::where('tenDangNhap', $email)->first();
 
-        if (!$taiKhoan) {
-            return response()->json([
-                'message' =>
-                    'Tên đăng nhập hoặc mật khẩu không đúng'
-            ], 401);
-        }
-
-        if (!Hash::check(
-            $data['matKhau'],
-            $taiKhoan->matKhau
-        )) {
-            return response()->json([
-                'message' =>
-                    'Tên đăng nhập hoặc mật khẩu không đúng'
-            ], 401);
-        }
-
-        if (!in_array(
-            $taiKhoan->vaiTro,
-            $roles,
-            true
-        )) {
-            return response()->json([
-                'message' =>
-                    'Bạn không có quyền đăng nhập tại đây'
-            ], 403);
-        }
-
-        if (
-            $taiKhoan->trangThai !==
-            'HOAT_DONG'
-        ) {
-            return response()->json([
-                'message' =>
-                    'Tài khoản đã bị khóa'
-            ], 403);
-        }
-
-        $token = $taiKhoan
-            ->createToken(
-                $tokenName,
-                [$taiKhoan->vaiTro]
-            )
-            ->plainTextToken;
-
+    if (!$taiKhoan || !Hash::check($data['matKhau'], $taiKhoan->matKhau)) {
         return response()->json([
-            'message' =>
-                'Đăng nhập thành công',
-
-            'token' =>
-                $token,
-
-            'taiKhoan' => [
-                'maTK' =>
-                    $taiKhoan->maTK,
-
-                'tenDangNhap' =>
-                    $taiKhoan->tenDangNhap,
-
-                'vaiTro' =>
-                    $taiKhoan->vaiTro,
-            ],
-        ]);
+            'message' => 'Email hoặc mật khẩu không đúng'
+        ], 401);
     }
 
+    if (!in_array($taiKhoan->vaiTro, $roles, true)) {
+        return response()->json([
+            'message' => 'Bạn không có quyền đăng nhập tại đây'
+        ], 403);
+    }
+
+    if ($taiKhoan->trangThai !== 'HOAT_DONG') {
+        return response()->json([
+            'message' => 'Tài khoản đã bị khóa'
+        ], 403);
+    }
+
+    $token = $taiKhoan
+        ->createToken($tokenName, [$taiKhoan->vaiTro])
+        ->plainTextToken;
+
+    return response()->json([
+        'message' => 'Đăng nhập thành công',
+        'token' => $token,
+        'taiKhoan' => [
+            'maTK' => $taiKhoan->maTK,
+            'tenDangNhap' => $taiKhoan->tenDangNhap,
+            'vaiTro' => $taiKhoan->vaiTro,
+        ],
+    ]);
+}
 
     // =========================
     // THÔNG TIN TÀI KHOẢN

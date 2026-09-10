@@ -4,6 +4,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+
 import CustomerLayout from "./layouts/CustomerLayout";
 
 import LoginCustomer from "./pages/LoginCustomer";
@@ -19,7 +20,14 @@ import CustomerManagement from "./pages/CustomerManagement";
 import PromotionManagement from "./pages/PromotionManagement";
 
 // =========================
+// QUẢN LÝ NHÂN VIÊN
+// =========================
+import NhanVienManagement from "./pages/NhanVienManagement";
+
+
+// =========================
 // BẢO VỆ DASHBOARD
+// NHÂN VIÊN + QUẢN LÝ
 // =========================
 function InternalRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -45,16 +53,63 @@ function InternalRoute({ children }) {
   return children;
 }
 
-function CustomerRoute({ children }) {
+
+// =========================
+// CHỈ DÀNH CHO QUẢN LÝ
+// =========================
+function ManagerRoute({ children }) {
   const token = localStorage.getItem("token");
   const vaiTro = localStorage.getItem("vaiTro");
 
-  if (!token || vaiTro !== "KHACH_HANG") {
-    return <Navigate to="/login" replace state={{ from: window.location.pathname }} />;
+  // Chưa đăng nhập
+  if (!token) {
+    return (
+      <Navigate
+        to="/internal/login"
+        replace
+      />
+    );
+  }
+
+  // Có đăng nhập nhưng không phải quản lý
+  if (vaiTro !== "QUAN_LY") {
+    return (
+      <Navigate
+        to="/dashboard"
+        replace
+      />
+    );
   }
 
   return children;
 }
+
+
+// =========================
+// BẢO VỆ KHÁCH HÀNG
+// =========================
+function CustomerRoute({ children }) {
+  const token = localStorage.getItem("token");
+  const vaiTro = localStorage.getItem("vaiTro");
+
+  if (
+    !token ||
+    vaiTro !== "KHACH_HANG"
+  ) {
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{
+          from: window.location.pathname,
+        }}
+      />
+    );
+  }
+
+  return children;
+}
+
 
 function App() {
   return (
@@ -67,17 +122,27 @@ function App() {
 
         <Route
           path="/"
-          element={<Navigate to="/home" replace />}
+          element={
+            <Navigate
+              to="/home"
+              replace
+            />
+          }
         />
 
         <Route
-            path="/home"
-            element={
-              <CustomerLayout>
-                  <HomeCustomer />
-              </CustomerLayout>
-            }
-          />
+          path="/home"
+          element={
+            <CustomerLayout>
+              <HomeCustomer />
+            </CustomerLayout>
+          }
+        />
+
+
+        {/* =========================
+            ĐẶT VÉ
+        ========================= */}
 
         <Route
           path="/dat-ve/:maPhim"
@@ -123,6 +188,7 @@ function App() {
           }
         />
 
+
         {/* =========================
             ĐĂNG NHẬP / ĐĂNG KÝ
         ========================= */}
@@ -130,16 +196,21 @@ function App() {
         <Route
           path="/login"
           element={
-            <LoginCustomer initialTab="login" />
+            <LoginCustomer
+              initialTab="login"
+            />
           }
         />
 
         <Route
           path="/register"
           element={
-            <LoginCustomer initialTab="register" />
+            <LoginCustomer
+              initialTab="register"
+            />
           }
         />
+
 
         {/* =========================
             NHÂN VIÊN / QUẢN LÝ
@@ -147,9 +218,13 @@ function App() {
 
         <Route
           path="/internal/login"
-          element={<LoginInternal />}
+          element={
+            <LoginInternal />
+          }
         />
 
+
+        {/* DASHBOARD CHUNG */}
         <Route
           path="/dashboard"
           element={
@@ -186,6 +261,22 @@ function App() {
                 <Navigate to="/dashboard" replace />
               )}
             </InternalRoute>
+          }
+        />
+
+        {/* =========================
+            QUẢN LÝ NHÂN VIÊN
+            CHỈ QUAN_LY
+        ========================= */}
+
+        <Route
+          path="/dashboard/nhan-vien"
+          element={
+            <ManagerRoute>
+              <Dashboard>
+                <NhanVienManagement />
+              </Dashboard>
+            </ManagerRoute>
           }
         />
 
