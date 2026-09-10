@@ -15,6 +15,8 @@ import ComboSelection from "./pages/ComboSelection";
 
 import LoginInternal from "./pages/LoginInternal";
 import Dashboard from "./pages/Dashboard";
+import CustomerManagement from "./pages/CustomerManagement";
+import PromotionManagement from "./pages/PromotionManagement";
 
 // =========================
 // BẢO VỆ DASHBOARD
@@ -153,6 +155,36 @@ function App() {
           element={
             <InternalRoute>
               <Dashboard />
+            </InternalRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard/khach-hang"
+          element={
+            <InternalRoute>
+              {localStorage.getItem("vaiTro") === "QUAN_LY" ? (
+                <Dashboard>
+                  <CustomerManagement />
+                </Dashboard>
+              ) : (
+                <Navigate to="/dashboard" replace />
+              )}
+            </InternalRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard/khuyen-mai"
+          element={
+            <InternalRoute>
+              {localStorage.getItem("vaiTro") === "QUAN_LY" ? (
+                <Dashboard>
+                  <PromotionManagement />
+                </Dashboard>
+              ) : (
+                <Navigate to="/dashboard" replace />
+              )}
             </InternalRoute>
           }
         />
