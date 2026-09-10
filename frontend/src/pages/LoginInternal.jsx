@@ -6,7 +6,7 @@ function LoginInternal() {
   const navigate = useNavigate();
 
   const [loginData, setLoginData] = useState({
-    tenDangNhap: "",
+    email: "",
     matKhau: "",
   });
 
@@ -14,20 +14,24 @@ function LoginInternal() {
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-
     setLoginData({
       ...loginData,
-      [name]: value,
+      [e.target.name]: e.target.value,
     });
-
     setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setError("");
+
+    const email = loginData.email.trim().toLowerCase();
+
+    if (!/^[A-Za-z0-9._%+-]+@gmail\.com$/i.test(email)) {
+      setError("Email phải có định dạng @gmail.com.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -35,14 +39,12 @@ function LoginInternal() {
         "http://127.0.0.1:8000/api/auth/internal/login",
         {
           method: "POST",
-
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
           },
-
           body: JSON.stringify({
-            tenDangNhap: loginData.tenDangNhap,
+            email,
             matKhau: loginData.matKhau,
           }),
         }
@@ -51,44 +53,17 @@ function LoginInternal() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(
-          data.message || "Đăng nhập không thành công."
-        );
-
+        setError(data.message || "Đăng nhập không thành công.");
         return;
       }
 
-      // Lưu token
-      localStorage.setItem(
-        "token",
-        data.token
-      );
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("vaiTro", data.taiKhoan.vaiTro);
+      localStorage.setItem("taiKhoan", JSON.stringify(data.taiKhoan));
 
-      // Lưu vai trò
-      localStorage.setItem(
-        "vaiTro",
-        data.taiKhoan.vaiTro
-      );
-
-      // Lưu tài khoản
-      localStorage.setItem(
-        "taiKhoan",
-        JSON.stringify(data.taiKhoan)
-      );
-
-      // Chuyển sang Dashboard
       navigate("/dashboard");
-
-    } catch (error) {
-      console.error(
-        "Lỗi đăng nhập nội bộ:",
-        error
-      );
-
-      setError(
-        "Không thể kết nối đến máy chủ."
-      );
-
+    } catch {
+      setError("Không thể kết nối đến máy chủ.");
     } finally {
       setLoading(false);
     }
@@ -96,46 +71,31 @@ function LoginInternal() {
 
   return (
     <div className="internal-page">
-
       <div className="internal-login-box">
+        <div className="internal-logo">CGV</div>
 
-        <div className="internal-logo">
-          CGV
-        </div>
+        <p className="internal-branch">AEON MALL HÀ ĐÔNG</p>
 
-        <p className="internal-branch">
-          AEON MALL HÀ ĐÔNG
-        </p>
-
-        <h1 className="internal-title">
-          ĐĂNG NHẬP HỆ THỐNG
-        </h1>
+        <h1 className="internal-title">ĐĂNG NHẬP HỆ THỐNG</h1>
 
         <p className="internal-description">
           Dành cho Nhân viên và Quản lý
         </p>
 
-        <form
-          className="internal-form"
-          onSubmit={handleSubmit}
-        >
-
-          <label>
-            Tên đăng nhập
-          </label>
+        <form className="internal-form" onSubmit={handleSubmit}>
+          <label>Email</label>
 
           <input
-            type="text"
-            name="tenDangNhap"
-            placeholder="Nhập tên đăng nhập"
-            value={loginData.tenDangNhap}
+            type="email"
+            name="email"
+            placeholder="Nhập Email"
+            value={loginData.email}
             onChange={handleChange}
+            pattern="[A-Za-z0-9._%+-]+@gmail\.com"
             required
           />
 
-          <label>
-            Mật khẩu
-          </label>
+          <label>Mật khẩu</label>
 
           <input
             type="password"
@@ -146,26 +106,17 @@ function LoginInternal() {
             required
           />
 
-          {error && (
-            <p className="internal-error">
-              {error}
-            </p>
-          )}
+          {error && <p className="internal-error">{error}</p>}
 
           <button
             type="submit"
             className="internal-login-button"
             disabled={loading}
           >
-            {loading
-              ? "ĐANG ĐĂNG NHẬP..."
-              : "ĐĂNG NHẬP"}
+            {loading ? "ĐANG ĐĂNG NHẬP..." : "ĐĂNG NHẬP"}
           </button>
-
         </form>
-
       </div>
-
     </div>
   );
 }
