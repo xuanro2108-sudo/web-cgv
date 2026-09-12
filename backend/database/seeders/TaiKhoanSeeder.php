@@ -14,7 +14,7 @@ class TaiKhoanSeeder extends Seeder
         TaiKhoan::create([
             'maTK' => 'TK001',
             'tenDangNhap' => 'nguyenan',
-            'matKhau' => Hash::make('123456'),
+          'matKhau' => Hash::make('123456'),
             'vaiTro' => 'KHACH_HANG',
             'maKH' => 'KH001',
             'maNV' => null,
@@ -24,7 +24,7 @@ class TaiKhoanSeeder extends Seeder
         TaiKhoan::create([
             'maTK' => 'TK002',
             'tenDangNhap' => 'tranbinh',
-          'matKhau' => Hash::make('123456'),
+           'matKhau' => Hash::make('123456'),
             'vaiTro' => 'KHACH_HANG',
             'maKH' => 'KH002',
             'maNV' => null,
@@ -46,7 +46,7 @@ class TaiKhoanSeeder extends Seeder
         TaiKhoan::create([
             'maTK' => 'TK004',
             'tenDangNhap' => 'nhanvien01',
-           'matKhau' => Hash::make('123456'),
+        'matKhau' => Hash::make('123456'),
             'vaiTro' => 'NHAN_VIEN',
             'maKH' => null,
             'maNV' => 'NV002',
@@ -56,10 +56,20 @@ class TaiKhoanSeeder extends Seeder
         TaiKhoan::create([
             'maTK' => 'TK005',
             'tenDangNhap' => 'nhanvien02',
-        'matKhau' => Hash::make('123456'),
+            'matKhau' => Hash::make('123456'),
             'vaiTro' => 'NHAN_VIEN',
             'maKH' => null,
             'maNV' => 'NV003',
+            'trangThai' => 'HOAT_DONG',
+        ]);
+
+        TaiKhoan::create([
+            'maTK' => 'TK007',
+            'tenDangNhap' => 'admin@gmail.com',
+            'matKhau' => Hash::make('123456'),
+            'vaiTro' => 'QUAN_LY',
+            'maKH' => null,
+            'maNV' => null,
             'trangThai' => 'HOAT_DONG',
         ]);
     }
