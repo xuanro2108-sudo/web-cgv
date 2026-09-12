@@ -43,19 +43,24 @@ class LichChieuController extends Controller
                 ? $seats->where('trangThai', 'HOAT_DONG')->count()
                 : 0;
             $occupiedSeats = VeGhe::where('maLichChieu', $lichChieu->maLichChieu)
-                ->whereIn('trangThai', ['GIU_CHO', 'DA_DAT'])
-                ->whereHas('donHang', function ($query) {
-                    $query->where('trangThai', 'DA_THANH_TOAN')
-                        ->orWhere(function ($pendingQuery) {
-                            $pendingQuery
-                                ->where('trangThai', 'CHO_THANH_TOAN')
-                                ->where(function ($expiryQuery) {
-                                    $expiryQuery
-                                        ->where('hetHanLuc', '>', now())
-                                        ->orWhere(function ($fallbackQuery) {
-                                            $fallbackQuery
-                                                ->whereNull('hetHanLuc')
-                                                ->where('ngayDat', '>', now()->subMinutes(10));
+                ->where(function ($ticketQuery) {
+                    $ticketQuery->where('trangThai', 'DA_SU_DUNG')
+                        ->orWhere(function ($activeQuery) {
+                            $activeQuery->whereIn('trangThai', ['GIU_CHO', 'DA_DAT'])
+                                ->whereHas('donHang', function ($query) {
+                                    $query->whereIn('trangThai', ['DA_THANH_TOAN', 'DA_SU_DUNG'])
+                                        ->orWhere(function ($pendingQuery) {
+                                            $pendingQuery
+                                                ->where('trangThai', 'CHO_THANH_TOAN')
+                                                ->where(function ($expiryQuery) {
+                                                    $expiryQuery
+                                                        ->where('hetHanLuc', '>', now())
+                                                        ->orWhere(function ($fallbackQuery) {
+                                                            $fallbackQuery
+                                                                ->whereNull('hetHanLuc')
+                                                                ->where('ngayDat', '>', now()->subMinutes(10));
+                                                        });
+                                                });
                                         });
                                 });
                         });
@@ -109,31 +114,37 @@ class LichChieuController extends Controller
     {
         $lichChieu = LichChieu::with(['phim', 'phongChieu.soDoGhe.ghes'])
             ->findOrFail($maLichChieu);
-        $occupiedSeatIds = VeGhe::where('maLichChieu', $maLichChieu)
-            ->whereIn('trangThai', ['GIU_CHO', 'DA_DAT'])
-            ->whereHas('donHang', function ($query) {
-                $query->where('trangThai', 'DA_THANH_TOAN')
-                    ->orWhere(function ($pendingQuery) {
-                        $pendingQuery
-                            ->where('trangThai', 'CHO_THANH_TOAN')
-                            ->where(function ($expiryQuery) {
-                                $expiryQuery
-                                    ->where('hetHanLuc', '>', now())
-                                    ->orWhere(function ($fallbackQuery) {
-                                        $fallbackQuery
-                                            ->whereNull('hetHanLuc')
-                                            ->where('ngayDat', '>', now()->subMinutes(10));
+        $occupiedTickets = VeGhe::where('maLichChieu', $maLichChieu)
+            ->where(function ($ticketQuery) {
+                $ticketQuery->where('trangThai', 'DA_SU_DUNG')
+                    ->orWhere(function ($activeQuery) {
+                        $activeQuery->whereIn('trangThai', ['GIU_CHO', 'DA_DAT'])
+                            ->whereHas('donHang', function ($query) {
+                                $query->whereIn('trangThai', ['DA_THANH_TOAN', 'DA_SU_DUNG'])
+                                    ->orWhere(function ($pendingQuery) {
+                                        $pendingQuery
+                                            ->where('trangThai', 'CHO_THANH_TOAN')
+                                            ->where(function ($expiryQuery) {
+                                                $expiryQuery
+                                                    ->where('hetHanLuc', '>', now())
+                                                    ->orWhere(function ($fallbackQuery) {
+                                                        $fallbackQuery
+                                                            ->whereNull('hetHanLuc')
+                                                            ->where('ngayDat', '>', now()->subMinutes(10));
+                                                    });
+                                            });
                                     });
                             });
                     });
             })
-            ->pluck('maGhe')
-            ->all();
+            ->get(['maGhe', 'trangThai'])
+            ->keyBy('maGhe');
 
         if ($lichChieu->phongChieu?->soDoGhe) {
-            $lichChieu->phongChieu->soDoGhe->ghes->each(function ($ghe) use ($occupiedSeatIds) {
-                if (in_array($ghe->maGhe, $occupiedSeatIds, true)) {
-                    $ghe->setAttribute('trangThai', 'DA_DAT');
+            $lichChieu->phongChieu->soDoGhe->ghes->each(function ($ghe) use ($occupiedTickets) {
+                if (isset($occupiedTickets[$ghe->maGhe])) {
+                    $ticket = $occupiedTickets[$ghe->maGhe];
+                    $ghe->setAttribute('trangThai', $ticket->trangThai === 'DA_SU_DUNG' ? 'DA_SU_DUNG' : 'DA_DAT');
                 }
             });
         }

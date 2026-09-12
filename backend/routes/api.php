@@ -2,6 +2,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BanVeTaiQuayController;
 use App\Http\Controllers\Api\ComboSanPhamController;
 use App\Http\Controllers\Api\DonHangComboController;
 use App\Http\Controllers\Api\DonHangController;
@@ -23,6 +24,17 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('webhooks/sepay', [ThanhToanController::class, 'webhook'])
     ->middleware('throttle:120,1');
+
+Route::get('thanh-toan/config', function () {
+    return response()->json([
+        'data' => [
+            'bank' => config('payments.sepay.bank', 'TPBank'),
+            'accountNumber' => config('payments.sepay.account_number', '21082005555'),
+            'accountName' => config('payments.sepay.account_name', 'TRAN THANH XUAN'),
+            'template' => config('payments.sepay.template', 'compact2'),
+        ]
+    ]);
+});
 
 // ==================== AUTHENTICATION ====================
 
@@ -47,6 +59,8 @@ Route::post(
 // API yêu cầu đã đăng nhập
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('quan-ly/combos', [ComboSanPhamController::class, 'management']);
+    Route::post('quan-ly/ban-ve-tai-quay', [BanVeTaiQuayController::class, 'store']);
+
     Route::get('quan-ly/khach-hangs', [QuanLyKhachHangController::class, 'index']);
     Route::get('quan-ly/khuyen-mais', [KhuyenMaiController::class, 'management']);
     Route::patch('quan-ly/khach-hangs/{maKH}/trang-thai', [QuanLyKhachHangController::class, 'status']);
@@ -82,6 +96,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('don-hangs', DonHangController::class)
         ->only(['index', 'store', 'show'])
         ->parameters(['don-hangs' => 'maDonHang']);
+    Route::get('quan-ly/don-hangs', [DonHangController::class, 'management']);
+    Route::get('quan-ly/don-hangs/{maDonHang}', [DonHangController::class, 'managementShow']);
+    Route::post('quan-ly/don-hangs/xem-qr', [DonHangController::class, 'previewScan']);
+    Route::post('quan-ly/don-hangs/quet-ma', [DonHangController::class, 'scan']);
+    Route::post('quan-ly/don-hangs/{maDonHang}/quet-ma', [DonHangController::class, 'scan']);
 
     Route::apiResource('combos', ComboSanPhamController::class)
         ->only(['store', 'update', 'destroy'])

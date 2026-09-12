@@ -21,6 +21,8 @@ import ComboManagement from "./pages/ComboManagement";
 import ProductManagement from "./pages/ProductManagement";
 import CustomerManagement from "./pages/CustomerManagement";
 import PromotionManagement from "./pages/PromotionManagement";
+import OrderManagement from "./pages/OrderManagement";
+import CounterSale from "./pages/CounterSale";
 
 // =========================
 // QUẢN LÝ NHÂN VIÊN
@@ -258,6 +260,28 @@ function App() {
             <InternalRoute managerOnly>
               <Dashboard>
                 <PromotionManagement />
+              </Dashboard>
+            </InternalRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard/don-hang"
+          element={
+            <InternalRoute>
+              <Dashboard>
+                <OrderManagement />
+              </Dashboard>
+            </InternalRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard/ban-ve-tai-quay"
+          element={
+            <InternalRoute>
+              <Dashboard>
+                <CounterSale />
               </Dashboard>
             </InternalRoute>
           }
