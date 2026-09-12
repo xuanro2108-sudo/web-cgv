@@ -32,15 +32,15 @@ class TaiKhoanSeeder extends Seeder
         ]);
 
         // TĂ i khoáº£n quáº£n lĂ½
-        TaiKhoan::create([
-            'maTK' => 'TK003',
-            'tenDangNhap' => 'admin',
-           'matKhau' => Hash::make('123456'),
-            'vaiTro' => 'QUAN_LY',
-            'maKH' => null,
-            'maNV' => 'NV001',
-            'trangThai' => 'HOAT_DONG',
-        ]);
+       TaiKhoan::create([
+    'maTK' => 'TK003',
+    'tenDangNhap' => 'admin@gmail.com',
+    'matKhau' => Hash::make('123456'),
+    'vaiTro' => 'QUAN_LY',
+    'maKH' => null,
+    'maNV' => 'NV001',
+    'trangThai' => 'HOAT_DONG',
+]);
 
         // TĂ i khoáº£n nhĂ¢n viĂªn
         TaiKhoan::create([

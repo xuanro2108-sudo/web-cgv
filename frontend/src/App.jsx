@@ -13,7 +13,7 @@ import MovieShowtimes from "./pages/MovieShowtimes";
 import SeatSelection from "./pages/SeatSelection";
 import Payment from "./pages/Payment";
 import ComboSelection from "./pages/ComboSelection";
-
+import ThongKe from "./pages/ThongKe";
 import LoginInternal from "./pages/LoginInternal";
 import Dashboard from "./pages/Dashboard";
 import MovieManagement from "./pages/MovieManagement";
@@ -302,6 +302,16 @@ function App() {
             </ManagerRoute>
           }
         />
+        <Route
+  path="/dashboard/thong-ke"
+  element={
+    <ManagerRoute>
+      <Dashboard>
+        <ThongKe />
+      </Dashboard>
+    </ManagerRoute>
+  }
+/>
 
         <Route
           path="/dashboard/phim"
