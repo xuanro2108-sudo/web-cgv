@@ -191,6 +191,7 @@ function SeatSelection() {
                             <div className="seat-legend-row seat-status">
                                 <span><i className="seat selected" /> Đang chọn</span>
                                 <span><i className="seat occupied" /> Đã bán</span>
+                                <span><i className="seat used" /> Đã sử dụng</span>
                             </div>
                         </div>
                         <div className="screen">MÀN HÌNH CHIẾU</div>
@@ -203,17 +204,32 @@ function SeatSelection() {
                                                     (item) => item.maGhe === seat.maGhe
                                                 )
                                             );
+                                            const isUsed = seatGroup.some(
+                                                (seat) => seat.trangThai === "DA_SU_DUNG"
+                                            );
                                             const isOccupied = seatGroup.some(
                                                 (seat) => seat.trangThai !== "HOAT_DONG"
                                             );
                                             const firstSeat = seatGroup[0];
+                                            const seatStatusClass = isUsed
+                                                ? "used occupied"
+                                                : isOccupied
+                                                ? "occupied"
+                                                : "free";
+                                            const seatTitle = isUsed
+                                                ? "Ghế đã sử dụng"
+                                                : isOccupied
+                                                ? "Ghế đã bán"
+                                                : seatGroup.map(getSeatLabel).join(" - ");
+
                                             return (
                                                 <button
                                                     type="button"
                                                     key={seatGroup.map((seat) => seat.maGhe).join("-")}
-                                                    className={`seat ${firstSeat.loaiGhe.toLowerCase()} ${seatGroup.length > 1 ? "couple" : ""} ${isSelected ? "selected" : ""} ${isOccupied ? "occupied" : "free"}`}
+                                                    className={`seat ${firstSeat.loaiGhe.toLowerCase()} ${seatGroup.length > 1 ? "couple" : ""} ${isSelected ? "selected" : ""} ${seatStatusClass}`}
                                                     onClick={() => toggleSeatGroup(seatGroup)}
                                                     disabled={isOccupied}
+                                                    title={seatTitle}
                                                 >
                                                     {seatGroup.map(getSeatLabel).join(" - ")}
                                                 </button>

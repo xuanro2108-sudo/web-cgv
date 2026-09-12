@@ -12,6 +12,7 @@ function NhanVienManagement() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [formError, setFormError] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingMaNV, setEditingMaNV] = useState(null);
 
@@ -63,6 +64,7 @@ function NhanVienManagement() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    setFormError("");
 
     if (name === "sdt") {
       setFormData({
@@ -77,6 +79,7 @@ function NhanVienManagement() {
 
   const handleAdd = () => {
     setEditingMaNV(null);
+    setFormError("");
     setMessage("");
     setError("");
 
@@ -95,6 +98,7 @@ function NhanVienManagement() {
 
   const handleEdit = (nv) => {
     setEditingMaNV(nv.maNV);
+    setFormError("");
     setMessage("");
     setError("");
 
@@ -113,26 +117,26 @@ function NhanVienManagement() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setFormError("");
     setMessage("");
 
     if (!/^0[0-9]{9}$/.test(formData.sdt)) {
-      setError("Số điện thoại phải đủ 10 số và bắt đầu bằng 0.");
+      setFormError("Số điện thoại phải đủ 10 số và bắt đầu bằng 0.");
       return;
     }
 
     if (!/^[A-Za-z0-9._%+-]+@gmail\.com$/i.test(formData.email.trim())) {
-      setError("Email phải có định dạng @gmail.com.");
+      setFormError("Email phải có định dạng @gmail.com.");
       return;
     }
 
     if (formData.ngayVaoLam > today) {
-      setError("Ngày vào làm không được ở tương lai.");
+      setFormError("Ngày vào làm không được ở tương lai.");
       return;
     }
 
     if (!editingMaNV && formData.matKhau.length < 6) {
-      setError("Mật khẩu phải có ít nhất 6 ký tự.");
+      setFormError("Mật khẩu phải có ít nhất 6 ký tự.");
       return;
     }
 
@@ -182,9 +186,10 @@ function NhanVienManagement() {
       setMessage(isEdit ? "Cập nhật thành công." : "Thêm nhân viên thành công.");
       setShowForm(false);
       setEditingMaNV(null);
+      setFormError("");
       await fetchNhanViens(search);
     } catch (err) {
-      setError(err.message);
+      setFormError(err.message);
     } finally {
       setSubmitting(false);
     }
@@ -373,6 +378,7 @@ function NhanVienManagement() {
                 value={formData.email}
                 onChange={handleChange}
                 pattern="[A-Za-z0-9._%+-]+@gmail\.com"
+                onInvalid={() => setFormError("Email phải có định dạng @gmail.com.")}
                 placeholder="nhanvien@gmail.com"
                 required
               />
@@ -423,6 +429,10 @@ function NhanVienManagement() {
                     <option value="NGHI_VIEC">Nghỉ việc</option>
                   </select>
                 </>
+              )}
+
+              {formError && (
+                <div className="employee-error" role="alert">{formError}</div>
               )}
 
               <div className="employee-form-actions">

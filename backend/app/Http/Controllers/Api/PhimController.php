@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\OrderAccess;
 use App\Models\Phim;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class PhimController extends Controller
@@ -38,11 +39,14 @@ class PhimController extends Controller
             'ngayKetThuc' => ['nullable', 'date', 'after_or_equal:ngayKhoiChieu'],
             'moTa' => ['nullable', 'string'],
             'hinhAnh' => ['nullable', 'string', 'max:255'],
+            'anh' => ['sometimes', 'required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'trailer' => ['nullable', 'url'],
             'trangThai' => ['required', Rule::in(['SAP_CHIEU', 'DANG_CHIEU', 'DA_CHIEU'])],
+        ], [
+            'maPhim.unique' => 'Mã phim đã trùng với một phim khác. Vui lòng nhập mã phim khác.',
         ]);
 
-        $phim = Phim::create($data);
+        $phim = $this->saveWithPoster($request, new Phim, $data);
 
         return response()->json([
             'message' => 'Thêm phim thành công',
@@ -82,16 +86,38 @@ class PhimController extends Controller
             'ngayKetThuc' => ['nullable', 'date', 'after_or_equal:ngayKhoiChieu'],
             'moTa' => ['nullable', 'string'],
             'hinhAnh' => ['nullable', 'string', 'max:255'],
+            'anh' => ['sometimes', 'required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'trailer' => ['nullable', 'url'],
             'trangThai' => ['sometimes', 'required', Rule::in(['SAP_CHIEU', 'DANG_CHIEU', 'DA_CHIEU'])],
         ]);
 
-        $phim->update($data);
+        $this->saveWithPoster($request, $phim, $data);
 
         return response()->json([
             'message' => 'Cập nhật phim thành công',
             'data' => $phim->fresh(),
         ]);
+    }
+
+    private function saveWithPoster(Request $request, Phim $phim, array $data): Phim
+    {
+        unset($data['anh']);
+        $path = $request->hasFile('anh') ? $request->file('anh')->store('phim-posters', 'public') : null;
+        abort_if($path === false, 500, 'Không thể lưu ảnh poster.');
+
+        try {
+            if ($path) {
+                $data['hinhAnh'] = url('/storage/'.$path);
+            }
+            $phim->fill($data)->save();
+        } catch (\Throwable $error) {
+            if ($path) {
+                Storage::disk('public')->delete($path);
+            }
+            throw $error;
+        }
+
+        return $phim;
     }
 
     /**
