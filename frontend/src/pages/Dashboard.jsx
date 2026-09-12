@@ -23,6 +23,9 @@ function Dashboard({ children }) {
   const employeePage =
     location.pathname ===
     "/dashboard/nhan-vien";
+  const statisticsPage =
+  location.pathname ===
+  "/dashboard/thong-ke";
 
   // =========================
   // THÔNG TIN TÀI KHOẢN
@@ -159,6 +162,7 @@ function Dashboard({ children }) {
       "/dashboard/khach-hang",
       "/dashboard/khuyen-mai",
       "/dashboard/nhan-vien",
+      "/dashboard/thong-ke",
     ];
 
     if (
@@ -304,9 +308,10 @@ function Dashboard({ children }) {
             type="button"
             className={
               `dashboard-menu-item ${
-                !customerPage &&
-                !promotionPage &&
-                !employeePage
+               !customerPage &&
+!promotionPage &&
+!employeePage &&
+!statisticsPage
                   ? "active"
                   : ""
               }`
@@ -465,12 +470,23 @@ function Dashboard({ children }) {
 
 
               {/* THỐNG KÊ */}
-              <button
-                type="button"
-                className="dashboard-menu-item"
-              >
-                Thống kê
-              </button>
+             <button
+  type="button"
+  className={
+    `dashboard-menu-item ${
+      statisticsPage
+        ? "active"
+        : ""
+    }`
+  }
+  onClick={() =>
+    navigate(
+      "/dashboard/thong-ke"
+    )
+  }
+>
+  Thống kê
+</button>
 
             </>
           )}

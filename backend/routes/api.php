@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\SoDoGheController;
 use App\Http\Controllers\Api\ThanhToanController;
 use App\Http\Controllers\Api\VeGheController;
 use App\Http\Controllers\Api\NhanVienController;
+use App\Http\Controllers\Api\ThongKeController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('webhooks/sepay', [ThanhToanController::class, 'webhook'])
@@ -152,4 +153,8 @@ Route::middleware([
         'nhan-viens' => 'maNV'
     ]);
 
+    Route::get(
+        'thong-ke/doanh-thu-ve',
+        [ThongKeController::class, 'doanhThuVe']
+    );
 });
