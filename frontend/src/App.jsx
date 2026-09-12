@@ -16,6 +16,7 @@ import ComboSelection from "./pages/ComboSelection";
 
 import LoginInternal from "./pages/LoginInternal";
 import Dashboard from "./pages/Dashboard";
+import MovieManagement from "./pages/MovieManagement";
 import CustomerManagement from "./pages/CustomerManagement";
 import PromotionManagement from "./pages/PromotionManagement";
 
@@ -276,6 +277,14 @@ function App() {
           }
         />
 
+        <Route
+          path="/dashboard/phim"
+          element={
+            <InternalRoute managerOnly>
+              <Dashboard><MovieManagement /></Dashboard>
+            </InternalRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

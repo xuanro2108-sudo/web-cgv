@@ -12,6 +12,8 @@ function Dashboard({ children }) {
   // =========================
   // KIỂM TRA TRANG ĐANG MỞ
   // =========================
+  const moviePage = location.pathname === "/dashboard/phim";
+
   const customerPage =
     location.pathname ===
     "/dashboard/khach-hang";
@@ -156,6 +158,7 @@ function Dashboard({ children }) {
     path
   ) => {
     const availablePaths = [
+      "/dashboard/phim",
       "/dashboard/khach-hang",
       "/dashboard/khuyen-mai",
       "/dashboard/nhan-vien",
@@ -306,7 +309,7 @@ function Dashboard({ children }) {
               `dashboard-menu-item ${
                 !customerPage &&
                 !promotionPage &&
-                !employeePage
+                !employeePage && !moviePage
                   ? "active"
                   : ""
               }`
@@ -397,7 +400,9 @@ function Dashboard({ children }) {
               {/* PHIM */}
               <button
                 type="button"
-                className="dashboard-menu-item"
+                className={`dashboard-menu-item ${moviePage ? "active" : ""}`}
+                onClick={() => navigate("/dashboard/phim")}
+                aria-current={moviePage ? "page" : undefined}
               >
                 Phim
               </button>
