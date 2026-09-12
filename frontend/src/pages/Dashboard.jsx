@@ -23,6 +23,9 @@ function Dashboard({ children }) {
   const employeePage =
     location.pathname ===
     "/dashboard/nhan-vien";
+  const orderPage =
+    location.pathname ===
+    "/dashboard/don-hang";
 
   // =========================
   // THÔNG TIN TÀI KHOẢN
@@ -306,7 +309,8 @@ function Dashboard({ children }) {
               `dashboard-menu-item ${
                 !customerPage &&
                 !promotionPage &&
-                !employeePage
+                !employeePage &&
+                !orderPage
                   ? "active"
                   : ""
               }`
@@ -341,7 +345,9 @@ function Dashboard({ children }) {
               {/* ĐƠN HÀNG */}
               <button
                 type="button"
-                className="dashboard-menu-item"
+                className={`dashboard-menu-item ${orderPage ? "active" : ""}`}
+                onClick={() => navigate("/dashboard/don-hang")}
+                aria-current={orderPage ? "page" : undefined}
               >
                 Đơn hàng & vé
               </button>

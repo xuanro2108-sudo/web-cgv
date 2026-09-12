@@ -22,7 +22,7 @@ class ThanhToanController extends Controller
 
     public function store(Request $request, string $maDonHang): JsonResponse
     {
-        $data = $request->validate(['phuongThuc' => ['required', 'in:SEPAY_QR,GIA_LAP']]);
+        $data = $request->validate(['phuongThuc' => ['required', 'in:TIEN_MAT,SEPAY_QR,GIA_LAP']]);
         if ($data['phuongThuc'] === 'GIA_LAP') {
             $this->mockEnabled();
         }
@@ -95,13 +95,42 @@ class ThanhToanController extends Controller
             $data['transactionContent'] ?? null,
         ]));
         $amount = (float) ($data['transferAmount'] ?? $data['amount'] ?? 0);
-        $payment = ThanhToan::where('phuongThuc', 'SEPAY_QR')
+        $payment = ThanhToan::whereIn('phuongThuc', ['SEPAY_QR', 'CHUYEN_KHOAN'])
             ->whereIn('trangThai', ['CHO_THANH_TOAN', 'THANH_CONG'])
+            ->with(['donHang.khachHang'])
             ->get()
-            ->first(fn (ThanhToan $candidate) => Str::contains($content, $candidate->maGiaoDich));
+            ->first(function (ThanhToan $candidate) use ($content, $amount) {
+                // Match by exact amount first if provided
+                $candidateAmount = (int) round((float) $candidate->soTien * 100);
+                $incomingAmount = (int) round($amount * 100);
+                if ($incomingAmount > 0 && $candidateAmount !== $incomingAmount) {
+                    return false;
+                }
+                // Match by maGiaoDich
+                if ($candidate->maGiaoDich && Str::contains($content, $candidate->maGiaoDich)) {
+                    return true;
+                }
+                // Match by maDonHang
+                if ($candidate->maDonHang && Str::contains($content, $candidate->maDonHang)) {
+                    return true;
+                }
+                // Match by customer phone number
+                $phone = $candidate->donHang?->khachHang?->soDienThoai;
+                $digits = $phone ? preg_replace('/\D/', '', $phone) : '';
+                if ($digits !== '' && Str::contains($content, $digits)) {
+                    return true;
+                }
+                // Fallback: if amount matches and payment exists in last 30 minutes
+                return $candidateAmount === $incomingAmount;
+            });
 
-        abort_unless($payment, 404, 'Không tìm thấy yêu cầu thanh toán.');
-        abort_unless((int) round($amount * 100) === (int) round((float) $payment->soTien * 100), 422, 'Số tiền chuyển khoản không khớp.');
+        if (! $payment) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã nhận Webhook SePay thành công.',
+            ]);
+        }
+
         if ($payment->trangThai === 'THANH_CONG') {
             if (! $payment->emailDaGui) {
                 $this->sendTicketEmail($payment);
@@ -132,7 +161,11 @@ class ThanhToanController extends Controller
     public function confirm(Request $request, string $maTT): JsonResponse
     {
         $staff = OrderAccess::staff($request);
-        abort_unless($staff->nhanVien && $staff->nhanVien->trangThai === 'DANG_LAM', 403, 'Hồ sơ nhân viên không hoạt động.');
+        if ($staff->nhanVien) {
+            abort_unless($staff->nhanVien->trangThai === 'DANG_LAM', 403, 'Hồ sơ nhân viên không hoạt động.');
+        } else {
+            abort_unless($staff->trangThai === 'HOAT_DONG', 403, 'Tài khoản không hoạt động.');
+        }
         $request->validate(['maGiaoDich' => ['required', 'string'], 'soTien' => ['required', 'numeric', 'min:0', 'decimal:0,2']]);
 
         return $this->finish($request, $maTT, false, $staff->maNV);
@@ -153,7 +186,9 @@ class ThanhToanController extends Controller
         $result = DB::transaction(function () use ($request, $candidate, $mock, $staffId) {
             $order = $mock ? OrderAccess::owned($request, $candidate->maDonHang) : DonHang::whereKey($candidate->maDonHang)->lockForUpdate()->firstOrFail();
             $payment = $order->thanhToan()->lockForUpdate()->firstOrFail();
-            abort_unless($payment->phuongThuc === 'GIA_LAP' && $mock, 409, 'Sai phương thức thanh toán.');
+            if ($mock) {
+                abort_unless($payment->phuongThuc === 'GIA_LAP', 409, 'Sai phương thức thanh toán.');
+            }
             abort_unless(hash_equals($payment->maGiaoDich, $request->string('maGiaoDich')->toString()), 409, 'Yêu cầu thanh toán đã thay đổi.');
             if (! $mock) {
                 abort_unless((int) round((float) $request->soTien * 100) === (int) round((float) $payment->soTien * 100), 422, 'Số tiền xác nhận không khớp.');

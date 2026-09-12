@@ -35,8 +35,11 @@ function LoginInternal() {
     setLoading(true);
 
     try {
+      localStorage.removeItem("token");
+      localStorage.removeItem("vaiTro");
+      localStorage.removeItem("taiKhoan");
       const response = await fetch(
-        "http://127.0.0.1:8000/api/auth/internal/login",
+        `${(import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api").replace(/\/$/, "")}/auth/internal/login`,
         {
           method: "POST",
           headers: {
@@ -91,7 +94,7 @@ function LoginInternal() {
             placeholder="Nhập Email"
             value={loginData.email}
             onChange={handleChange}
-            pattern="[A-Za-z0-9._%+-]+@gmail\.com"
+            pattern="[A-Za-z0-9._%+\-]+@gmail\.com"
             required
           />
 

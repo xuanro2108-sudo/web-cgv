@@ -18,6 +18,8 @@ import LoginInternal from "./pages/LoginInternal";
 import Dashboard from "./pages/Dashboard";
 import CustomerManagement from "./pages/CustomerManagement";
 import PromotionManagement from "./pages/PromotionManagement";
+import OrderManagement from "./pages/OrderManagement";
+import CounterSale from "./pages/CounterSale";
 
 // =========================
 // QUẢN LÝ NHÂN VIÊN
@@ -260,6 +262,28 @@ function App() {
               ) : (
                 <Navigate to="/dashboard" replace />
               )}
+            </InternalRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard/don-hang"
+          element={
+            <InternalRoute>
+              <Dashboard>
+                <OrderManagement />
+              </Dashboard>
+            </InternalRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard/ban-ve-tai-quay"
+          element={
+            <InternalRoute>
+              <Dashboard>
+                <CounterSale />
+              </Dashboard>
             </InternalRoute>
           }
         />

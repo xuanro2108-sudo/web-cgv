@@ -118,7 +118,7 @@ class DonHang extends Model
 
     public function tamTinh(): float
     {
-        $tongTienVe = $this->veGhes()->whereIn('trangThai', ['GIU_CHO', 'DA_DAT'])->sum('giaVe');
+        $tongTienVe = $this->veGhes()->whereIn('trangThai', ['GIU_CHO', 'DA_DAT', 'DA_SU_DUNG'])->sum('giaVe');
 
         $tongTienCombo = $this->chiTietComboDonHangs()->sum('thanhTien');
 

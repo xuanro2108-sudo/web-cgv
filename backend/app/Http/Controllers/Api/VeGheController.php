@@ -80,19 +80,24 @@ class VeGheController extends Controller
             abort_if(
                 VeGhe::where('maLichChieu', $show->maLichChieu)
                     ->whereIn('maGhe', $ids)
-                    ->whereIn('trangThai', ['GIU_CHO', 'DA_DAT'])
-                    ->whereHas('donHang', function ($query) {
-                        $query->where('trangThai', 'DA_THANH_TOAN')
-                            ->orWhere(function ($pendingQuery) {
-                                $pendingQuery
-                                    ->where('trangThai', 'CHO_THANH_TOAN')
-                                    ->where(function ($expiryQuery) {
-                                        $expiryQuery
-                                            ->where('hetHanLuc', '>', now())
-                                            ->orWhere(function ($fallbackQuery) {
-                                                $fallbackQuery
-                                                    ->whereNull('hetHanLuc')
-                                                    ->where('ngayDat', '>', now()->subMinutes(10));
+                    ->where(function ($ticketQuery) {
+                        $ticketQuery->where('trangThai', 'DA_SU_DUNG')
+                            ->orWhere(function ($activeQuery) {
+                                $activeQuery->whereIn('trangThai', ['GIU_CHO', 'DA_DAT'])
+                                    ->whereHas('donHang', function ($query) {
+                                        $query->whereIn('trangThai', ['DA_THANH_TOAN', 'DA_SU_DUNG'])
+                                            ->orWhere(function ($pendingQuery) {
+                                                $pendingQuery
+                                                    ->where('trangThai', 'CHO_THANH_TOAN')
+                                                    ->where(function ($expiryQuery) {
+                                                        $expiryQuery
+                                                            ->where('hetHanLuc', '>', now())
+                                                            ->orWhere(function ($fallbackQuery) {
+                                                                $fallbackQuery
+                                                                    ->whereNull('hetHanLuc')
+                                                                    ->where('ngayDat', '>', now()->subMinutes(10));
+                                                            });
+                                                    });
                                             });
                                     });
                             });
