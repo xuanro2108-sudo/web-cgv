@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\HoSoKhachHangController;
 use App\Http\Controllers\Api\HuyDonController;
 use App\Http\Controllers\Api\KhuyenMaiController;
 use App\Http\Controllers\Api\LichChieuController;
+use App\Http\Controllers\Api\NhanVienController;
 use App\Http\Controllers\Api\PhimController;
 use App\Http\Controllers\Api\PhongChieuController;
 use App\Http\Controllers\Api\QuanLyKhachHangController;
@@ -18,7 +19,6 @@ use App\Http\Controllers\Api\SanPhamController;
 use App\Http\Controllers\Api\SoDoGheController;
 use App\Http\Controllers\Api\ThanhToanController;
 use App\Http\Controllers\Api\VeGheController;
-use App\Http\Controllers\Api\NhanVienController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('webhooks/sepay', [ThanhToanController::class, 'webhook'])
@@ -46,6 +46,7 @@ Route::post(
 
 // API yêu cầu đã đăng nhập
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('quan-ly/combos', [ComboSanPhamController::class, 'management']);
     Route::get('quan-ly/khach-hangs', [QuanLyKhachHangController::class, 'index']);
     Route::get('quan-ly/khuyen-mais', [KhuyenMaiController::class, 'management']);
     Route::patch('quan-ly/khach-hangs/{maKH}/trang-thai', [QuanLyKhachHangController::class, 'status']);
@@ -138,18 +139,18 @@ Route::middleware('auth:sanctum')->group(function () {
         ->only(['update'])
         ->parameters(['ghes' => 'maGhe']);
 });
-//quanlynhanvien
+// quanlynhanvien
 
 Route::middleware([
     'auth:sanctum',
-    'role:QUAN_LY'
+    'role:QUAN_LY',
 ])->prefix('quan-ly')->group(function () {
 
     Route::apiResource(
         'nhan-viens',
         NhanVienController::class
     )->parameters([
-        'nhan-viens' => 'maNV'
+        'nhan-viens' => 'maNV',
     ]);
 
 });

@@ -17,6 +17,8 @@ import ComboSelection from "./pages/ComboSelection";
 import LoginInternal from "./pages/LoginInternal";
 import Dashboard from "./pages/Dashboard";
 import MovieManagement from "./pages/MovieManagement";
+import ComboManagement from "./pages/ComboManagement";
+import ProductManagement from "./pages/ProductManagement";
 import CustomerManagement from "./pages/CustomerManagement";
 import PromotionManagement from "./pages/PromotionManagement";
 
@@ -282,6 +284,22 @@ function App() {
           element={
             <InternalRoute managerOnly>
               <Dashboard><MovieManagement /></Dashboard>
+            </InternalRoute>
+          }
+        />
+        <Route
+          path="/dashboard/combo"
+          element={
+            <InternalRoute>
+              <Dashboard><ComboManagement /></Dashboard>
+            </InternalRoute>
+          }
+        />
+        <Route
+          path="/dashboard/san-pham"
+          element={
+            <InternalRoute managerOnly>
+              <Dashboard><ProductManagement /></Dashboard>
             </InternalRoute>
           }
         />
