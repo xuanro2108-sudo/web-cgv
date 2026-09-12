@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\SanPhamController;
 use App\Http\Controllers\Api\SoDoGheController;
 use App\Http\Controllers\Api\ThanhToanController;
 use App\Http\Controllers\Api\VeGheController;
+use App\Http\Controllers\Api\NhanVienController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('webhooks/sepay', [ThanhToanController::class, 'webhook'])
@@ -136,4 +137,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('ghes', GheController::class)
         ->only(['update'])
         ->parameters(['ghes' => 'maGhe']);
+});
+//quanlynhanvien
+
+Route::middleware([
+    'auth:sanctum',
+    'role:QUAN_LY'
+])->prefix('quan-ly')->group(function () {
+
+    Route::apiResource(
+        'nhan-viens',
+        NhanVienController::class
+    )->parameters([
+        'nhan-viens' => 'maNV'
+    ]);
+
 });

@@ -1,19 +1,44 @@
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import "./Dashboard.css";
 
 function Dashboard({ children }) {
   const navigate = useNavigate();
-  const customerPage = useLocation().pathname === "/dashboard/khach-hang";
-  const promotionPage = useLocation().pathname === "/dashboard/khuyen-mai";
+  const location = useLocation();
 
+  // =========================
+  // KIỂM TRA TRANG ĐANG MỞ
+  // =========================
+  const customerPage =
+    location.pathname ===
+    "/dashboard/khach-hang";
+
+  const promotionPage =
+    location.pathname ===
+    "/dashboard/khuyen-mai";
+
+  const employeePage =
+    location.pathname ===
+    "/dashboard/nhan-vien";
+
+  // =========================
+  // THÔNG TIN TÀI KHOẢN
+  // =========================
   const taiKhoan = JSON.parse(
-    localStorage.getItem("taiKhoan") || "null"
+    localStorage.getItem("taiKhoan") ||
+      "null"
   );
 
-  const vaiTro = localStorage.getItem("vaiTro");
+  const vaiTro =
+    localStorage.getItem("vaiTro");
 
-  const [logoutLoading, setLogoutLoading] = useState(false);
+  const [
+    logoutLoading,
+    setLogoutLoading,
+  ] = useState(false);
 
   // =========================
   // TÊN HIỂN THỊ VAI TRÒ
@@ -46,7 +71,10 @@ function Dashboard({ children }) {
       title: "Quản lý lịch chiếu",
       description:
         "Tạo, cập nhật và theo dõi lịch chiếu phim.",
-      roles: ["QUAN_LY", "NHAN_VIEN"],
+      roles: [
+        "QUAN_LY",
+        "NHAN_VIEN",
+      ],
       path: "/dashboard/lich-chieu",
     },
 
@@ -62,7 +90,10 @@ function Dashboard({ children }) {
       title: "Đơn hàng & vé",
       description:
         "Theo dõi đơn hàng, vé đã đặt và tình trạng thanh toán.",
-      roles: ["QUAN_LY", "NHAN_VIEN"],
+      roles: [
+        "QUAN_LY",
+        "NHAN_VIEN",
+      ],
       path: "/dashboard/don-hang",
     },
 
@@ -78,7 +109,10 @@ function Dashboard({ children }) {
       title: "Combo & sản phẩm",
       description:
         "Quản lý combo bắp nước và các sản phẩm bán kèm.",
-      roles: ["QUAN_LY", "NHAN_VIEN"],
+      roles: [
+        "QUAN_LY",
+        "NHAN_VIEN",
+      ],
       path: "/dashboard/combo",
     },
 
@@ -107,43 +141,78 @@ function Dashboard({ children }) {
     },
   ];
 
-  // Chỉ lấy chức năng phù hợp vai trò
-  const allowedFunctions = functions.filter((item) =>
-    item.roles.includes(vaiTro)
-  );
+  // =========================
+  // LỌC CHỨC NĂNG THEO ROLE
+  // =========================
+  const allowedFunctions =
+    functions.filter((item) =>
+      item.roles.includes(vaiTro)
+    );
 
   // =========================
   // MỞ CHỨC NĂNG
   // =========================
-  const handleOpenFunction = (path) => {
-    if (["/dashboard/khach-hang", "/dashboard/khuyen-mai"].includes(path)) {
+  const handleOpenFunction = (
+    path
+  ) => {
+    const availablePaths = [
+      "/dashboard/khach-hang",
+      "/dashboard/khuyen-mai",
+      "/dashboard/nhan-vien",
+    ];
+
+    if (
+      availablePaths.includes(path)
+    ) {
       navigate(path);
       return;
     }
-    /*
-      Tạm thời chưa tạo các trang con.
-      Khi làm module nào thì mình sẽ mở navigate(path).
-    */
 
     alert(
       "Chức năng này sẽ được xây dựng ở bước tiếp theo."
     );
 
-    console.log("Đường dẫn:", path);
+    console.log(
+      "Đường dẫn:",
+      path
+    );
+  };
 
-    // Sau này dùng:
-    // navigate(path);
+  // =========================
+  // XÓA DỮ LIỆU ĐĂNG NHẬP
+  // =========================
+  const clearLoginData = () => {
+    localStorage.removeItem(
+      "token"
+    );
+
+    localStorage.removeItem(
+      "vaiTro"
+    );
+
+    localStorage.removeItem(
+      "taiKhoan"
+    );
+
+    localStorage.removeItem(
+      "khachHang"
+    );
   };
 
   // =========================
   // ĐĂNG XUẤT
   // =========================
   const handleLogout = async () => {
-    const token = localStorage.getItem("token");
+    const token =
+      localStorage.getItem("token");
 
     if (!token) {
       clearLoginData();
-      navigate("/internal/login");
+
+      navigate(
+        "/internal/login"
+      );
+
       return;
     }
 
@@ -156,27 +225,28 @@ function Dashboard({ children }) {
           method: "POST",
 
           headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${token}`,
+            Accept:
+              "application/json",
+
+            Authorization:
+              `Bearer ${token}`,
           },
         }
       );
     } catch (error) {
-      console.error("Lỗi đăng xuất:", error);
+      console.error(
+        "Lỗi đăng xuất:",
+        error
+      );
     } finally {
       clearLoginData();
 
       setLogoutLoading(false);
 
-      navigate("/internal/login");
+      navigate(
+        "/internal/login"
+      );
     }
-  };
-
-  const clearLoginData = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("vaiTro");
-    localStorage.removeItem("taiKhoan");
-    localStorage.removeItem("khachHang");
   };
 
   return (
@@ -187,8 +257,11 @@ function Dashboard({ children }) {
       ========================= */}
       <aside className="dashboard-sidebar">
 
-        {/* LOGO */}
+        {/* =========================
+            LOGO
+        ========================= */}
         <div className="dashboard-logo">
+
           <div className="dashboard-cgv">
             CGV
           </div>
@@ -196,10 +269,13 @@ function Dashboard({ children }) {
           <div className="dashboard-branch">
             AEON MALL HÀ ĐÔNG
           </div>
+
         </div>
 
 
-        {/* THÔNG TIN TÀI KHOẢN */}
+        {/* =========================
+            THÔNG TIN TÀI KHOẢN
+        ========================= */}
         <div className="dashboard-user">
 
           <strong>
@@ -218,20 +294,42 @@ function Dashboard({ children }) {
         </div>
 
 
-        {/* MENU */}
+        {/* =========================
+            MENU
+        ========================= */}
         <nav className="dashboard-menu">
 
+          {/* TRANG CHÍNH */}
           <button
             type="button"
-            className={`dashboard-menu-item ${!customerPage && !promotionPage ? "active" : ""}`}
-            onClick={() => navigate("/dashboard")}
+            className={
+              `dashboard-menu-item ${
+                !customerPage &&
+                !promotionPage &&
+                !employeePage
+                  ? "active"
+                  : ""
+              }`
+            }
+            onClick={() =>
+              navigate(
+                "/dashboard"
+              )
+            }
           >
             Trang chính
           </button>
 
+
+          {/* =========================
+              NHÂN VIÊN + QUẢN LÝ
+          ========================= */}
           {(vaiTro === "QUAN_LY" ||
-            vaiTro === "NHAN_VIEN") && (
+            vaiTro ===
+              "NHAN_VIEN") && (
             <>
+
+              {/* LỊCH CHIẾU */}
               <button
                 type="button"
                 className="dashboard-menu-item"
@@ -239,6 +337,8 @@ function Dashboard({ children }) {
                 Lịch chiếu
               </button>
 
+
+              {/* ĐƠN HÀNG */}
               <button
                 type="button"
                 className="dashboard-menu-item"
@@ -246,29 +346,55 @@ function Dashboard({ children }) {
                 Đơn hàng & vé
               </button>
 
-              {vaiTro === "QUAN_LY" && (
+
+              {/* TÀI KHOẢN KHÁCH HÀNG */}
+              {vaiTro ===
+                "QUAN_LY" && (
                 <button
                   type="button"
-                  className={`dashboard-menu-item ${customerPage ? "active" : ""}`}
-                  onClick={() => navigate("/dashboard/khach-hang")}
-                  aria-current={customerPage ? "page" : undefined}
+                  className={
+                    `dashboard-menu-item ${
+                      customerPage
+                        ? "active"
+                        : ""
+                    }`
+                  }
+                  onClick={() =>
+                    navigate(
+                      "/dashboard/khach-hang"
+                    )
+                  }
+                  aria-current={
+                    customerPage
+                      ? "page"
+                      : undefined
+                  }
                 >
                   Tài khoản
                 </button>
               )}
 
+
+              {/* COMBO */}
               <button
                 type="button"
                 className="dashboard-menu-item"
               >
                 Combo
               </button>
+
             </>
           )}
 
 
-          {vaiTro === "QUAN_LY" && (
+          {/* =========================
+              CHỈ QUẢN LÝ
+          ========================= */}
+          {vaiTro ===
+            "QUAN_LY" && (
             <>
+
+              {/* PHIM */}
               <button
                 type="button"
                 className="dashboard-menu-item"
@@ -276,6 +402,8 @@ function Dashboard({ children }) {
                 Phim
               </button>
 
+
+              {/* PHÒNG CHIẾU */}
               <button
                 type="button"
                 className="dashboard-menu-item"
@@ -283,41 +411,86 @@ function Dashboard({ children }) {
                 Phòng chiếu
               </button>
 
+
+              {/* KHUYẾN MÃI */}
               <button
                 type="button"
-                className={`dashboard-menu-item ${promotionPage ? "active" : ""}`}
-                onClick={() => navigate("/dashboard/khuyen-mai")}
-                aria-current={promotionPage ? "page" : undefined}
+                className={
+                  `dashboard-menu-item ${
+                    promotionPage
+                      ? "active"
+                      : ""
+                  }`
+                }
+                onClick={() =>
+                  navigate(
+                    "/dashboard/khuyen-mai"
+                  )
+                }
+                aria-current={
+                  promotionPage
+                    ? "page"
+                    : undefined
+                }
               >
                 Khuyến mãi
               </button>
 
+
+              {/* =========================
+                  NHÂN VIÊN
+              ========================= */}
               <button
                 type="button"
-                className="dashboard-menu-item"
+                className={
+                  `dashboard-menu-item ${
+                    employeePage
+                      ? "active"
+                      : ""
+                  }`
+                }
+                onClick={() =>
+                  navigate(
+                    "/dashboard/nhan-vien"
+                  )
+                }
+                aria-current={
+                  employeePage
+                    ? "page"
+                    : undefined
+                }
               >
                 Nhân viên
               </button>
 
+
+              {/* THỐNG KÊ */}
               <button
                 type="button"
                 className="dashboard-menu-item"
               >
                 Thống kê
               </button>
+
             </>
           )}
 
         </nav>
 
 
-        {/* ĐĂNG XUẤT */}
+        {/* =========================
+            ĐĂNG XUẤT
+        ========================= */}
         <div className="dashboard-logout">
 
           <button
             type="button"
-            onClick={handleLogout}
-            disabled={logoutLoading}
+            onClick={
+              handleLogout
+            }
+            disabled={
+              logoutLoading
+            }
           >
             {logoutLoading
               ? "Đang đăng xuất..."
@@ -334,62 +507,74 @@ function Dashboard({ children }) {
       ========================= */}
       <main className="dashboard-main">
 
-        {children || <section className="dashboard-panel">
+        {children ? (
+          children
+        ) : (
+          <section className="dashboard-panel">
 
-          <div className="dashboard-heading">
+            {/* =========================
+                TIÊU ĐỀ
+            ========================= */}
+            <div className="dashboard-heading">
 
-            <h1>
-              Chức năng của tài khoản này
-            </h1>
+              <h1>
+                Chức năng của tài khoản này
+              </h1>
 
-            <p>
-              Bạn bấm vào chức năng để truy cập
-              module phù hợp. Các chức năng hiển
-              thị phụ thuộc vào quyền của tài khoản
-              đang đăng nhập.
-            </p>
+              <p>
+                Bạn bấm vào chức năng để truy cập
+                module phù hợp. Các chức năng hiển
+                thị phụ thuộc vào quyền của tài
+                khoản đang đăng nhập.
+              </p>
 
-          </div>
+            </div>
 
 
-          {/* =========================
-              GRID CHỨC NĂNG
-          ========================= */}
-          <div className="function-grid">
+            {/* =========================
+                GRID CHỨC NĂNG
+            ========================= */}
+            <div className="function-grid">
 
-            {allowedFunctions.map((item) => (
+              {allowedFunctions.map(
+                (item) => (
 
-              <div
-                className="function-card"
-                key={item.title}
-              >
+                  <div
+                    className="function-card"
+                    key={
+                      item.title
+                    }
+                  >
 
-                <h2>
-                  {item.title}
-                </h2>
+                    <h2>
+                      {item.title}
+                    </h2>
 
-                <p>
-                  {item.description}
-                </p>
+                    <p>
+                      {
+                        item.description
+                      }
+                    </p>
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleOpenFunction(
-                      item.path
-                    )
-                  }
-                >
-                  Mở chức năng
-                </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleOpenFunction(
+                          item.path
+                        )
+                      }
+                    >
+                      Mở chức năng
+                    </button>
 
-              </div>
+                  </div>
+                )
+              )}
 
-            ))}
+            </div>
 
-          </div>
-
-        </section>}
+          </section>
+        )}
 
       </main>
 
