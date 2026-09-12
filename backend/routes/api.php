@@ -58,7 +58,9 @@ Route::post(
 
 // API yêu cầu đã đăng nhập
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('quan-ly/combos', [ComboSanPhamController::class, 'management']);
     Route::post('quan-ly/ban-ve-tai-quay', [BanVeTaiQuayController::class, 'store']);
+
     Route::get('quan-ly/khach-hangs', [QuanLyKhachHangController::class, 'index']);
     Route::get('quan-ly/khuyen-mais', [KhuyenMaiController::class, 'management']);
     Route::patch('quan-ly/khach-hangs/{maKH}/trang-thai', [QuanLyKhachHangController::class, 'status']);

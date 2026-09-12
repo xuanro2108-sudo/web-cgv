@@ -16,6 +16,9 @@ import ComboSelection from "./pages/ComboSelection";
 
 import LoginInternal from "./pages/LoginInternal";
 import Dashboard from "./pages/Dashboard";
+import MovieManagement from "./pages/MovieManagement";
+import ComboManagement from "./pages/ComboManagement";
+import ProductManagement from "./pages/ProductManagement";
 import CustomerManagement from "./pages/CustomerManagement";
 import PromotionManagement from "./pages/PromotionManagement";
 import OrderManagement from "./pages/OrderManagement";
@@ -31,7 +34,7 @@ import NhanVienManagement from "./pages/NhanVienManagement";
 // BẢO VỆ DASHBOARD
 // NHÂN VIÊN + QUẢN LÝ
 // =========================
-function InternalRoute({ children }) {
+function InternalRoute({ children, managerOnly = false }) {
   const token = localStorage.getItem("token");
   const vaiTro = localStorage.getItem("vaiTro");
 
@@ -50,6 +53,10 @@ function InternalRoute({ children }) {
         replace
       />
     );
+  }
+
+  if (managerOnly && vaiTro !== "QUAN_LY") {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;
@@ -239,14 +246,10 @@ function App() {
         <Route
           path="/dashboard/khach-hang"
           element={
-            <InternalRoute>
-              {localStorage.getItem("vaiTro") === "QUAN_LY" ? (
-                <Dashboard>
-                  <CustomerManagement />
-                </Dashboard>
-              ) : (
-                <Navigate to="/dashboard" replace />
-              )}
+            <InternalRoute managerOnly>
+              <Dashboard>
+                <CustomerManagement />
+              </Dashboard>
             </InternalRoute>
           }
         />
@@ -254,14 +257,10 @@ function App() {
         <Route
           path="/dashboard/khuyen-mai"
           element={
-            <InternalRoute>
-              {localStorage.getItem("vaiTro") === "QUAN_LY" ? (
-                <Dashboard>
-                  <PromotionManagement />
-                </Dashboard>
-              ) : (
-                <Navigate to="/dashboard" replace />
-              )}
+            <InternalRoute managerOnly>
+              <Dashboard>
+                <PromotionManagement />
+              </Dashboard>
             </InternalRoute>
           }
         />
@@ -304,6 +303,30 @@ function App() {
           }
         />
 
+        <Route
+          path="/dashboard/phim"
+          element={
+            <InternalRoute managerOnly>
+              <Dashboard><MovieManagement /></Dashboard>
+            </InternalRoute>
+          }
+        />
+        <Route
+          path="/dashboard/combo"
+          element={
+            <InternalRoute>
+              <Dashboard><ComboManagement /></Dashboard>
+            </InternalRoute>
+          }
+        />
+        <Route
+          path="/dashboard/san-pham"
+          element={
+            <InternalRoute managerOnly>
+              <Dashboard><ProductManagement /></Dashboard>
+            </InternalRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

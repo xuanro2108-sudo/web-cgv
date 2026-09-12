@@ -12,6 +12,10 @@ function Dashboard({ children }) {
   // =========================
   // KIỂM TRA TRANG ĐANG MỞ
   // =========================
+  const productPage = location.pathname === "/dashboard/san-pham";
+  const comboPage = location.pathname === "/dashboard/combo";
+  const moviePage = location.pathname === "/dashboard/phim";
+
   const customerPage =
     location.pathname ===
     "/dashboard/khach-hang";
@@ -63,6 +67,12 @@ function Dashboard({ children }) {
   // =========================
   const functions = [
     {
+      title: "Quản lý sản phẩm",
+      description: "Quản lý bắp, nước, đồ ăn và giá bán sản phẩm.",
+      roles: ["QUAN_LY"],
+      path: "/dashboard/san-pham",
+    },
+    {
       title: "Quản lý phim",
       description:
         "Quản lý danh sách phim, thông tin và trạng thái phim.",
@@ -109,9 +119,9 @@ function Dashboard({ children }) {
     },
 
     {
-      title: "Combo & sản phẩm",
+      title: "Quản lý combo",
       description:
-        "Quản lý combo bắp nước và các sản phẩm bán kèm.",
+        "Quản lý combo bắp nước và thành phần combo.",
       roles: [
         "QUAN_LY",
         "NHAN_VIEN",
@@ -159,6 +169,9 @@ function Dashboard({ children }) {
     path
   ) => {
     const availablePaths = [
+      "/dashboard/san-pham",
+      "/dashboard/combo",
+      "/dashboard/phim",
       "/dashboard/khach-hang",
       "/dashboard/khuyen-mai",
       "/dashboard/nhan-vien",
@@ -309,6 +322,7 @@ function Dashboard({ children }) {
               `dashboard-menu-item ${
                 !customerPage &&
                 !promotionPage &&
+                !employeePage && !moviePage && !comboPage && !productPage
                 !employeePage &&
                 !orderPage
                   ? "active"
@@ -384,7 +398,9 @@ function Dashboard({ children }) {
               {/* COMBO */}
               <button
                 type="button"
-                className="dashboard-menu-item"
+                className={`dashboard-menu-item ${comboPage ? "active" : ""}`}
+                onClick={() => navigate("/dashboard/combo")}
+                aria-current={comboPage ? "page" : undefined}
               >
                 Combo
               </button>
@@ -400,10 +416,21 @@ function Dashboard({ children }) {
             "QUAN_LY" && (
             <>
 
+              <button
+                type="button"
+                className={`dashboard-menu-item ${productPage ? "active" : ""}`}
+                onClick={() => navigate("/dashboard/san-pham")}
+                aria-current={productPage ? "page" : undefined}
+              >
+                Sản phẩm
+              </button>
+
               {/* PHIM */}
               <button
                 type="button"
-                className="dashboard-menu-item"
+                className={`dashboard-menu-item ${moviePage ? "active" : ""}`}
+                onClick={() => navigate("/dashboard/phim")}
+                aria-current={moviePage ? "page" : undefined}
               >
                 Phim
               </button>
