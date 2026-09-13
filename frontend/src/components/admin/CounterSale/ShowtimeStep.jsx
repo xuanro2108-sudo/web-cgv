@@ -36,7 +36,7 @@ export default function ShowtimeStep({
           className="counter-btn-change"
           onClick={() => setStep(1)}
         >
-          ← Đổi phim khác
+          Đổi phim khác
         </button>
       </div>
 
@@ -99,17 +99,6 @@ export default function ShowtimeStep({
                       Giá vé từ {money(item.giaVeCoBan)}
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    className="counter-btn-pick-showtime"
-                    disabled={loadingShowtime}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSelectShowtime(item);
-                    }}
-                  >
-                    {loadingShowtime ? "Đang tải..." : "Chọn chỗ →"}
-                  </button>
                 </div>
               );
             })}

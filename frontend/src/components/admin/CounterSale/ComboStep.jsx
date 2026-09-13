@@ -25,14 +25,14 @@ export default function ComboStep({
             className="counter-btn-secondary"
             onClick={() => setStep(3)}
           >
-            ← Quay lại chọn ghế
+            Quay lại chọn ghế
           </button>
           <button
             type="button"
             className="counter-btn-primary"
             onClick={() => setStep(5)}
           >
-            Tiếp tục: Thanh toán ({money(grandTotal)}) →
+            Tiếp tục: Thanh toán ({money(grandTotal)})
           </button>
         </div>
       </div>
@@ -127,7 +127,7 @@ export default function ComboStep({
             className="counter-btn-submit-order"
             onClick={() => setStep(5)}
           >
-            TIẾP TỤC THANH TOÁN →
+            TIẾP TỤC THANH TOÁN
           </button>
         </aside>
       </div>

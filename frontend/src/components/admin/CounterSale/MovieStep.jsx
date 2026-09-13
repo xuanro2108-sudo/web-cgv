@@ -89,16 +89,6 @@ export default function MovieStep({
                     {movie.theLoai || "Chưa cập nhật thể loại"}
                     {movie.thoiLuong ? ` · ${movie.thoiLuong} phút` : ""}
                   </p>
-                  <button
-                    type="button"
-                    className="counter-btn-select-movie"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSelectMovie(movie);
-                    }}
-                  >
-                    Chọn phim này →
-                  </button>
                 </div>
               </article>
             );

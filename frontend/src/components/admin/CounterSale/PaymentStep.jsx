@@ -33,7 +33,7 @@ export default function PaymentStep({
           className="counter-btn-secondary"
           onClick={() => setStep(4)}
         >
-          ← Quay lại chọn Combo
+          Quay lại chọn Combo
         </button>
       </div>
 
@@ -47,7 +47,7 @@ export default function PaymentStep({
                 <input
                   type="text"
                   required
-                  placeholder="Nhập họ tên (VD: Nguyễn Văn A)"
+                  placeholder="Nhập họ tên"
                   value={customer.hoTen}
                   onChange={(e) => setCustomer({ ...customer, hoTen: e.target.value })}
                 />
@@ -57,15 +57,12 @@ export default function PaymentStep({
                 <input
                   type="tel"
                   required
-                  placeholder="Nhập số điện thoại (VD: 0912345678)"
+                  placeholder="Nhập số điện thoại"
                   value={customer.soDienThoai}
                   onChange={(e) => setCustomer({ ...customer, soDienThoai: e.target.value })}
                 />
               </label>
             </div>
-            <p className="form-hint" style={{ marginTop: "10px" }}>
-              ℹ️ Hệ thống sẽ tự động tạo tài khoản hoặc tích điểm nếu số điện thoại đã tồn tại.
-            </p>
           </div>
 
           <div className="counter-form-card">
