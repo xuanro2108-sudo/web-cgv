@@ -14,44 +14,27 @@ class LichChieuController extends Controller
 {
     /*
     |--------------------------------------------------------------------------
-    | DANH SÁCH CÔNG KHAI
+    | DANH SÁCH LỊCH CHIẾU CÔNG KHAI
     |--------------------------------------------------------------------------
+    |
     */
     public function index()
     {
         $now = Carbon::now('Asia/Ho_Chi_Minh');
-
         $today = $now->toDateString();
-
         $currentTime = $now->format('H:i:s');
 
         $lichChieus = LichChieu::with([
             'phim',
-            'phongChieu',
+            'phongChieu.soDoGhe.ghes',
         ])
-            ->where(
-                'trangThai',
-                'HOAT_DONG'
-            )
-            ->where(function ($query) use (
-                $today,
-                $currentTime
-            ) {
+            ->where('trangThai', 'HOAT_DONG')
+            ->where(function ($query) use ($today, $currentTime) {
                 $query
-                    ->whereDate(
-                        'ngayChieu',
-                        '>',
-                        $today
-                    )
-                    ->orWhere(function ($q) use (
-                        $today,
-                        $currentTime
-                    ) {
+                    ->whereDate('ngayChieu', '>', $today)
+                    ->orWhere(function ($q) use ($today, $currentTime) {
                         $q
-                            ->whereDate(
-                                'ngayChieu',
-                                $today
-                            )
+                            ->whereDate('ngayChieu', $today)
                             ->whereTime(
                                 'gioBatDau',
                                 '>=',
@@ -63,20 +46,57 @@ class LichChieuController extends Controller
             ->orderBy('gioBatDau')
             ->paginate(10);
 
-        return response()->json(
-            $lichChieus
-        );
-    }
+        foreach ($lichChieus->items() as $lichChieu) {
+            $ghes = $lichChieu
+                ->phongChieu
+                ?->soDoGhe
+                ?->ghes ?? collect();
 
+            /*
+             * Chỉ ghế vật lý HOAT_DONG mới có thể bán.
+             * Ghế KHOA do hỏng không tính là ghế trống.
+             */
+            $maGheHoatDong = $ghes
+                ->where('trangThai', 'HOAT_DONG')
+                ->pluck('maGhe')
+                ->values();
+
+            $tongGheCoTheBan = $maGheHoatDong->count();
+
+            $soGheDangBiChiem = 0;
+
+            if ($maGheHoatDong->isNotEmpty()) {
+                $soGheDangBiChiem = $this
+                    ->queryVeDangChiemGhe(
+                        $lichChieu->maLichChieu
+                    )
+                    ->whereIn(
+                        'maGhe',
+                        $maGheHoatDong->all()
+                    )
+                    ->distinct()
+                    ->count('maGhe');
+            }
+
+            $lichChieu->setAttribute(
+                'gheTrong',
+                max(
+                    $tongGheCoTheBan - $soGheDangBiChiem,
+                    0
+                )
+            );
+        }
+
+        return response()->json($lichChieus);
+    }
 
     /*
     |--------------------------------------------------------------------------
-    | DANH SÁCH QUẢN LÝ
+    | DANH SÁCH LỊCH CHIẾU CHO QUẢN LÝ
     |--------------------------------------------------------------------------
     */
-    public function management(
-        Request $request
-    ) {
+    public function management(Request $request)
+    {
         $data = $request->validate([
             'q' => [
                 'nullable',
@@ -110,59 +130,46 @@ class LichChieuController extends Controller
         ]);
 
         if (!empty($data['q'])) {
-            $keyword =
-                trim($data['q']);
+            $keyword = trim($data['q']);
 
-            $query->where(
-                function ($q) use (
-                    $keyword
-                ) {
-                    $q
-                        ->where(
-                            'maLichChieu',
-                            'like',
-                            "%{$keyword}%"
-                        )
-                        ->orWhereHas(
-                            'phim',
-                            function ($phim) use (
-                                $keyword
-                            ) {
-                                $phim->where(
-                                    'tenPhim',
-                                    'like',
-                                    "%{$keyword}%"
-                                );
-                            }
-                        )
-                        ->orWhereHas(
-                            'phongChieu',
-                            function ($phong) use (
-                                $keyword
-                            ) {
-                                $phong->where(
-                                    'tenPhong',
-                                    'like',
-                                    "%{$keyword}%"
-                                );
-                            }
-                        );
-                }
-            );
+            $query->where(function ($q) use ($keyword) {
+                $q
+                    ->where(
+                        'maLichChieu',
+                        'like',
+                        "%{$keyword}%"
+                    )
+                    ->orWhereHas(
+                        'phim',
+                        function ($phim) use ($keyword) {
+                            $phim->where(
+                                'tenPhim',
+                                'like',
+                                "%{$keyword}%"
+                            );
+                        }
+                    )
+                    ->orWhereHas(
+                        'phongChieu',
+                        function ($phong) use ($keyword) {
+                            $phong->where(
+                                'tenPhong',
+                                'like',
+                                "%{$keyword}%"
+                            );
+                        }
+                    );
+            });
         }
 
-        if (!empty(
-            $data['ngayChieu']
-        )) {
+        if (!empty($data['ngayChieu'])) {
             $query->whereDate(
                 'ngayChieu',
                 $data['ngayChieu']
             );
         }
 
-        if (!empty(
-            $data['trangThai']
-        )) {
+        if (!empty($data['trangThai'])) {
             $query->where(
                 'trangThai',
                 $data['trangThai']
@@ -171,25 +178,25 @@ class LichChieuController extends Controller
 
         return response()->json(
             $query
-                ->orderByDesc(
-                    'ngayChieu'
-                )
-                ->orderBy(
-                    'gioBatDau'
-                )
+                ->orderByDesc('ngayChieu')
+                ->orderBy('gioBatDau')
                 ->paginate(10)
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
     | THÊM LỊCH CHIẾU
     |--------------------------------------------------------------------------
+    |
+    | Theo tài liệu:
+    | - Chọn phim, phòng, ngày/giờ.
+    | - Không được trùng lịch trong cùng phòng.
+    | - Thời gian chiếu phải hợp lệ.
+    |
     */
-    public function store(
-        Request $request
-    ) {
+    public function store(Request $request)
+    {
         $data = $request->validate([
             'maLichChieu' => [
                 'required',
@@ -249,13 +256,9 @@ class LichChieuController extends Controller
             $data['gioKetThuc']
         );
 
-        $data['trangThai'] =
-            'HOAT_DONG';
+        $data['trangThai'] = 'HOAT_DONG';
 
-        $lichChieu =
-            LichChieu::create(
-                $data
-            );
+        $lichChieu = LichChieu::create($data);
 
         return response()->json([
             'message' =>
@@ -269,58 +272,91 @@ class LichChieuController extends Controller
         ], 201);
     }
 
-
     /*
     |--------------------------------------------------------------------------
-    | CHI TIẾT LỊCH CHIẾU
+    | CHI TIẾT LỊCH CHIẾU + SƠ ĐỒ GHẾ
     |--------------------------------------------------------------------------
+    |
     */
-    public function show(
-        string $maLichChieu
-    ) {
-        $lichChieu =
-            LichChieu::with([
-                'phim',
-                'phongChieu',
-            ])
-                ->findOrFail(
-                    $maLichChieu
-                );
+    public function show(string $maLichChieu)
+    {
+        $lichChieu = LichChieu::with([
+            'phim',
+            'phongChieu.soDoGhe.ghes',
+        ])->findOrFail($maLichChieu);
+
+        $veTheoGhe = $this
+            ->queryVeDangChiemGhe($maLichChieu)
+            ->get()
+            ->keyBy('maGhe');
+
+        $ghes = $lichChieu
+            ->phongChieu
+            ?->soDoGhe
+            ?->ghes;
+
+        $tongGheCoTheBan = 0;
+        $soGheDangBiChiem = 0;
+
+        if ($ghes) {
+            foreach ($ghes as $ghe) {
+                /*
+                 * Ghế vật lý bị khóa do hỏng:
+                 * không cho bán và giữ nguyên KHOA.
+                 */
+                if ($ghe->trangThai === 'KHOA') {
+                    continue;
+                }
+
+                $tongGheCoTheBan++;
+
+                $ve = $veTheoGhe->get($ghe->maGhe);
+
+                if ($ve) {
+                    $soGheDangBiChiem++;
+
+                    /*
+                     * Chỉ thay đổi dữ liệu trả về JSON,
+                     * không save xuống bảng ghes.
+                     */
+                    $ghe->setAttribute(
+                        'trangThai',
+                        $ve->trangThai
+                    );
+                }
+            }
+        }
+
+        $lichChieu->setAttribute(
+            'gheTrong',
+            max(
+                $tongGheCoTheBan - $soGheDangBiChiem,
+                0
+            )
+        );
 
         return response()->json([
             'message' =>
                 'Lấy thông tin lịch chiếu thành công.',
 
-            'data' =>
-                $lichChieu,
+            'data' => $lichChieu,
         ]);
     }
-
 
     /*
     |--------------------------------------------------------------------------
     | CẬP NHẬT LỊCH CHIẾU
     |--------------------------------------------------------------------------
-    |
-    | Theo Word:
-    | - Chỉ cập nhật khi chưa có khách đặt vé.
-    | - Không được trùng lịch trong cùng phòng.
-    |
     */
     public function update(
         Request $request,
         string $maLichChieu
     ) {
-        $lichChieu =
-            LichChieu::findOrFail(
-                $maLichChieu
-            );
+        $lichChieu = LichChieu::findOrFail(
+            $maLichChieu
+        );
 
-        if (
-            $this->daCoKhachDatVe(
-                $maLichChieu
-            )
-        ) {
+        if ($this->daCoKhachDatVe($maLichChieu)) {
             return response()->json([
                 'message' =>
                     'Không thể cập nhật vì lịch chiếu đã có khách hàng đặt vé.',
@@ -377,9 +413,7 @@ class LichChieuController extends Controller
             $maLichChieu
         );
 
-        $lichChieu->update(
-            $data
-        );
+        $lichChieu->update($data);
 
         return response()->json([
             'message' =>
@@ -395,49 +429,26 @@ class LichChieuController extends Controller
         ]);
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | HỦY LỊCH CHIẾU
-    |--------------------------------------------------------------------------
-    |
-    | Theo Word:
-    | - Nếu đã có khách đặt vé -> chặn.
-    | - Nếu chưa có vé -> cho phép xác nhận hủy.
-    |
+    |-------------------------------------------------------------------------
     */
     public function destroy(
         Request $request,
         string $maLichChieu
     ) {
-        $lichChieu =
-            LichChieu::findOrFail(
-                $maLichChieu
-            );
+        $lichChieu = LichChieu::findOrFail(
+            $maLichChieu
+        );
 
-        if (
-            $this->daCoKhachDatVe(
-                $maLichChieu
-            )
-        ) {
+        if ($this->daCoKhachDatVe($maLichChieu)) {
             return response()->json([
                 'message' =>
                     'Không thể hủy do đã có vé được bán.',
             ], 409);
         }
 
-        /*
-         * Word cho phép:
-         * - Xóa lịch
-         * hoặc
-         * - Chuyển trạng thái hủy.
-         *
-         * Database hiện tại chỉ có:
-         * HOAT_DONG / NGUNG_HOAT_DONG
-         *
-         * Vì vậy giữ bản ghi và chuyển sang
-         * NGUNG_HOAT_DONG để an toàn dữ liệu.
-         */
         $lichChieu->update([
             'trangThai' =>
                 'NGUNG_HOAT_DONG',
@@ -449,6 +460,92 @@ class LichChieuController extends Controller
         ]);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | QUERY VÉ ĐANG CHIẾM GHẾ
+    |-------------------------------------------------------------------------
+    */
+    private function queryVeDangChiemGhe(
+        string $maLichChieu
+    ) {
+        return VeGhe::where(
+            'maLichChieu',
+            $maLichChieu
+        )
+            ->where(function ($ticketQuery) {
+                $ticketQuery
+                    ->where(
+                        'trangThai',
+                        'DA_SU_DUNG'
+                    )
+                    ->orWhere(
+                        function ($activeQuery) {
+                            $activeQuery
+                                ->whereIn(
+                                    'trangThai',
+                                    [
+                                        'GIU_CHO',
+                                        'DA_DAT',
+                                    ]
+                                )
+                                ->whereHas(
+                                    'donHang',
+                                    function ($query) {
+                                        $query
+                                            ->whereIn(
+                                                'trangThai',
+                                                [
+                                                    'DA_THANH_TOAN',
+                                                    'DA_SU_DUNG',
+                                                ]
+                                            )
+                                            ->orWhere(
+                                                function (
+                                                    $pendingQuery
+                                                ) {
+                                                    $pendingQuery
+                                                        ->where(
+                                                            'trangThai',
+                                                            'CHO_THANH_TOAN'
+                                                        )
+                                                        ->where(
+                                                            function (
+                                                                $expiryQuery
+                                                            ) {
+                                                                $expiryQuery
+                                                                    ->where(
+                                                                        'hetHanLuc',
+                                                                        '>',
+                                                                        now()
+                                                                    )
+                                                                    ->orWhere(
+                                                                        function (
+                                                                            $fallbackQuery
+                                                                        ) {
+                                                                            $fallbackQuery
+                                                                                ->whereNull(
+                                                                                    'hetHanLuc'
+                                                                                )
+                                                                                ->where(
+                                                                                    'ngayDat',
+                                                                                    '>',
+                                                                                    now()
+                                                                                        ->subMinutes(
+                                                                                            10
+                                                                                        )
+                                                                                );
+                                                                        }
+                                                                    );
+                                                            }
+                                                        );
+                                                }
+                                            );
+                                    }
+                                );
+                        }
+                    );
+            });
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -462,29 +559,28 @@ class LichChieuController extends Controller
         string $gioKetThuc,
         ?string $ignoreId = null
     ): void {
-        $query =
-            LichChieu::where(
-                'maPhong',
-                $maPhong
+        $query = LichChieu::where(
+            'maPhong',
+            $maPhong
+        )
+            ->whereDate(
+                'ngayChieu',
+                $ngayChieu
             )
-                ->whereDate(
-                    'ngayChieu',
-                    $ngayChieu
-                )
-                ->where(
-                    'trangThai',
-                    'HOAT_DONG'
-                )
-                ->where(
-                    'gioBatDau',
-                    '<',
-                    $gioKetThuc
-                )
-                ->where(
-                    'gioKetThuc',
-                    '>',
-                    $gioBatDau
-                );
+            ->where(
+                'trangThai',
+                'HOAT_DONG'
+            )
+            ->where(
+                'gioBatDau',
+                '<',
+                $gioKetThuc
+            )
+            ->where(
+                'gioKetThuc',
+                '>',
+                $gioBatDau
+            );
 
         if ($ignoreId) {
             $query->where(
@@ -502,7 +598,6 @@ class LichChieuController extends Controller
         }
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | KIỂM TRA THỜI GIAN HỢP LỆ
@@ -512,19 +607,15 @@ class LichChieuController extends Controller
         string $ngayChieu,
         string $gioBatDau
     ): void {
-        $batDau =
-            Carbon::createFromFormat(
-                'Y-m-d H:i',
-                $ngayChieu
-                . ' '
-                . $gioBatDau,
-                'Asia/Ho_Chi_Minh'
-            );
+        $batDau = Carbon::createFromFormat(
+            'Y-m-d H:i',
+            $ngayChieu . ' ' . $gioBatDau,
+            'Asia/Ho_Chi_Minh'
+        );
 
-        $now =
-            Carbon::now(
-                'Asia/Ho_Chi_Minh'
-            );
+        $now = Carbon::now(
+            'Asia/Ho_Chi_Minh'
+        );
 
         if (
             $batDau->lessThanOrEqualTo(
@@ -538,36 +629,17 @@ class LichChieuController extends Controller
         }
     }
 
-
     /*
     |--------------------------------------------------------------------------
-    | KIỂM TRA ĐÃ CÓ KHÁCH ĐẶT VÉ
+    | KIỂM TRA ĐÃ CÓ KHÁCH ĐẶT / GIỮ VÉ
     |--------------------------------------------------------------------------
     */
     private function daCoKhachDatVe(
         string $maLichChieu
     ): bool {
-        return VeGhe::where(
-            'maLichChieu',
-            $maLichChieu
-        )
-            ->whereIn(
-                'trangThai',
-                [
-                    'GIU_CHO',
-                    'DA_DAT',
-                    'DA_SU_DUNG',
-                ]
-            )
-            ->whereHas(
-                'donHang',
-                function ($query) {
-                    $query->where(
-                        'trangThai',
-                        '!=',
-                        'DA_HUY'
-                    );
-                }
+        return $this
+            ->queryVeDangChiemGhe(
+                $maLichChieu
             )
             ->exists();
     }

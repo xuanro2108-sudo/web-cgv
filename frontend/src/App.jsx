@@ -8,6 +8,8 @@ import {
 import CustomerLayout from "./layouts/CustomerLayout";
 
 import LichChieuManagement from "./pages/LichChieuManagement";
+import PhongChieuManagement from "./pages/PhongChieuManagement";
+
 import LoginCustomer from "./pages/LoginCustomer";
 import HomeCustomer from "./pages/HomeCustomer";
 import MovieShowtimes from "./pages/MovieShowtimes";
@@ -384,6 +386,23 @@ function App() {
             <ManagerRoute>
               <Dashboard>
                 <LichChieuManagement />
+              </Dashboard>
+            </ManagerRoute>
+          }
+        />
+
+
+        {/* =========================
+            QUẢN LÝ PHÒNG CHIẾU
+            CHỈ QUẢN LÝ
+        ========================= */}
+
+        <Route
+          path="/dashboard/phong-chieu"
+          element={
+            <ManagerRoute>
+              <Dashboard>
+                <PhongChieuManagement />
               </Dashboard>
             </ManagerRoute>
           }

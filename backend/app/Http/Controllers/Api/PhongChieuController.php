@@ -10,45 +10,82 @@ use Illuminate\Validation\Rule;
 
 class PhongChieuController extends Controller
 {
-    // Danh sách + tìm kiếm phòng chiếu
+    // =====================================================
+    // DANH SÁCH PHÒNG CHIẾU
+    // Tìm kiếm theo mã / tên
+    // Lọc theo trạng thái
+    // =====================================================
     public function index(Request $request)
     {
         $query = PhongChieu::with('soDoGhe');
 
+        // Tìm kiếm
         if ($request->filled('keyword')) {
-            $keyword = $request->keyword;
+            $keyword = trim($request->keyword);
 
             $query->where(function ($q) use ($keyword) {
-                $q->where('maPhong', 'like', "%{$keyword}%")
-                    ->orWhere('tenPhong', 'like', "%{$keyword}%");
+                $q->where(
+                    'maPhong',
+                    'like',
+                    "%{$keyword}%"
+                )
+                    ->orWhere(
+                        'tenPhong',
+                        'like',
+                        "%{$keyword}%"
+                    );
             });
+        }
+
+        // Lọc trạng thái
+        if ($request->filled('trangThai')) {
+            $query->where(
+                'trangThai',
+                $request->trangThai
+            );
         }
 
         $phongChieus = $query
             ->orderBy('maPhong')
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
-        return response()->json($phongChieus);
+        return response()->json(
+            $phongChieus
+        );
     }
 
-    // Xem thông tin phòng
+    // =====================================================
+    // CHI TIẾT PHÒNG CHIẾU
+    // =====================================================
     public function show(string $maPhong)
     {
-        $phongChieu = PhongChieu::with('soDoGhe')
-            ->findOrFail($maPhong);
+        $phongChieu =
+            PhongChieu::with('soDoGhe')
+                ->findOrFail($maPhong);
 
         return response()->json([
-            'message' => 'Lấy thông tin phòng chiếu thành công',
+            'message' =>
+                'Lấy thông tin phòng chiếu thành công',
             'data' => $phongChieu,
         ]);
     }
 
-    // Chỉ sửa tên và trạng thái
-    public function update(Request $request, string $maPhong)
-    {
+    // =====================================================
+    // CẬP NHẬT PHÒNG CHIẾU
+    // Chỉ thay đổi tên phòng + trạng thái
+    // Không sửa sức chứa trực tiếp
+    // =====================================================
+    public function update(
+        Request $request,
+        string $maPhong
+    ) {
         OrderAccess::staff($request);
 
-        $phongChieu = PhongChieu::findOrFail($maPhong);
+        $phongChieu =
+            PhongChieu::findOrFail(
+                $maPhong
+            );
 
         $data = $request->validate([
             'tenPhong' => [
@@ -57,9 +94,11 @@ class PhongChieuController extends Controller
                 'string',
                 'max:255',
             ],
+
             'trangThai' => [
                 'sometimes',
                 'required',
+
                 Rule::in([
                     'HOAT_DONG',
                     'NGUNG_HOAT_DONG',
@@ -70,8 +109,13 @@ class PhongChieuController extends Controller
         $phongChieu->update($data);
 
         return response()->json([
-            'message' => 'Cập nhật phòng chiếu thành công',
-            'data' => $phongChieu->fresh()->load('soDoGhe'),
+            'message' =>
+                'Cập nhật phòng chiếu thành công',
+
+            'data' =>
+                $phongChieu
+                    ->fresh()
+                    ->load('soDoGhe'),
         ]);
     }
 }

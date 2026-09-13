@@ -3,6 +3,7 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
+
 import "./Dashboard.css";
 
 function Dashboard({ children }) {
@@ -27,6 +28,10 @@ function Dashboard({ children }) {
   const schedulePage =
     location.pathname ===
     "/dashboard/lich-chieu";
+
+  const roomPage =
+    location.pathname ===
+    "/dashboard/phong-chieu";
 
   const customerPage =
     location.pathname ===
@@ -194,6 +199,7 @@ function Dashboard({ children }) {
       "/dashboard/thong-ke",
       "/dashboard/don-hang",
       "/dashboard/lich-chieu",
+      "/dashboard/phong-chieu",
     ];
 
     if (
@@ -312,6 +318,7 @@ function Dashboard({ children }) {
 
         </div>
 
+
         {/* =========================
             THÔNG TIN TÀI KHOẢN
         ========================= */}
@@ -332,6 +339,7 @@ function Dashboard({ children }) {
 
         </div>
 
+
         {/* =========================
             MENU
         ========================= */}
@@ -349,7 +357,8 @@ function Dashboard({ children }) {
               !moviePage &&
               !comboPage &&
               !productPage &&
-              !schedulePage
+              !schedulePage &&
+              !roomPage
                 ? "active"
                 : ""
             }`}
@@ -361,6 +370,7 @@ function Dashboard({ children }) {
           >
             Trang chính
           </button>
+
 
           {/* =========================
               NHÂN VIÊN + QUẢN LÝ
@@ -392,6 +402,7 @@ function Dashboard({ children }) {
                 Đơn hàng & vé
               </button>
 
+
               {/* TÀI KHOẢN KHÁCH HÀNG */}
               {vaiTro ===
                 "QUAN_LY" && (
@@ -417,6 +428,7 @@ function Dashboard({ children }) {
                 </button>
               )}
 
+
               {/* COMBO */}
               <button
                 type="button"
@@ -441,6 +453,7 @@ function Dashboard({ children }) {
 
             </>
           )}
+
 
           {/* =========================
               CHỈ QUẢN LÝ
@@ -471,6 +484,7 @@ function Dashboard({ children }) {
                 Lịch chiếu
               </button>
 
+
               {/* SẢN PHẨM */}
               <button
                 type="button"
@@ -492,6 +506,7 @@ function Dashboard({ children }) {
               >
                 Sản phẩm
               </button>
+
 
               {/* PHIM */}
               <button
@@ -515,13 +530,29 @@ function Dashboard({ children }) {
                 Phim
               </button>
 
+
               {/* PHÒNG CHIẾU */}
               <button
                 type="button"
-                className="dashboard-menu-item"
+                className={`dashboard-menu-item ${
+                  roomPage
+                    ? "active"
+                    : ""
+                }`}
+                onClick={() =>
+                  navigate(
+                    "/dashboard/phong-chieu"
+                  )
+                }
+                aria-current={
+                  roomPage
+                    ? "page"
+                    : undefined
+                }
               >
                 Phòng chiếu
               </button>
+
 
               {/* KHUYẾN MÃI */}
               <button
@@ -545,6 +576,7 @@ function Dashboard({ children }) {
                 Khuyến mãi
               </button>
 
+
               {/* NHÂN VIÊN */}
               <button
                 type="button"
@@ -566,6 +598,7 @@ function Dashboard({ children }) {
               >
                 Nhân viên
               </button>
+
 
               {/* THỐNG KÊ */}
               <button
@@ -594,6 +627,7 @@ function Dashboard({ children }) {
 
         </nav>
 
+
         {/* =========================
             ĐĂNG XUẤT
         ========================= */}
@@ -616,6 +650,7 @@ function Dashboard({ children }) {
         </div>
 
       </aside>
+
 
       {/* =========================
           NỘI DUNG CHÍNH
@@ -644,6 +679,7 @@ function Dashboard({ children }) {
               </p>
 
             </div>
+
 
             {/* =========================
                 GRID CHỨC NĂNG
