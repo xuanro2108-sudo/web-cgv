@@ -31,7 +31,7 @@ export default function SeatStep({
           className="counter-btn-change"
           onClick={() => setStep(2)}
         >
-          ← Chọn suất khác
+          Chọn suất khác
         </button>
       </div>
 
@@ -145,7 +145,7 @@ export default function SeatStep({
             disabled={selectedSeats.length === 0}
             onClick={() => setStep(4)}
           >
-            TIẾP TỤC: CHỌN COMBO BỎNG NƯỚC →
+            TIẾP TỤC: CHỌN COMBO BỎNG NƯỚC
           </button>
         </aside>
       </div>

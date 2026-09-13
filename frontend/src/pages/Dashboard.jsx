@@ -325,21 +325,18 @@ function Dashboard({ children }) {
           {/* TRANG CHÍNH */}
           <button
             type="button"
-            className={
-              `dashboard-menu-item ${
-               !customerPage &&
+            className={`dashboard-menu-item ${
+  !customerPage &&
   !promotionPage &&
   !employeePage &&
-  !statisticsPage   
-                !customerPage &&
-                !promotionPage &&
-                !employeePage && !moviePage && !comboPage && !productPage
-                !employeePage &&
-                !orderPage
-                  ? "active"
-                  : ""
-              }`
-            }
+  !statisticsPage &&
+  !orderPage &&
+  !moviePage &&
+  !comboPage &&
+  !productPage
+    ? "active"
+    : ""
+}`}
             onClick={() =>
               navigate(
                 "/dashboard"

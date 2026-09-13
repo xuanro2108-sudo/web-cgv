@@ -20,7 +20,6 @@ use App\Http\Controllers\Api\SanPhamController;
 use App\Http\Controllers\Api\SoDoGheController;
 use App\Http\Controllers\Api\ThanhToanController;
 use App\Http\Controllers\Api\VeGheController;
-use App\Http\Controllers\Api\NhanVienController;
 use App\Http\Controllers\Api\ThongKeController;
 use Illuminate\Support\Facades\Route;
 
