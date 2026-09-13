@@ -7,6 +7,7 @@ import {
 
 import CustomerLayout from "./layouts/CustomerLayout";
 
+import LichChieuManagement from "./pages/LichChieuManagement";
 import LoginCustomer from "./pages/LoginCustomer";
 import HomeCustomer from "./pages/HomeCustomer";
 import MovieShowtimes from "./pages/MovieShowtimes";
@@ -23,10 +24,6 @@ import CustomerManagement from "./pages/CustomerManagement";
 import PromotionManagement from "./pages/PromotionManagement";
 import OrderManagement from "./pages/OrderManagement";
 import CounterSale from "./pages/CounterSale";
-
-// =========================
-// QUẢN LÝ NHÂN VIÊN
-// =========================
 import NhanVienManagement from "./pages/NhanVienManagement";
 
 
@@ -34,9 +31,15 @@ import NhanVienManagement from "./pages/NhanVienManagement";
 // BẢO VỆ DASHBOARD
 // NHÂN VIÊN + QUẢN LÝ
 // =========================
-function InternalRoute({ children, managerOnly = false }) {
-  const token = localStorage.getItem("token");
-  const vaiTro = localStorage.getItem("vaiTro");
+function InternalRoute({
+  children,
+  managerOnly = false,
+}) {
+  const token =
+    localStorage.getItem("token");
+
+  const vaiTro =
+    localStorage.getItem("vaiTro");
 
   const internalRoles = [
     "NHAN_VIEN",
@@ -55,8 +58,16 @@ function InternalRoute({ children, managerOnly = false }) {
     );
   }
 
-  if (managerOnly && vaiTro !== "QUAN_LY") {
-    return <Navigate to="/dashboard" replace />;
+  if (
+    managerOnly &&
+    vaiTro !== "QUAN_LY"
+  ) {
+    return (
+      <Navigate
+        to="/dashboard"
+        replace
+      />
+    );
   }
 
   return children;
@@ -66,11 +77,15 @@ function InternalRoute({ children, managerOnly = false }) {
 // =========================
 // CHỈ DÀNH CHO QUẢN LÝ
 // =========================
-function ManagerRoute({ children }) {
-  const token = localStorage.getItem("token");
-  const vaiTro = localStorage.getItem("vaiTro");
+function ManagerRoute({
+  children,
+}) {
+  const token =
+    localStorage.getItem("token");
 
-  // Chưa đăng nhập
+  const vaiTro =
+    localStorage.getItem("vaiTro");
+
   if (!token) {
     return (
       <Navigate
@@ -80,8 +95,9 @@ function ManagerRoute({ children }) {
     );
   }
 
-  // Có đăng nhập nhưng không phải quản lý
-  if (vaiTro !== "QUAN_LY") {
+  if (
+    vaiTro !== "QUAN_LY"
+  ) {
     return (
       <Navigate
         to="/dashboard"
@@ -97,9 +113,14 @@ function ManagerRoute({ children }) {
 // =========================
 // BẢO VỆ KHÁCH HÀNG
 // =========================
-function CustomerRoute({ children }) {
-  const token = localStorage.getItem("token");
-  const vaiTro = localStorage.getItem("vaiTro");
+function CustomerRoute({
+  children,
+}) {
+  const token =
+    localStorage.getItem("token");
+
+  const vaiTro =
+    localStorage.getItem("vaiTro");
 
   if (
     !token ||
@@ -110,7 +131,8 @@ function CustomerRoute({ children }) {
         to="/login"
         replace
         state={{
-          from: window.location.pathname,
+          from:
+            window.location.pathname,
         }}
       />
     );
@@ -123,6 +145,7 @@ function CustomerRoute({ children }) {
 function App() {
   return (
     <BrowserRouter>
+
       <Routes>
 
         {/* =========================
@@ -138,6 +161,7 @@ function App() {
             />
           }
         />
+
 
         <Route
           path="/home"
@@ -164,6 +188,7 @@ function App() {
           }
         />
 
+
         <Route
           path="/chon-ghe/:maLichChieu"
           element={
@@ -175,6 +200,7 @@ function App() {
           }
         />
 
+
         <Route
           path="/thanh-toan/:maDonHang"
           element={
@@ -185,6 +211,7 @@ function App() {
             </CustomerRoute>
           }
         />
+
 
         <Route
           path="/chon-combo/:maDonHang"
@@ -211,6 +238,7 @@ function App() {
           }
         />
 
+
         <Route
           path="/register"
           element={
@@ -222,7 +250,7 @@ function App() {
 
 
         {/* =========================
-            NHÂN VIÊN / QUẢN LÝ
+            ĐĂNG NHẬP NỘI BỘ
         ========================= */}
 
         <Route
@@ -233,7 +261,10 @@ function App() {
         />
 
 
-        {/* DASHBOARD CHUNG */}
+        {/* =========================
+            DASHBOARD CHUNG
+        ========================= */}
+
         <Route
           path="/dashboard"
           element={
@@ -242,6 +273,11 @@ function App() {
             </InternalRoute>
           }
         />
+
+
+        {/* =========================
+            TÀI KHOẢN KHÁCH HÀNG
+        ========================= */}
 
         <Route
           path="/dashboard/khach-hang"
@@ -254,6 +290,11 @@ function App() {
           }
         />
 
+
+        {/* =========================
+            KHUYẾN MÃI
+        ========================= */}
+
         <Route
           path="/dashboard/khuyen-mai"
           element={
@@ -264,6 +305,11 @@ function App() {
             </InternalRoute>
           }
         />
+
+
+        {/* =========================
+            ĐƠN HÀNG & VÉ
+        ========================= */}
 
         <Route
           path="/dashboard/don-hang"
@@ -276,6 +322,11 @@ function App() {
           }
         />
 
+
+        {/* =========================
+            BÁN VÉ TẠI QUẦY
+        ========================= */}
+
         <Route
           path="/dashboard/ban-ve-tai-quay"
           element={
@@ -287,9 +338,10 @@ function App() {
           }
         />
 
+
         {/* =========================
             QUẢN LÝ NHÂN VIÊN
-            CHỈ QUAN_LY
+            CHỈ QUẢN LÝ
         ========================= */}
 
         <Route
@@ -302,42 +354,91 @@ function App() {
             </ManagerRoute>
           }
         />
+
+
+        {/* =========================
+            THỐNG KÊ
+            CHỈ QUẢN LÝ
+        ========================= */}
+
         <Route
-  path="/dashboard/thong-ke"
-  element={
-    <ManagerRoute>
-      <Dashboard>
-        <ThongKe />
-      </Dashboard>
-    </ManagerRoute>
-  }
-/>
+          path="/dashboard/thong-ke"
+          element={
+            <ManagerRoute>
+              <Dashboard>
+                <ThongKe />
+              </Dashboard>
+            </ManagerRoute>
+          }
+        />
+
+
+        {/* =========================
+            QUẢN LÝ LỊCH CHIẾU
+            CHỈ QUẢN LÝ
+        ========================= */}
+
+        <Route
+          path="/dashboard/lich-chieu"
+          element={
+            <ManagerRoute>
+              <Dashboard>
+                <LichChieuManagement />
+              </Dashboard>
+            </ManagerRoute>
+          }
+        />
+
+
+        {/* =========================
+            QUẢN LÝ PHIM
+        ========================= */}
 
         <Route
           path="/dashboard/phim"
           element={
             <InternalRoute managerOnly>
-              <Dashboard><MovieManagement /></Dashboard>
+              <Dashboard>
+                <MovieManagement />
+              </Dashboard>
             </InternalRoute>
           }
         />
+
+
+        {/* =========================
+            QUẢN LÝ COMBO
+        ========================= */}
+
         <Route
           path="/dashboard/combo"
           element={
             <InternalRoute>
-              <Dashboard><ComboManagement /></Dashboard>
+              <Dashboard>
+                <ComboManagement />
+              </Dashboard>
             </InternalRoute>
           }
         />
+
+
+        {/* =========================
+            QUẢN LÝ SẢN PHẨM
+        ========================= */}
+
         <Route
           path="/dashboard/san-pham"
           element={
             <InternalRoute managerOnly>
-              <Dashboard><ProductManagement /></Dashboard>
+              <Dashboard>
+                <ProductManagement />
+              </Dashboard>
             </InternalRoute>
           }
         />
+
       </Routes>
+
     </BrowserRouter>
   );
 }

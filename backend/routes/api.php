@@ -123,9 +123,22 @@ Route::get('/test', function () {
 Route::apiResource('phims', PhimController::class)
     ->only(['index', 'show'])
     ->parameters(['phims' => 'maPhim']);
-Route::apiResource('lich-chieus', LichChieuController::class)
-    ->only(['index', 'show'])
-    ->parameters(['lich-chieus' => 'maLichChieu']);
+Route::apiResource(
+    'lich-chieus',
+    LichChieuController::class
+)
+    ->middleware(
+        'role:QUAN_LY'
+    )
+    ->only([
+        'store',
+        'update',
+        'destroy'
+    ])
+    ->parameters([
+        'lich-chieus' =>
+            'maLichChieu'
+    ]);
 Route::apiResource('phong-chieus', PhongChieuController::class)
     ->only(['index', 'show'])
     ->parameters(['phong-chieus' => 'maPhong']);
@@ -174,7 +187,57 @@ Route::middleware([
     ]);
 
     Route::get(
-        'thong-ke/doanh-thu-ve',
-        [ThongKeController::class, 'doanhThuVe']
-    );
-});
+    'thong-ke/danh-sach-phim',
+    [
+        ThongKeController::class,
+        'danhSachPhim'
+    ]
+);
+
+Route::get(
+    'thong-ke/danh-sach-khuyen-mai',
+    [
+        ThongKeController::class,
+        'danhSachKhuyenMai'
+    ]
+);
+
+Route::get(
+    'thong-ke/doanh-thu-ve',
+    [
+        ThongKeController::class,
+        'doanhThuVe'
+    ]
+);
+
+Route::get(
+    'thong-ke/doanh-thu-combo',
+    [
+        ThongKeController::class,
+        'doanhThuCombo'
+    ]
+);
+
+Route::get(
+    'thong-ke/theo-phim',
+    [
+        ThongKeController::class,
+        'theoPhim'
+    ]
+);
+
+Route::get(
+    'thong-ke/khuyen-mai',
+    [
+        ThongKeController::class,
+        'khuyenMai'
+    ]
+);
+Route::get(
+    'lich-chieus',
+    [
+        LichChieuController::class,
+        'management'
+    ]
+);
+}); 

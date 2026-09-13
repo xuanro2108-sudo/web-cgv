@@ -12,9 +12,21 @@ function Dashboard({ children }) {
   // =========================
   // KIỂM TRA TRANG ĐANG MỞ
   // =========================
-  const productPage = location.pathname === "/dashboard/san-pham";
-  const comboPage = location.pathname === "/dashboard/combo";
-  const moviePage = location.pathname === "/dashboard/phim";
+  const productPage =
+    location.pathname ===
+    "/dashboard/san-pham";
+
+  const comboPage =
+    location.pathname ===
+    "/dashboard/combo";
+
+  const moviePage =
+    location.pathname ===
+    "/dashboard/phim";
+
+  const schedulePage =
+    location.pathname ===
+    "/dashboard/lich-chieu";
 
   const customerPage =
     location.pathname ===
@@ -29,13 +41,12 @@ function Dashboard({ children }) {
     "/dashboard/nhan-vien";
 
   const statisticsPage =
-  location.pathname ===
-  "/dashboard/thong-ke";
+    location.pathname ===
+    "/dashboard/thong-ke";
 
   const orderPage =
     location.pathname ===
     "/dashboard/don-hang";
-
 
   // =========================
   // THÔNG TIN TÀI KHOẢN
@@ -74,10 +85,12 @@ function Dashboard({ children }) {
   const functions = [
     {
       title: "Quản lý sản phẩm",
-      description: "Quản lý bắp, nước, đồ ăn và giá bán sản phẩm.",
+      description:
+        "Quản lý bắp, nước, đồ ăn và giá bán sản phẩm.",
       roles: ["QUAN_LY"],
       path: "/dashboard/san-pham",
     },
+
     {
       title: "Quản lý phim",
       description:
@@ -89,11 +102,8 @@ function Dashboard({ children }) {
     {
       title: "Quản lý lịch chiếu",
       description:
-        "Tạo, cập nhật và theo dõi lịch chiếu phim.",
-      roles: [
-        "QUAN_LY",
-        "NHAN_VIEN",
-      ],
+        "Thêm, cập nhật và hủy lịch chiếu phim.",
+      roles: ["QUAN_LY"],
       path: "/dashboard/lich-chieu",
     },
 
@@ -182,6 +192,8 @@ function Dashboard({ children }) {
       "/dashboard/khuyen-mai",
       "/dashboard/nhan-vien",
       "/dashboard/thong-ke",
+      "/dashboard/don-hang",
+      "/dashboard/lich-chieu",
     ];
 
     if (
@@ -225,52 +237,57 @@ function Dashboard({ children }) {
   // =========================
   // ĐĂNG XUẤT
   // =========================
-  const handleLogout = async () => {
-    const token =
-      localStorage.getItem("token");
+  const handleLogout =
+    async () => {
+      const token =
+        localStorage.getItem(
+          "token"
+        );
 
-    if (!token) {
-      clearLoginData();
+      if (!token) {
+        clearLoginData();
 
-      navigate(
-        "/internal/login"
-      );
+        navigate(
+          "/internal/login"
+        );
 
-      return;
-    }
+        return;
+      }
 
-    setLogoutLoading(true);
+      setLogoutLoading(true);
 
-    try {
-      await fetch(
-        "http://127.0.0.1:8000/api/auth/logout",
-        {
-          method: "POST",
+      try {
+        await fetch(
+          "http://127.0.0.1:8000/api/auth/logout",
+          {
+            method: "POST",
 
-          headers: {
-            Accept:
-              "application/json",
+            headers: {
+              Accept:
+                "application/json",
 
-            Authorization:
-              `Bearer ${token}`,
-          },
-        }
-      );
-    } catch (error) {
-      console.error(
-        "Lỗi đăng xuất:",
-        error
-      );
-    } finally {
-      clearLoginData();
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+      } catch (error) {
+        console.error(
+          "Lỗi đăng xuất:",
+          error
+        );
+      } finally {
+        clearLoginData();
 
-      setLogoutLoading(false);
+        setLogoutLoading(
+          false
+        );
 
-      navigate(
-        "/internal/login"
-      );
-    }
-  };
+        navigate(
+          "/internal/login"
+        );
+      }
+    };
 
   return (
     <div className="dashboard-layout">
@@ -295,7 +312,6 @@ function Dashboard({ children }) {
 
         </div>
 
-
         {/* =========================
             THÔNG TIN TÀI KHOẢN
         ========================= */}
@@ -316,7 +332,6 @@ function Dashboard({ children }) {
 
         </div>
 
-
         {/* =========================
             MENU
         ========================= */}
@@ -326,17 +341,18 @@ function Dashboard({ children }) {
           <button
             type="button"
             className={`dashboard-menu-item ${
-  !customerPage &&
-  !promotionPage &&
-  !employeePage &&
-  !statisticsPage &&
-  !orderPage &&
-  !moviePage &&
-  !comboPage &&
-  !productPage
-    ? "active"
-    : ""
-}`}
+              !customerPage &&
+              !promotionPage &&
+              !employeePage &&
+              !statisticsPage &&
+              !orderPage &&
+              !moviePage &&
+              !comboPage &&
+              !productPage &&
+              !schedulePage
+                ? "active"
+                : ""
+            }`}
             onClick={() =>
               navigate(
                 "/dashboard"
@@ -346,7 +362,6 @@ function Dashboard({ children }) {
             Trang chính
           </button>
 
-
           {/* =========================
               NHÂN VIÊN + QUẢN LÝ
           ========================= */}
@@ -355,38 +370,38 @@ function Dashboard({ children }) {
               "NHAN_VIEN") && (
             <>
 
-              {/* LỊCH CHIẾU */}
-              <button
-                type="button"
-                className="dashboard-menu-item"
-              >
-                Lịch chiếu
-              </button>
-
-
               {/* ĐƠN HÀNG */}
               <button
                 type="button"
-                className={`dashboard-menu-item ${orderPage ? "active" : ""}`}
-                onClick={() => navigate("/dashboard/don-hang")}
-                aria-current={orderPage ? "page" : undefined}
+                className={`dashboard-menu-item ${
+                  orderPage
+                    ? "active"
+                    : ""
+                }`}
+                onClick={() =>
+                  navigate(
+                    "/dashboard/don-hang"
+                  )
+                }
+                aria-current={
+                  orderPage
+                    ? "page"
+                    : undefined
+                }
               >
                 Đơn hàng & vé
               </button>
-
 
               {/* TÀI KHOẢN KHÁCH HÀNG */}
               {vaiTro ===
                 "QUAN_LY" && (
                 <button
                   type="button"
-                  className={
-                    `dashboard-menu-item ${
-                      customerPage
-                        ? "active"
-                        : ""
-                    }`
-                  }
+                  className={`dashboard-menu-item ${
+                    customerPage
+                      ? "active"
+                      : ""
+                  }`}
                   onClick={() =>
                     navigate(
                       "/dashboard/khach-hang"
@@ -402,20 +417,30 @@ function Dashboard({ children }) {
                 </button>
               )}
 
-
               {/* COMBO */}
               <button
                 type="button"
-                className={`dashboard-menu-item ${comboPage ? "active" : ""}`}
-                onClick={() => navigate("/dashboard/combo")}
-                aria-current={comboPage ? "page" : undefined}
+                className={`dashboard-menu-item ${
+                  comboPage
+                    ? "active"
+                    : ""
+                }`}
+                onClick={() =>
+                  navigate(
+                    "/dashboard/combo"
+                  )
+                }
+                aria-current={
+                  comboPage
+                    ? "page"
+                    : undefined
+                }
               >
                 Combo
               </button>
 
             </>
           )}
-
 
           {/* =========================
               CHỈ QUẢN LÝ
@@ -424,11 +449,46 @@ function Dashboard({ children }) {
             "QUAN_LY" && (
             <>
 
+              {/* LỊCH CHIẾU */}
               <button
                 type="button"
-                className={`dashboard-menu-item ${productPage ? "active" : ""}`}
-                onClick={() => navigate("/dashboard/san-pham")}
-                aria-current={productPage ? "page" : undefined}
+                className={`dashboard-menu-item ${
+                  schedulePage
+                    ? "active"
+                    : ""
+                }`}
+                onClick={() =>
+                  navigate(
+                    "/dashboard/lich-chieu"
+                  )
+                }
+                aria-current={
+                  schedulePage
+                    ? "page"
+                    : undefined
+                }
+              >
+                Lịch chiếu
+              </button>
+
+              {/* SẢN PHẨM */}
+              <button
+                type="button"
+                className={`dashboard-menu-item ${
+                  productPage
+                    ? "active"
+                    : ""
+                }`}
+                onClick={() =>
+                  navigate(
+                    "/dashboard/san-pham"
+                  )
+                }
+                aria-current={
+                  productPage
+                    ? "page"
+                    : undefined
+                }
               >
                 Sản phẩm
               </button>
@@ -436,13 +496,24 @@ function Dashboard({ children }) {
               {/* PHIM */}
               <button
                 type="button"
-                className={`dashboard-menu-item ${moviePage ? "active" : ""}`}
-                onClick={() => navigate("/dashboard/phim")}
-                aria-current={moviePage ? "page" : undefined}
+                className={`dashboard-menu-item ${
+                  moviePage
+                    ? "active"
+                    : ""
+                }`}
+                onClick={() =>
+                  navigate(
+                    "/dashboard/phim"
+                  )
+                }
+                aria-current={
+                  moviePage
+                    ? "page"
+                    : undefined
+                }
               >
                 Phim
               </button>
-
 
               {/* PHÒNG CHIẾU */}
               <button
@@ -452,17 +523,14 @@ function Dashboard({ children }) {
                 Phòng chiếu
               </button>
 
-
               {/* KHUYẾN MÃI */}
               <button
                 type="button"
-                className={
-                  `dashboard-menu-item ${
-                    promotionPage
-                      ? "active"
-                      : ""
-                  }`
-                }
+                className={`dashboard-menu-item ${
+                  promotionPage
+                    ? "active"
+                    : ""
+                }`}
                 onClick={() =>
                   navigate(
                     "/dashboard/khuyen-mai"
@@ -477,19 +545,14 @@ function Dashboard({ children }) {
                 Khuyến mãi
               </button>
 
-
-              {/* =========================
-                  NHÂN VIÊN
-              ========================= */}
+              {/* NHÂN VIÊN */}
               <button
                 type="button"
-                className={
-                  `dashboard-menu-item ${
-                    employeePage
-                      ? "active"
-                      : ""
-                  }`
-                }
+                className={`dashboard-menu-item ${
+                  employeePage
+                    ? "active"
+                    : ""
+                }`}
                 onClick={() =>
                   navigate(
                     "/dashboard/nhan-vien"
@@ -504,31 +567,32 @@ function Dashboard({ children }) {
                 Nhân viên
               </button>
 
-
               {/* THỐNG KÊ */}
-             <button
-  type="button"
-  className={
-    `dashboard-menu-item ${
-      statisticsPage
-        ? "active"
-        : ""
-    }`
-  }
-  onClick={() =>
-    navigate(
-      "/dashboard/thong-ke"
-    )
-  }
->
-  Thống kê
-</button>
+              <button
+                type="button"
+                className={`dashboard-menu-item ${
+                  statisticsPage
+                    ? "active"
+                    : ""
+                }`}
+                onClick={() =>
+                  navigate(
+                    "/dashboard/thong-ke"
+                  )
+                }
+                aria-current={
+                  statisticsPage
+                    ? "page"
+                    : undefined
+                }
+              >
+                Thống kê
+              </button>
 
             </>
           )}
 
         </nav>
-
 
         {/* =========================
             ĐĂNG XUẤT
@@ -552,7 +616,6 @@ function Dashboard({ children }) {
         </div>
 
       </aside>
-
 
       {/* =========================
           NỘI DUNG CHÍNH
@@ -581,7 +644,6 @@ function Dashboard({ children }) {
               </p>
 
             </div>
-
 
             {/* =========================
                 GRID CHỨC NĂNG
