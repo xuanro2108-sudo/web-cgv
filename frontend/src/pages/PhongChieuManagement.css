@@ -1,0 +1,578 @@
+/* =========================================================
+   QUẢN LÝ PHÒNG CHIẾU
+   Sơ đồ ghế đồng bộ với màn bán vé / chọn ghế
+   ========================================================= */
+
+.pcm-page {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px 2px 40px;
+  color: #222;
+}
+
+.pcm-heading {
+  margin-bottom: 22px;
+}
+
+.pcm-eyebrow {
+  display: inline-block;
+  margin-bottom: 6px;
+  color: #c62828;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.pcm-heading h1 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+.pcm-heading p {
+  margin: 7px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* =========================================================
+   ALERT
+   ========================================================= */
+
+.pcm-alert {
+  margin-bottom: 16px;
+  padding: 12px 15px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.pcm-alert-success {
+  border: 1px solid #b7e1c1;
+  background: #edf8f0;
+  color: #236633;
+}
+
+.pcm-alert-error {
+  border: 1px solid #efb4b4;
+  background: #fff0f0;
+  color: #a52121;
+}
+
+/* =========================================================
+   FILTER
+   ========================================================= */
+
+.pcm-filter {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 220px auto;
+  gap: 14px;
+  align-items: end;
+  margin-bottom: 22px;
+  padding: 18px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+}
+
+.pcm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 14px;
+}
+
+.pcm-filter .pcm-field {
+  margin-bottom: 0;
+}
+
+.pcm-field label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+}
+
+.pcm-field input,
+.pcm-field select {
+  width: 100%;
+  height: 42px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  border: 1px solid #d6d9df;
+  border-radius: 8px;
+  background: #fff;
+  color: #222;
+  font-size: 14px;
+  outline: none;
+}
+
+.pcm-field input:focus,
+.pcm-field select:focus {
+  border-color: #e71a0f;
+  box-shadow: 0 0 0 3px rgba(231, 26, 15, 0.08);
+}
+
+.pcm-field input:disabled {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.pcm-filter-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* =========================================================
+   BUTTON
+   ========================================================= */
+
+.pcm-btn {
+  min-height: 40px;
+  padding: 0 15px;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.pcm-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.pcm-btn-primary {
+  background: #e71a0f;
+  color: #fff;
+}
+
+.pcm-btn-light {
+  background: #f0f1f3;
+  color: #333;
+}
+
+/* =========================================================
+   ROOM CARDS
+   ========================================================= */
+
+.pcm-room-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.pcm-room-card {
+  width: 100%;
+  padding: 18px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fff;
+  color: #222;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+  transition:
+    border-color 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.pcm-room-card:hover {
+  transform: translateY(-2px);
+  border-color: #f2a19b;
+  box-shadow: 0 7px 18px rgba(198, 40, 40, 0.08);
+}
+
+.pcm-room-card.active {
+  border: 2px solid #e71a0f;
+  background: #fffafa;
+}
+
+.pcm-room-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.pcm-room-card-top > span:first-child {
+  padding: 3px 7px;
+  border-radius: 5px;
+  background: #f3f4f6;
+  color: #555;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.pcm-room-card h2 {
+  margin: 0 0 7px;
+  font-size: 18px;
+}
+
+.pcm-room-card p {
+  margin: 0 0 9px;
+  color: #555;
+  font-size: 13px;
+}
+
+.pcm-room-card small {
+  color: #8a8f98;
+}
+
+.pcm-room-status {
+  display: inline-flex;
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.pcm-room-status.active {
+  background: #eaf7ee;
+  color: #1f6c36;
+}
+
+.pcm-room-status.inactive {
+  background: #fbeaea;
+  color: #8b3030;
+}
+
+/* =========================================================
+   DETAIL CARD
+   ========================================================= */
+
+.pcm-detail-card {
+  padding: 22px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.pcm-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #eceef1;
+}
+
+.pcm-room-code {
+  display: inline-block;
+  margin-bottom: 6px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: #f1f2f4;
+  color: #555;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.pcm-detail-header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.pcm-detail-header p {
+  margin: 6px 0 0;
+  color: #666;
+}
+
+/* =========================================================
+   STATS
+   ========================================================= */
+
+.pcm-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.pcm-stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px;
+  border-radius: 9px;
+  background: #f8f9fa;
+  border: 1px solid #eceef1;
+}
+
+.pcm-stats span {
+  color: #777;
+  font-size: 11px;
+}
+
+.pcm-stats strong {
+  font-size: 18px;
+  color: #222;
+}
+
+/* =========================================================
+   LEGEND
+   ========================================================= */
+
+.pcm-legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin: 22px 0 14px;
+  color: #666;
+  font-size: 12px;
+}
+
+.pcm-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.pcm-legend-box {
+  display: inline-block;
+  width: 23px;
+  height: 20px;
+  border-radius: 5px;
+}
+
+/* =========================================================
+   SCREEN
+   ========================================================= */
+
+.pcm-screen {
+  width: min(680px, 76%);
+  margin: 16px auto 30px;
+  padding-top: 12px;
+  border-top: 4px solid #ff4b2f;
+  border-radius: 50%;
+  text-align: center;
+}
+
+.pcm-screen span {
+  color: #9ca3af;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.25em;
+}
+
+/* =========================================================
+   SEAT MAP
+   ========================================================= */
+
+.pcm-seat-map {
+  width: 100%;
+  overflow-x: auto;
+  padding: 2px 0 18px;
+}
+
+.pcm-seat-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: max-content;
+  margin: 7px 0;
+}
+
+.pcm-row-label {
+  width: 30px;
+  flex: 0 0 30px;
+  text-align: center;
+  color: #98a1b2;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.pcm-row-seats {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.pcm-seat {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 43px;
+  height: 33px;
+  box-sizing: border-box;
+  padding: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 800;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.pcm-seat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* A-B */
+.pcm-seat-normal {
+  border: 1px solid #dfe4eb;
+  background: #e5ebf3;
+  color: #18304f;
+}
+
+/* C... hàng trước hàng cuối */
+.pcm-seat-vip {
+  border: 1px solid #ff9800;
+  background: #fff3d6;
+  color: #a84b00;
+}
+
+/* H/J/L/F... hàng cuối */
+.pcm-seat-couple {
+  border: 1px solid #dce3ff;
+  background: #dfe6ff;
+  color: #2937bf;
+}
+
+.pcm-seat-double {
+  width: 91px;
+  min-width: 91px;
+}
+
+/*
+ * Lối đi chính:
+ * - ghế đơn: trước ghế số 6
+ * - ghế đôi: trước cặp 5-6
+ */
+.pcm-seat-aisle {
+  margin-left: 24px;
+}
+
+/* Ghế hỏng bị khóa */
+.pcm-seat-locked {
+  border-color: #7f8790 !important;
+  background: #8b9198 !important;
+  color: #fff !important;
+}
+
+.pcm-seat-note {
+  margin-top: 18px;
+  padding: 11px 14px;
+  border-radius: 8px;
+  background: #f7f7f8;
+  color: #666;
+  text-align: center;
+  font-size: 12px;
+}
+
+/* =========================================================
+   EMPTY
+   ========================================================= */
+
+.pcm-empty {
+  grid-column: 1 / -1;
+  padding: 35px 20px;
+  color: #777;
+  text-align: center;
+}
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+
+.pcm-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.pcm-modal {
+  width: min(500px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 22px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+}
+
+.pcm-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.pcm-modal-header h2 {
+  margin: 0;
+  font-size: 21px;
+}
+
+.pcm-modal-header p {
+  margin: 4px 0 0;
+  color: #777;
+}
+
+.pcm-modal-close {
+  width: 35px;
+  height: 35px;
+  border: 0;
+  border-radius: 50%;
+  background: #f3f4f6;
+  cursor: pointer;
+  font-size: 22px;
+}
+
+.pcm-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  padding-top: 7px;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1050px) {
+  .pcm-room-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .pcm-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .pcm-filter {
+    grid-template-columns: 1fr;
+  }
+
+  .pcm-room-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pcm-detail-header {
+    flex-direction: column;
+  }
+
+  .pcm-detail-header .pcm-btn {
+    width: 100%;
+  }
+
+  .pcm-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .pcm-screen {
+    width: 88%;
+  }
+}
