@@ -112,10 +112,10 @@ const isLoggedIn = Boolean(token && khachHang);
 
                     <nav className="header-menu">
 
-                        <a href="/phim">
+                        <a href="/movies">
                             PHIM
                         </a>
-                        <a href="/lich-chieu">
+                        <a href="/my-tickets">
                             VÉ CỦA TÔI
                         </a>
 

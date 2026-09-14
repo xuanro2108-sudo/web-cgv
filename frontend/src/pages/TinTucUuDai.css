@@ -1,0 +1,297 @@
+
+.promotion-page {
+    width: 100%;
+    background: #fff;
+    min-height: calc(100vh - 120px);
+    padding: 50px 0 80px;
+}
+
+.promotion-container {
+    width: min(1200px, calc(100% - 40px));
+    margin: 0 auto;
+}
+
+
+/* =========================
+   HEADING
+========================= */
+
+.promotion-heading {
+    margin-bottom: 45px;
+}
+
+.promotion-heading h1 {
+    margin: 0 0 12px;
+    font-size: 28px;
+    font-weight: 600;
+    color: #222;
+    letter-spacing: 0.5px;
+}
+
+.promotion-heading p {
+    margin: 0;
+    color: #777;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+
+/* =========================
+   SECTION
+========================= */
+
+.promotion-section,
+.news-section {
+    margin-bottom: 60px;
+}
+
+.section-title {
+    border-bottom: 1px solid #e5e5e5;
+    margin-bottom: 25px;
+}
+
+.section-title h2 {
+    position: relative;
+    display: inline-block;
+
+    margin: 0;
+    padding: 0 0 13px;
+
+    font-size: 20px;
+    font-weight: 600;
+    color: #222;
+}
+
+.section-title h2::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    bottom: -1px;
+
+    width: 45px;
+    height: 2px;
+
+    background: #222;
+}
+
+
+/* =========================
+   PROMOTION GRID
+========================= */
+
+.promotion-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 24px;
+}
+
+
+/* =========================
+   PROMOTION CARD
+========================= */
+
+.promotion-card {
+    background: #fff;
+
+    border: 1px solid #e5e5e5;
+
+    overflow: hidden;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.promotion-card:hover {
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================
+   IMAGE
+========================= */
+
+.promotion-image {
+    width: 100%;
+    height: 210px;
+
+    background: #f5f5f5;
+
+    overflow: hidden;
+}
+
+.promotion-image img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+    transition: transform 0.3s ease;
+}
+
+.promotion-card:hover
+.promotion-image img {
+    transform: scale(1.03);
+}
+
+
+/* =========================
+   CONTENT
+========================= */
+
+.promotion-content {
+    padding: 20px;
+}
+
+.promotion-content h3 {
+    margin: 0 0 12px;
+
+    font-size: 17px;
+    line-height: 1.45;
+
+    font-weight: 600;
+
+    color: #222;
+}
+
+.promotion-value {
+    margin-bottom: 10px;
+
+    font-size: 16px;
+    font-weight: 600;
+
+    color: #c00;
+}
+
+.promotion-condition {
+    margin: 0 0 14px;
+
+    font-size: 13px;
+
+    color: #777;
+}
+
+.promotion-date {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    padding-top: 13px;
+
+    border-top: 1px solid #eee;
+
+    font-size: 12px;
+
+    color: #888;
+}
+
+.date-separator {
+    color: #bbb;
+}
+
+
+/* =========================
+   MESSAGE
+========================= */
+
+.promotion-message {
+    padding: 45px 20px;
+
+    border: 1px solid #eee;
+
+    text-align: center;
+
+    font-size: 14px;
+
+    color: #777;
+}
+
+.promotion-message.error {
+    color: #b00020;
+}
+
+
+/* =========================
+   NEWS
+========================= */
+
+.news-empty {
+    padding: 45px 20px;
+
+    border: 1px solid #eee;
+
+    text-align: center;
+}
+
+.news-empty h3 {
+    margin: 0 0 10px;
+
+    font-size: 18px;
+
+    font-weight: 600;
+
+    color: #333;
+}
+
+.news-empty p {
+    margin: 0;
+
+    font-size: 14px;
+
+    color: #777;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+    .promotion-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .promotion-page {
+        padding: 35px 0 60px;
+    }
+
+    .promotion-container {
+        width: calc(100% - 24px);
+    }
+
+    .promotion-heading {
+        margin-bottom: 30px;
+    }
+
+    .promotion-heading h1 {
+        font-size: 23px;
+    }
+
+    .promotion-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .promotion-image {
+        height: 220px;
+    }
+
+    .promotion-section,
+    .news-section {
+        margin-bottom: 45px;
+    }
+}
+

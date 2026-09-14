@@ -34,17 +34,7 @@ class KhuyenMai extends Model
 
     protected $keyType = 'string';
 
-    protected $fillable = [
-        'hinhAnh',
-        'maKM',
-        'tenKM',
-        'hinhThuc',
-        'giaTri',
-        'donToiThieu',
-        'ngayBatDau',
-        'ngayKetThuc',
-        'trangThai',
-    ];
+   protected $fillable = [ 'hinhAnh', 'maKM', 'tenKM', 'hinhThuc', 'giaTri', 'donToiThieu', 'ngayBatDau', 'ngayKetThuc', 'trangThai', ];
 
     protected $casts = [
         'giaTri' => 'decimal:2',

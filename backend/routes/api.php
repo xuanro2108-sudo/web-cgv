@@ -222,7 +222,14 @@ Route::middleware('auth:sanctum')->group(function () {
         ->parameters([
             've-ghes' => 'maVe',
         ]);
-
+Route::get('my-tickets', [
+    VeGheController::class,
+    'myTickets',
+]);
+Route::get('my-orders', [
+    DonHangController::class,
+    'myOrders',
+]);
     /*
     |--------------------------------------------------------------------------
     | COMBO TRONG ĐƠN HÀNG

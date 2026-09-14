@@ -76,10 +76,9 @@ export default function PaymentStep({
                   checked={paymentMethod === "TIEN_MAT"}
                   onChange={() => setPaymentMethod("TIEN_MAT")}
                 />
-                <div className="method-icon">💵</div>
                 <div className="method-info">
-                  <strong>Tiền mặt tại quầy</strong>
-                  <span>Thu tiền trực tiếp từ khách hàng</span>
+                  <strong>Thanh toán tiền mặt</strong>
+
                 </div>
               </label>
 
@@ -91,10 +90,8 @@ export default function PaymentStep({
                   checked={paymentMethod === "SEPAY_QR"}
                   onChange={() => setPaymentMethod("SEPAY_QR")}
                 />
-                <div className="method-icon">📱</div>
                 <div className="method-info">
-                  <strong>Quét mã QR / Chuyển khoản VietQR (SePay)</strong>
-                  <span>Khách quét mã chuyển khoản qua {paymentConfig.bank}</span>
+                  <strong>Quét mã QR</strong>
                 </div>
               </label>
             </div>

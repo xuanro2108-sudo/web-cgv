@@ -12,6 +12,8 @@ import PhongChieuManagement from "./pages/PhongChieuManagement";
 
 import LoginCustomer from "./pages/LoginCustomer";
 import HomeCustomer from "./pages/HomeCustomer";
+import Movies from "./pages/Movies";
+import MyTickets from "./pages/MyTickets";
 import MovieShowtimes from "./pages/MovieShowtimes";
 import SeatSelection from "./pages/SeatSelection";
 import Payment from "./pages/Payment";
@@ -27,6 +29,7 @@ import PromotionManagement from "./pages/PromotionManagement";
 import OrderManagement from "./pages/OrderManagement";
 import CounterSale from "./pages/CounterSale";
 import NhanVienManagement from "./pages/NhanVienManagement";
+import TinTucUuDai from "./pages/TinTucUuDai";
 
 
 // =========================
@@ -173,6 +176,33 @@ function App() {
             </CustomerLayout>
           }
         />
+<Route
+    path="/movies"
+    element={
+
+            <CustomerLayout>
+                <Movies />
+            </CustomerLayout>
+    }
+/>
+<Route
+    path="/my-tickets"
+    element={
+        <CustomerRoute>
+            <CustomerLayout>
+                <MyTickets />
+            </CustomerLayout>
+        </CustomerRoute>
+    }
+/>
+<Route
+    path="/tin-tuc"
+    element={
+        <CustomerLayout>
+            <TinTucUuDai />
+        </CustomerLayout>
+    }
+/>
 
 
         {/* =========================
