@@ -34,6 +34,28 @@ class VeGheController extends Controller
 
         return response()->json(['data' => $ticket]);
     }
+    public function myTickets(Request $request): JsonResponse
+{
+    $customer = OrderAccess::customer($request);
+
+    $tickets = VeGhe::with([
+        'lichChieu.phim',
+        'ghe'
+    ])
+    ->whereHas('donHang', function ($q) use ($customer) {
+        $q->where('maKH', $customer->maKH);
+    })
+    ->whereIn('trangThai', [
+        'DA_DAT',
+        'DA_SU_DUNG'
+    ])
+    ->orderByDesc('ngayTao')
+    ->get();
+
+    return response()->json([
+        'data' => $tickets
+    ]);
+}
 
     public function store(Request $request): JsonResponse
     {

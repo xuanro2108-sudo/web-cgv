@@ -152,6 +152,40 @@ class DonHangController extends Controller
             'thanhToan',
         ];
     }
+    public function myOrders(Request $request): JsonResponse
+{
+    $customer = OrderAccess::customer($request);
+
+    $orders = DonHang::query()
+        ->with([
+            'veGhes.lichChieu.phim',
+            'veGhes.lichChieu.phongChieu',
+            'veGhes.ghe',
+            'chiTietComboDonHangs.combo',
+        ])
+        ->where('maKH', $customer->maKH)
+
+        // Không lấy đơn đã hủy / đang chờ thanh toán
+        ->whereIn('trangThai', [
+            'DA_THANH_TOAN',
+            'DA_SU_DUNG',
+        ])
+
+        // Chỉ lấy đơn còn ít nhất một vé hợp lệ
+        ->whereHas('veGhes', function ($query) {
+            $query->whereIn('trangThai', [
+                'DA_DAT',
+                'DA_SU_DUNG',
+            ]);
+        })
+
+        ->orderByDesc('ngayDat')
+        ->get();
+
+    return response()->json([
+        'data' => $orders,
+    ]);
+}
 
     /**
      * Display a listing of the resource.
