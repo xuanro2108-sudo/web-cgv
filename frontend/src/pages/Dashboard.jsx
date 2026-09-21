@@ -51,7 +51,9 @@ function Dashboard({ children }) {
 
   const orderPage =
     location.pathname ===
-    "/dashboard/don-hang";
+      "/dashboard/don-hang" ||
+    location.pathname ===
+      "/dashboard/ban-ve-tai-quay";
 
   // =========================
   // THÔNG TIN TÀI KHOẢN
