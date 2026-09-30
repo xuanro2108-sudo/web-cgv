@@ -5,12 +5,41 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\OrderAccess;
 use App\Models\Phim;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class PhimController extends Controller
 {
+    public function featured(): JsonResponse
+    {
+        $revenue = DB::table('ve_ghes as vg')
+            ->join('lich_chieus as lc', 'lc.maLichChieu', '=', 'vg.maLichChieu')
+            ->whereColumn('lc.maPhim', 'phims.maPhim')
+            ->whereIn('vg.trangThai', ['DA_DAT', 'DA_SU_DUNG'])
+            ->whereExists(function (Builder $query): void {
+                $query->selectRaw('1')->from('thanh_toans as tt')
+                    ->whereColumn('tt.maDonHang', 'vg.maDonHang')
+                    ->where('tt.trangThai', 'THANH_CONG');
+            })
+            ->selectRaw('COALESCE(SUM(vg.giaVe), 0)');
+
+        $movies = Phim::query()
+            ->where('trangThai', 'DANG_CHIEU')
+            ->where(fn ($query) => $query->whereNull('ngayKhoiChieu')->orWhereDate('ngayKhoiChieu', '<=', today()))
+            ->where(fn ($query) => $query->whereNull('ngayKetThuc')->orWhereDate('ngayKetThuc', '>=', today()))
+            ->orderByDesc($revenue)
+            ->orderByDesc('ngayKhoiChieu')
+            ->orderBy('maPhim')
+            ->limit(3)
+            ->get();
+
+        return response()->json(['data' => $movies]);
+    }
+
     /**
      * Display a listing of the resource.
      */

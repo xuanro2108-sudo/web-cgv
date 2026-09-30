@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./HomeCustomer.css";
-import { getMovies } from "../services/movieService";
+import { getFeaturedMovies, getMovies } from "../services/movieService";
 
 const bannerImages = [
     "/banners/banner1.jpg",
@@ -12,12 +12,23 @@ const bannerImages = [
 function HomeCustomer() {
     const navigate = useNavigate();
     const [movies, setMovies] = useState([]);
+    const [featuredMovies, setFeaturedMovies] = useState([]);
     const [activeMovieTab, setActiveMovieTab] = useState("showing");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [selectedMovie, setSelectedMovie] = useState(null);
     const [activeSlide, setActiveSlide] = useState(0);
     const touchStartX = useRef(null);
+
+    useEffect(() => {
+        const controller = new AbortController();
+        getFeaturedMovies(controller.signal)
+            .then(setFeaturedMovies)
+            .catch((error) => {
+                if (error.name !== "AbortError") console.error(error);
+            });
+        return () => controller.abort();
+    }, []);
 
     const getYoutubeEmbedUrl = (url) => {
         if (!url) {
@@ -88,6 +99,24 @@ function HomeCustomer() {
 
     return (
         <div className="home-customer">
+            <section className={`cinema-intro${featuredMovies.length ? "" : " cinema-intro-text-only"}`}>
+                {featuredMovies[0]?.hinhAnh && <img className="cinema-intro-backdrop" src={featuredMovies[0].hinhAnh} alt="" aria-hidden="true" />}
+                <div className="cinema-intro-copy">
+                    <h1>Tắt âu lo.<br />Bật <em>cảm xúc.</em></h1>
+                    <div className="cinema-intro-slogans">
+                        <p>Một bộ phim hay. Một ngày đáng nhớ.</p>
+                        <p>Hẹn nhau trước màn ảnh lớn.</p>
+                        <span>Chọn phim bạn thích. Giữ khoảnh khắc bạn yêu.</span>
+                    </div>
+                </div>
+                {featuredMovies.length > 0 && <div className={`cinema-featured-group count-${featuredMovies.length}`} aria-label="Phim đang chiếu có doanh thu cao nhất">
+                    {featuredMovies.map((movie, index) => <Link key={movie.maPhim} className={`cinema-featured-movie rank-${index + 1}`} to={`/dat-ve/${movie.maPhim}`} aria-label={`Top ${index + 1}: ${movie.tenPhim} — Xem suất chiếu`}>
+                        {movie.hinhAnh ? <img src={movie.hinhAnh} alt={movie.tenPhim} /> : <div className="cinema-featured-placeholder">{movie.tenPhim}</div>}
+                        <span className="cinema-featured-rank" aria-hidden="true">0{index + 1}</span>
+                    </Link>)}
+                </div>}
+            </section>
+            <div className="cinema-section-label"><span>ĐỪNG BỎ LỠ</span><span>Những điều mới tại CGV ↘</span></div>
             <section
                 className="home-hero"
                 onTouchStart={(event) => {
@@ -149,7 +178,8 @@ function HomeCustomer() {
                 )}
             </section>
 
-            <section className="home-movies">
+            <section className="home-movies" id="home-movies">
+                <div className="cinema-section-heading"><div><span className="cinema-kicker">THE MOVIE EDIT</span><h2>Hôm nay, xem gì?</h2></div><Link to="/movies">Tất cả phim ↗</Link></div>
                 <div className="movie-content-layout">
                     <aside className="side-banner side-banner-left" aria-label="Banner bên trái" />
                     <div className="movie-content">

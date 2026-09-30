@@ -74,7 +74,7 @@ function Movies() {
     });
 
     return (
-        <div className="movies-page">
+        <div className="movies-page"><div className="cinema-page-heading"><span className="cinema-kicker">FIND YOUR NEXT STORY</span><h1>Mỗi bộ phim.<br />Một thế giới mới.</h1><p>Chọn câu chuyện bạn muốn bước vào hôm nay.</p></div>
 
             {/* TAB */}
             <div className="movie-tabs">
