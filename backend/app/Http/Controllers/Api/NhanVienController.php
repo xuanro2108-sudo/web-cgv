@@ -58,6 +58,9 @@ class NhanVienController extends Controller
 
             'ngayVaoLam' => 'required|date|before_or_equal:today',
             'matKhau' => 'required|string|min:6',
+        ], [
+            'sdt.unique' => 'Số điện thoại đã được sử dụng.',
+            'email.unique' => 'Email đã được sử dụng.',
         ]);
 
         $data['email'] = strtolower(trim($data['email']));
@@ -66,11 +69,11 @@ class NhanVienController extends Controller
         $result = DB::transaction(function () use ($data) {
             $lastNV = NhanVien::orderBy('maNV', 'desc')->first();
             $nextNV = $lastNV ? (int) substr($lastNV->maNV, 2) + 1 : 1;
-            $maNV = 'NV' . str_pad($nextNV, 3, '0', STR_PAD_LEFT);
+            $maNV = 'NV'.str_pad($nextNV, 3, '0', STR_PAD_LEFT);
 
             $lastTK = TaiKhoan::orderBy('maTK', 'desc')->first();
             $nextTK = $lastTK ? (int) substr($lastTK->maTK, 2) + 1 : 1;
-            $maTK = 'TK' . str_pad($nextTK, 3, '0', STR_PAD_LEFT);
+            $maTK = 'TK'.str_pad($nextTK, 3, '0', STR_PAD_LEFT);
 
             $nhanVien = NhanVien::create([
                 'maNV' => $maNV,
@@ -106,7 +109,7 @@ class NhanVienController extends Controller
     {
         $nhanVien = NhanVien::with('taiKhoan')->find($maNV);
 
-        if (!$nhanVien) {
+        if (! $nhanVien) {
             return response()->json(['message' => 'Không tìm thấy nhân viên'], 404);
         }
 
@@ -117,7 +120,7 @@ class NhanVienController extends Controller
     {
         $nhanVien = NhanVien::find($maNV);
 
-        if (!$nhanVien) {
+        if (! $nhanVien) {
             return response()->json(['message' => 'Không tìm thấy nhân viên'], 404);
         }
 
@@ -160,6 +163,9 @@ class NhanVienController extends Controller
                 'required',
                 Rule::in(['DANG_LAM', 'NGHI_VIEC']),
             ],
+        ], [
+            'sdt.unique' => 'Số điện thoại đã được sử dụng.',
+            'email.unique' => 'Email đã được sử dụng.',
         ]);
 
         if (isset($data['email'])) {
@@ -173,7 +179,9 @@ class NhanVienController extends Controller
         DB::transaction(function () use ($nhanVien, $taiKhoan, $data) {
             $nhanVien->update($data);
 
-            if (!$taiKhoan) return;
+            if (! $taiKhoan) {
+                return;
+            }
 
             if (isset($data['email'])) {
                 $taiKhoan->tenDangNhap = $data['email'];
@@ -207,7 +215,7 @@ class NhanVienController extends Controller
     {
         $nhanVien = NhanVien::find($maNV);
 
-        if (!$nhanVien) {
+        if (! $nhanVien) {
             return response()->json(['message' => 'Không tìm thấy nhân viên'], 404);
         }
 

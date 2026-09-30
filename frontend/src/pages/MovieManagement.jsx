@@ -41,6 +41,20 @@ const fields = [
   ["trailer", "Đường dẫn trailer", "url"],
 ];
 
+const requiredFieldNames = new Set([
+  "maPhim",
+  "tenPhim",
+  "theLoai",
+  "thoiLuong",
+  "daoDien",
+  "dienVien",
+  "ngayKhoiChieu",
+  "ngayKetThuc",
+  "hinhAnh",
+  "trailer",
+  "moTa",
+]);
+
 function MoviePoster({ src, title }) {
   const [failed, setFailed] = useState(false);
 
@@ -173,8 +187,17 @@ export default function MovieManagement() {
     // VALIDATE
     // =========================
 
-    if (!data.maPhim || !data.tenPhim) {
-      setFormError("Vui lòng nhập mã phim và tên phim.");
+    const missingFields = [
+      ...fields
+        .filter(([name]) => requiredFieldNames.has(name) && !data[name])
+        .map(([, label]) => label),
+      ...(!data.moTa ? ["Mô tả"] : []),
+    ];
+
+    if (missingFields.length) {
+      setFormError(
+        `Vui lòng không để trống: ${missingFields.join(", ")}.`
+      );
       return;
     }
 
@@ -618,10 +641,7 @@ export default function MovieManagement() {
 
                     {label}
 
-                    {[
-                      "maPhim",
-                      "tenPhim",
-                    ].includes(name) && " *"}
+                    {requiredFieldNames.has(name) && " *"}
 
                     <input
                       name={name}
@@ -633,10 +653,7 @@ export default function MovieManagement() {
                         (editing &&
                           name === "maPhim")
                       }
-                      required={[
-                        "maPhim",
-                        "tenPhim",
-                      ].includes(name)}
+                      required={requiredFieldNames.has(name)}
                       min={
                         type === "number"
                           ? 1
@@ -721,12 +738,13 @@ export default function MovieManagement() {
               {/* MÔ TẢ */}
               <label className="movie-description">
 
-                Mô tả
+                Mô tả *
 
                 <textarea
                   rows="4"
                   value={form.moTa ?? ""}
                   disabled={busy}
+                  required
                   onChange={(event) => {
                     setForm({
                       ...form,

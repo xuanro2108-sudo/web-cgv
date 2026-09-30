@@ -21,16 +21,9 @@ export function getProducts({ keyword, type, status, page }, signal) {
   return request(`quan-ly/san-phams?${new URLSearchParams({ keyword, loaiSP: type, trangThai: status, page })}`, { signal });
 }
 
-export function saveProduct(id, data, image) {
+export function saveProduct(id, data) {
   const path = id ? `san-phams/${encodeURIComponent(id)}` : "san-phams";
-  if (!image) return request(path, { method: id ? "PUT" : "POST", body: JSON.stringify(data) });
-  const body = new FormData();
-  for (const [key, value] of Object.entries(data)) {
-    if (key !== "hinhAnh") body.append(key, value ?? "");
-  }
-  body.append("anh", image);
-  if (id) body.append("_method", "PUT");
-  return request(path, { method: "POST", body });
+  return request(path, { method: id ? "PUT" : "POST", body: JSON.stringify(data) });
 }
 
 export function stopProduct(id) {
