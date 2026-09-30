@@ -25,8 +25,6 @@ export default function ProductManagement() {
   const [form, setForm] = useState(null);
   const [editing, setEditing] = useState(null);
   const [formError, setFormError] = useState("");
-  const [image, setImage] = useState(null);
-  const [preview, setPreview] = useState("");
   const [busy, setBusy] = useState(false);
   const dialog = useRef(null);
 
@@ -38,35 +36,34 @@ export default function ProductManagement() {
       .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
   }, [query, revision]);
-  useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
-
   const changeQuery = (next) => { setLoading(true); setError(""); setQuery(next); };
   const refresh = () => { setLoading(true); setError(""); setRevision((value) => value + 1); };
   const open = (product) => {
     setEditing(product?.maSP || null);
     setForm(product ? Object.fromEntries(Object.keys(emptyProduct).map((key) => [key, product[key] ?? ""])) : { ...emptyProduct });
-    setFormError(""); setImage(null); setPreview(""); setMessage("");
+    setFormError(""); setMessage("");
     dialog.current.showModal();
   };
-  const close = () => { dialog.current.close(); setForm(null); setImage(null); setPreview(""); };
+  const close = () => { dialog.current.close(); setForm(null); };
   const change = (name, value) => { setForm({ ...form, [name]: value }); setFormError(""); };
-  const chooseImage = (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 2 * 1024 * 1024) {
-      setFormError("Chọn ảnh JPG, PNG hoặc WebP không quá 2 MB."); event.target.value = ""; return;
-    }
-    setImage(file); setPreview(URL.createObjectURL(file)); setFormError("");
-  };
   const submit = async (event) => {
     event.preventDefault();
     if (busy) return;
     setFormError("");
-    if (!form.maSP.trim()) { setFormError("Vui lòng nhập mã sản phẩm."); return; }
-    if (!form.tenSP.trim()) { setFormError("Vui lòng nhập tên sản phẩm."); return; }
+    const data = Object.fromEntries(Object.entries(form).map(([key, value]) => [key, typeof value === "string" ? value.trim() : value]));
+    const missingFields = [
+      !data.maSP && "Mã sản phẩm",
+      !data.tenSP && "Tên sản phẩm",
+      !data.loaiSP && "Loại sản phẩm",
+      data.donGia === "" && "Giá bán",
+      !data.hinhAnh && "Link ảnh sản phẩm",
+      !data.moTa && "Mô tả",
+    ].filter(Boolean);
+    if (missingFields.length) { setFormError(`Vui lòng không để trống: ${missingFields.join(", ")}.`); return; }
+    try { new URL(data.hinhAnh); } catch { setFormError("Link ảnh sản phẩm không hợp lệ. Vui lòng nhập URL đầy đủ."); return; }
     setBusy(true);
     try {
-      await saveProduct(editing, { ...form, maSP: form.maSP.trim(), tenSP: form.tenSP.trim(), moTa: form.moTa.trim() }, image);
+      await saveProduct(editing, data);
       close(); setMessage(editing ? "Cập nhật sản phẩm thành công." : "Thêm sản phẩm thành công."); refresh();
     } catch (err) { setFormError(err.message); }
     finally { setBusy(false); }
@@ -98,7 +95,7 @@ export default function ProductManagement() {
     </tbody></table></div>
     <footer className="combo-admin-pagination"><span>{result.total} sản phẩm · Trang {query.page}/{result.last_page}</span><button disabled={loading || query.page <= 1} onClick={() => changeQuery({ ...query, page: query.page - 1 })}>Trước</button><button disabled={loading || query.page >= result.last_page} onClick={() => changeQuery({ ...query, page: query.page + 1 })}>Sau</button></footer>
     <dialog ref={dialog} className="combo-admin-dialog" aria-labelledby="product-form-title" onCancel={(event) => { event.preventDefault(); if (!busy) close(); }}>
-      {form && <form onSubmit={submit}>
+      {form && <form onSubmit={submit} noValidate>
         <header className="combo-admin-heading"><h2 id="product-form-title">{editing ? "Sửa sản phẩm" : "Thêm sản phẩm"}</h2><button type="button" className="secondary" disabled={busy} aria-label="Đóng" onClick={close}>×</button></header>
         <div className="combo-admin-grid">
           <label>Mã sản phẩm *<input required maxLength="50" pattern="[A-Za-z0-9_-]+" title="Chữ cái không dấu, số, dấu gạch ngang và gạch dưới" placeholder="VD: SP001" value={form.maSP} disabled={busy || Boolean(editing)} onChange={(event) => change("maSP", event.target.value)} />{editing && <small>Mã sản phẩm được giữ cố định sau khi tạo.</small>}</label>
@@ -106,9 +103,9 @@ export default function ProductManagement() {
           <label>Loại sản phẩm *<select required value={form.loaiSP} disabled={busy} onChange={(event) => change("loaiSP", event.target.value)}>{Object.entries(types).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
           <label>Giá bán (đồng) *<input type="number" required min="0" max="99999999.99" step="0.01" value={form.donGia} disabled={busy} onChange={(event) => change("donGia", event.target.value)} /></label>
           <label>Trạng thái<select value={form.trangThai} disabled={busy} onChange={(event) => change("trangThai", event.target.value)}>{Object.entries(statuses).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
-          <label className="full">Ảnh sản phẩm<input type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={chooseImage} /><small>JPG, PNG hoặc WebP, tối đa 2 MB. Không chọn ảnh mới sẽ giữ ảnh hiện tại.</small></label>
-          {(preview || form.hinhAnh) && <ProductImage key={preview || form.hinhAnh} src={preview || form.hinhAnh} title={form.tenSP || "Ảnh sản phẩm"} />}
-          <label className="full">Mô tả<textarea rows="3" maxLength="5000" value={form.moTa} disabled={busy} onChange={(event) => change("moTa", event.target.value)} /></label>
+          <label className="full">Link ảnh sản phẩm *<input type="url" required maxLength="255" placeholder="https://example.com/san-pham.jpg" value={form.hinhAnh} disabled={busy} onChange={(event) => change("hinhAnh", event.target.value)} /></label>
+          {form.hinhAnh && <ProductImage key={form.hinhAnh} src={form.hinhAnh} title={form.tenSP || "Ảnh sản phẩm"} />}
+          <label className="full">Mô tả *<textarea required rows="3" maxLength="5000" value={form.moTa} disabled={busy} onChange={(event) => change("moTa", event.target.value)} /></label>
         </div>
         {formError && <p className="combo-admin-error" role="alert">{formError}</p>}
         <footer className="combo-admin-actions"><button type="button" className="secondary" disabled={busy} onClick={close}>Hủy</button><button disabled={busy}>{busy ? "Đang lưu..." : editing ? "Cập nhật" : "Thêm sản phẩm"}</button></footer>

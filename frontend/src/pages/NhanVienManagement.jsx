@@ -120,6 +120,23 @@ function NhanVienManagement() {
     setFormError("");
     setMessage("");
 
+    const missingFields = [
+      !formData.hoTen.trim() && "Họ và tên",
+      !formData.sdt.trim() && "Số điện thoại",
+      !formData.email.trim() && "Email",
+      !formData.chucVu && "Chức vụ",
+      !formData.ngayVaoLam && "Ngày vào làm",
+      !editingMaNV && !formData.matKhau && "Mật khẩu",
+      editingMaNV && !formData.trangThai && "Trạng thái",
+    ].filter(Boolean);
+
+    if (missingFields.length) {
+      setFormError(
+        `Vui lòng không để trống: ${missingFields.join(", ")}.`
+      );
+      return;
+    }
+
     if (!/^0[0-9]{9}$/.test(formData.sdt)) {
       setFormError("Số điện thoại phải đủ 10 số và bắt đầu bằng 0.");
       return;
@@ -351,7 +368,7 @@ function NhanVienManagement() {
               </button>
             </div>
 
-            <form className="employee-form" onSubmit={handleSubmit}>
+            <form className="employee-form" onSubmit={handleSubmit} noValidate>
               <label>Họ và tên</label>
               <input
                 name="hoTen"

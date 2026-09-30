@@ -26,48 +26,40 @@ class ThongKeController extends Controller
                 ],
             ], $extra),
             [
-                'tuNgay.required' =>
-                    'Vui lòng chọn từ ngày.',
+                'tuNgay.required' => 'Vui lòng chọn từ ngày.',
 
-                'denNgay.required' =>
-                    'Vui lòng chọn đến ngày.',
+                'denNgay.required' => 'Vui lòng chọn đến ngày.',
 
-                'denNgay.after_or_equal' =>
-                    'Đến ngày phải lớn hơn hoặc bằng từ ngày.',
+                'denNgay.after_or_equal' => 'Đến ngày phải lớn hơn hoặc bằng từ ngày.',
             ]
         );
     }
 
-
     public function danhSachPhim()
     {
         return response()->json([
-            'data' =>
-                DB::table('phims')
-                    ->select(
-                        'maPhim',
-                        'tenPhim'
-                    )
-                    ->orderBy('tenPhim')
-                    ->get(),
+            'data' => DB::table('phims')
+                ->select(
+                    'maPhim',
+                    'tenPhim'
+                )
+                ->orderBy('tenPhim')
+                ->get(),
         ]);
     }
-
 
     public function danhSachKhuyenMai()
     {
         return response()->json([
-            'data' =>
-                DB::table('khuyen_mais')
-                    ->select(
-                        'maKM',
-                        'tenKM'
-                    )
-                    ->orderBy('tenKM')
-                    ->get(),
+            'data' => DB::table('khuyen_mais')
+                ->select(
+                    'maKM',
+                    'tenKM'
+                )
+                ->orderBy('tenKM')
+                ->get(),
         ]);
     }
-
 
     public function doanhThuVe(
         Request $request
@@ -97,18 +89,21 @@ class ThongKeController extends Controller
                     'tt.trangThai',
                     'THANH_CONG'
                 )
-                ->where(
+                ->whereIn(
                     'vg.trangThai',
-                    'DA_DAT'
+                    [
+                        'DA_DAT',
+                        'DA_SU_DUNG',
+                    ]
                 )
                 ->whereBetween(
                     'tt.ngayThanhToan',
                     [
                         $data['tuNgay']
-                            . ' 00:00:00',
+                            .' 00:00:00',
 
                         $data['denNgay']
-                            . ' 23:59:59',
+                            .' 23:59:59',
                     ]
                 );
 
@@ -138,20 +133,15 @@ class ThongKeController extends Controller
                 ->get();
 
         return response()->json([
-            'tongDoanhThu' =>
-                (float) $tongDoanhThu,
+            'tongDoanhThu' => (float) $tongDoanhThu,
 
-            'tongSoVe' =>
-                (int) $tongSoVe,
+            'tongSoVe' => (int) $tongSoVe,
 
-            'coDuLieu' =>
-                $tongSoVe > 0,
+            'coDuLieu' => $tongSoVe > 0,
 
-            'theoNgay' =>
-                $theoNgay,
+            'theoNgay' => $theoNgay,
         ]);
     }
-
 
     public function doanhThuCombo(
         Request $request
@@ -191,10 +181,10 @@ class ThongKeController extends Controller
                     'tt.ngayThanhToan',
                     [
                         $data['tuNgay']
-                            . ' 00:00:00',
+                            .' 00:00:00',
 
                         $data['denNgay']
-                            . ' 23:59:59',
+                            .' 23:59:59',
                     ]
                 );
 
@@ -228,20 +218,15 @@ class ThongKeController extends Controller
                 ->get();
 
         return response()->json([
-            'tongDoanhThu' =>
-                (float) $tongDoanhThu,
+            'tongDoanhThu' => (float) $tongDoanhThu,
 
-            'tongSoLuong' =>
-                (int) $tongSoLuong,
+            'tongSoLuong' => (int) $tongSoLuong,
 
-            'coDuLieu' =>
-                $tongSoLuong > 0,
+            'coDuLieu' => $tongSoLuong > 0,
 
-            'chiTiet' =>
-                $chiTiet,
+            'chiTiet' => $chiTiet,
         ]);
     }
-
 
     public function theoPhim(
         Request $request
@@ -284,20 +269,23 @@ class ThongKeController extends Controller
                     'tt.trangThai',
                     'THANH_CONG'
                 )
-                ->where(
+                ->whereIn(
                     'vg.trangThai',
-                    'DA_DAT'
+                    [
+                        'DA_DAT',
+                        'DA_SU_DUNG',
+                    ]
                 )
                 ->whereBetween(
-                    'lc.ngayChieu',
+                    'tt.ngayThanhToan',
                     [
-                        $data['tuNgay'],
-                        $data['denNgay'],
+                        $data['tuNgay'].' 00:00:00',
+                        $data['denNgay'].' 23:59:59',
                     ]
                 );
 
         if (
-            !empty(
+            ! empty(
                 $data['maPhim']
             )
         ) {
@@ -306,6 +294,13 @@ class ThongKeController extends Controller
                 $data['maPhim']
             );
         }
+
+        $lichChieusCoVe =
+            (clone $banVe)
+                ->distinct()
+                ->select(
+                    'vg.maLichChieu'
+                );
 
         $banVe =
             $banVe
@@ -318,35 +313,27 @@ class ThongKeController extends Controller
                     'lc.maPhim'
                 );
 
-
         $sucChua =
             DB::table(
                 'lich_chieus as lc'
             )
+                ->joinSub(
+                    $lichChieusCoVe,
+                    'lcbv',
+                    function ($join) {
+                        $join->on(
+                            'lcbv.maLichChieu',
+                            '=',
+                            'lc.maLichChieu'
+                        );
+                    }
+                )
                 ->join(
                     'phong_chieus as pc',
                     'pc.maPhong',
                     '=',
                     'lc.maPhong'
-                )
-                ->whereBetween(
-                    'lc.ngayChieu',
-                    [
-                        $data['tuNgay'],
-                        $data['denNgay'],
-                    ]
                 );
-
-        if (
-            !empty(
-                $data['maPhim']
-            )
-        ) {
-            $sucChua->where(
-                'lc.maPhim',
-                $data['maPhim']
-            );
-        }
 
         $sucChua =
             $sucChua
@@ -357,7 +344,6 @@ class ThongKeController extends Controller
                 ->groupBy(
                     'lc.maPhim'
                 );
-
 
         $query =
             DB::table(
@@ -402,7 +388,7 @@ class ThongKeController extends Controller
                 ');
 
         if (
-            !empty(
+            ! empty(
                 $data['maPhim']
             )
         ) {
@@ -418,7 +404,6 @@ class ThongKeController extends Controller
                     'doanhThu'
                 )
                 ->get();
-
 
         $tongDoanhThu =
             (float)
@@ -449,23 +434,17 @@ class ThongKeController extends Controller
                 : 0;
 
         return response()->json([
-            'tongDoanhThu' =>
-                $tongDoanhThu,
+            'tongDoanhThu' => $tongDoanhThu,
 
-            'tongSoVe' =>
-                $tongSoVe,
+            'tongSoVe' => $tongSoVe,
 
-            'tyLeLapGhe' =>
-                $tyLeLapGhe,
+            'tyLeLapGhe' => $tyLeLapGhe,
 
-            'coDuLieu' =>
-                $chiTiet->count() > 0,
+            'coDuLieu' => $chiTiet->count() > 0,
 
-            'chiTiet' =>
-                $chiTiet,
+            'chiTiet' => $chiTiet,
         ]);
     }
-
 
     public function khuyenMai(
         Request $request
@@ -482,14 +461,16 @@ class ThongKeController extends Controller
                 ]
             );
 
-
         $tienVe =
             DB::table(
                 've_ghes'
             )
-                ->where(
+                ->whereIn(
                     'trangThai',
-                    'DA_DAT'
+                    [
+                        'DA_DAT',
+                        'DA_SU_DUNG',
+                    ]
                 )
                 ->selectRaw('
                     maDonHang,
@@ -498,7 +479,6 @@ class ThongKeController extends Controller
                 ->groupBy(
                     'maDonHang'
                 );
-
 
         $tienCombo =
             DB::table(
@@ -511,7 +491,6 @@ class ThongKeController extends Controller
                 ->groupBy(
                     'maDonHang'
                 );
-
 
         $query =
             DB::table(
@@ -559,16 +538,18 @@ class ThongKeController extends Controller
                     'tt.ngayThanhToan',
                     [
                         $data['tuNgay']
-                            . ' 00:00:00',
+                            .' 00:00:00',
 
                         $data['denNgay']
-                            . ' 23:59:59',
+                            .' 23:59:59',
                     ]
+                )
+                ->whereRaw(
+                    'COALESCE(tv.tienVe, 0) + COALESCE(tc.tienCombo, 0) > tt.soTien'
                 );
 
-
         if (
-            !empty(
+            ! empty(
                 $data['maKM']
             )
         ) {
@@ -577,7 +558,6 @@ class ThongKeController extends Controller
                 $data['maKM']
             );
         }
-
 
         $chiTiet =
             $query
@@ -613,7 +593,6 @@ class ThongKeController extends Controller
                 )
                 ->get();
 
-
         $tongLuotSuDung =
             (int)
             $chiTiet->sum(
@@ -632,22 +611,16 @@ class ThongKeController extends Controller
                 'doanhThu'
             );
 
-
         return response()->json([
-            'tongLuotSuDung' =>
-                $tongLuotSuDung,
+            'tongLuotSuDung' => $tongLuotSuDung,
 
-            'tongTienGiam' =>
-                $tongTienGiam,
+            'tongTienGiam' => $tongTienGiam,
 
-            'tongDoanhThu' =>
-                $tongDoanhThu,
+            'tongDoanhThu' => $tongDoanhThu,
 
-            'coDuLieu' =>
-                $tongLuotSuDung > 0,
+            'coDuLieu' => $tongLuotSuDung > 0,
 
-            'chiTiet' =>
-                $chiTiet,
+            'chiTiet' => $chiTiet,
         ]);
     }
 }
