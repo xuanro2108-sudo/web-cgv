@@ -1,42 +1,9 @@
+import { Link } from "react-router-dom";
 import "./Footer.css";
 
-function Footer() {
-    return (
-        <footer className="footer">
-            <div className="footer-container">
-
-                <div className="footer-column">
-                    <h3>CGV AEON MALL HÀ ĐÔNG</h3>
-                    <p>
-                        Hệ thống đặt vé xem phim trực tuyến.
-                    </p>
-                    <p>
-                        Địa chỉ: AEON MALL Hà Đông, Hà Nội
-                    </p>
-                </div>
-
-                <div className="footer-column">
-                    <h3>LIÊN KẾT</h3>
-                    <a href="/phim">Phim</a>
-                    <a href="/lich-chieu">Lịch chiếu</a>
-                    <a href="/tin-tuc">Tin tức & Ưu đãi</a>
-                    <a href="/thanh-vien">Thành viên</a>
-                </div>
-
-                <div className="footer-column">
-                    <h3>HỖ TRỢ</h3>
-                    <p>Điều khoản sử dụng</p>
-                    <p>Chính sách bảo mật</p>
-                    <p>Liên hệ</p>
-                </div>
-
-            </div>
-
-            <div className="footer-bottom">
-                © 2026 CGV AEON MALL HÀ ĐÔNG. All rights reserved.
-            </div>
-        </footer>
-    );
+export default function Footer() {
+    return <footer className="cinema-footer">
+        <div className="cinema-footer-grid"><div><img src="/banners/cgvlogo.png" alt="CGV" /><p>Nơi những câu chuyện trở nên sống động.<br />AEON MALL Hà Đông, Hà Nội.</p></div><div><h3>KHÁM PHÁ</h3><Link to="/movies">Phim & lịch chiếu</Link><Link to="/tin-tuc">Tin tức & ưu đãi</Link></div><div><h3>GÓC CỦA BẠN</h3><Link to="/my-tickets">Vé của tôi</Link><Link to="/thanh-vien">Thông tin thành viên</Link></div></div>
+        <div className="cinema-footer-bottom"><span>© {new Date().getFullYear()} CGV AEON MALL Hà Đông</span><span>BEYOND THE SCREEN ✦</span></div>
+    </footer>;
 }
-
-export default Footer;

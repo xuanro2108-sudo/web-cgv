@@ -1,0 +1,198 @@
+/* Customer-only visual system. Management screens retain their own styles. */
+:is(.customer-layout, .customer-page) { --wine: #842b35; --wine-dark: #5c2028; --cream: #f5f0e8; --paper: #fffdf9; --ink: #302621; --muted: #76665c; --line: #dfd4c7; background: var(--cream); color: var(--ink); min-height: 100vh; }
+:is(.customer-layout, .customer-page) a { text-underline-offset: 5px; }
+:is(.customer-layout, .customer-page) :is(button,a,input,select):focus-visible { outline: 3px solid #b27849; outline-offset: 4px; }
+:is(.customer-layout, .customer-page) button { font-family: inherit; }
+.cinema-header { background: #fffdf9; border-bottom: 1px solid #dfd4c7; position: relative; z-index: 10; }
+.cinema-topline { display: flex; justify-content: space-between; padding: 10px max(5%, calc((100% - 1320px)/2)); background: #302621; color: #dfc9b4; font-size: 10px; letter-spacing: 1.5px; gap: 20px; }
+.cinema-topline i { color: #d19b70; margin-left: 12px; font-style: normal; }
+.cinema-navigation { max-width: 1320px; width: 90%; margin: auto; min-height: 96px; display: flex; align-items: center; gap: 38px; }
+.cinema-brand { text-decoration: none; display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
+.cinema-brand img { width: 100px; height: 43px; object-fit: contain; }
+.cinema-brand > span { font-size: 7px; letter-spacing: 1.8px; color: #76665c; }
+.cinema-navigation nav { display: flex; align-items: center; gap: 28px; margin: auto; }
+.cinema-navigation nav a { color: #55473e; text-decoration: none; font-size: 13px; font-weight: 600; padding: 14px 0; border-bottom: 2px solid transparent; white-space: nowrap; }
+.cinema-navigation nav a:is(:hover,.active) { color: #842b35; border-bottom-color: #842b35; }
+.cinema-account { display: flex; align-items: center; gap: 12px; }
+.cinema-account-name { display: flex; align-items: center; gap: 8px; color: #302621; font-size: 12px; text-decoration: none; }
+.cinema-account-name > span:last-child { max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cinema-avatar { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: #eee2d6; color: #842b35; font-weight: 700; }
+.cinema-account button { color: #76665c; border: 0; background: transparent; font-size: 11px; cursor: pointer; }
+.cinema-login { display: flex; gap: 25px; align-items: center; background: #842b35; color: white; border-radius: 100px; padding: 13px 20px; text-decoration: none; font-size: 12px; }
+.cinema-skip { position: absolute; left: 10px; top: -100px; background: white; padding: 12px; color: #842b35; z-index: 50; }
+.cinema-skip:focus { top: 10px; }
+.cinema-kicker { display: block; color: #9d7050; font-size: 10px; letter-spacing: 2.5px; font-weight: 700; margin-bottom: 18px; }
+.customer-layout .home-customer { background: var(--cream); color: var(--ink); }
+.cinema-intro { position: relative; isolation: isolate; background: #2c201b; color: #fff5e6; display: grid; grid-template-columns: .9fr 1.1fr; padding: 38px max(5%, calc((100% - 1360px)/2)) 38px; gap: 40px; min-height: 500px; overflow: hidden; }
+.cinema-intro-backdrop { position: absolute; inset: -5%; width: 110%; height: 110%; object-fit: cover; object-position: center 35%; filter: blur(5px) saturate(.35) sepia(.4); opacity: .28; z-index: -3; pointer-events: none; }
+.cinema-intro::before { content: ''; position: absolute; inset: 0; z-index: -2; background: linear-gradient(90deg, #281e19ed 0%, #281e19b8 36%, #38241b66 70%, #281e19a8), radial-gradient(ellipse at 76% 38%, #d7a56c45, transparent 60%); pointer-events: none; }
+.cinema-intro::after { content: ''; position: absolute; inset: 18px; border: 1px solid #d4aa7830; border-radius: 3px; z-index: -1; background: linear-gradient(115deg, transparent 45%, #e4b88508 46%, transparent 61%); pointer-events: none; }
+.cinema-intro .cinema-kicker { color: #d6a783; }
+.cinema-intro h1 { font-size: clamp(46px, 5.7vw, 80px); line-height: 1.1; font-weight: 500; letter-spacing: -3px; }
+.cinema-intro-copy { align-self: center; padding: 30px 0; }
+.cinema-intro-copy::before { content: ''; display: block; width: 65px; height: 3px; margin-bottom: 28px; background: linear-gradient(90deg, #d3a37d, #d3a37d10); }
+.cinema-intro-copy::after { content: ''; display: block; width: 160px; height: 1px; margin-top: 32px; background: linear-gradient(90deg, #d3a37d80, transparent); }
+.cinema-intro-slogans { margin-top: 26px; padding-left: 17px; border-left: 2px solid #c5986c66; }
+.cinema-intro-slogans p { margin: 0; color: #e2cdb9; font-size: clamp(13px, 1.2vw, 16px); line-height: 1.9; font-weight: 400; }
+.cinema-intro-slogans > span { display: block; margin-top: 12px; color: #cba680; font-size: 11px; line-height: 1.8; letter-spacing: .4px; }
+.cinema-intro-text-only { grid-template-columns: 1fr; min-height: 340px; }
+.cinema-featured-group { position: relative; isolation: isolate; width: 100%; max-width: 650px; height: auto; aspect-ratio: 1.35; align-self: center; justify-self: center; }
+.cinema-featured-group::before { content: ''; position: absolute; inset: 8% -4%; z-index: -1; border: 1px solid #d3a37d25; border-radius: 50%; transform: rotate(-17deg); background: radial-gradient(ellipse, #d3a37d24, transparent 68%); box-shadow: 0 0 65px #bc784411; pointer-events: none; }
+.cinema-featured-group::after { content: ''; position: absolute; inset: 15% -2%; z-index: -1; border: 1px solid #d3a37d16; border-radius: 50%; transform: rotate(17deg); pointer-events: none; }
+.cinema-featured-movie { display: block; position: absolute; width: 43%; top: 7%; left: 28.5%; border-radius: 12px; overflow: hidden; box-shadow: 0 22px 45px #160d0b80; border: 3px solid #9a775b; aspect-ratio: 2 / 3; transition: translate .25s ease, border-color .25s ease; }
+.cinema-featured-movie.rank-1 { z-index: 3; }
+.cinema-featured-movie.rank-2 { left: 0; top: 15%; transform: rotate(-9deg) scale(.91); z-index: 2; }
+.cinema-featured-movie.rank-3 { left: 57%; top: 15%; transform: rotate(9deg) scale(.91); z-index: 1; }
+.cinema-featured-movie:is(:hover,:focus-visible) { translate: 0 -10px; border-color: #e1b991; z-index: 4; }
+.cinema-featured-rank { position: absolute; bottom: 10px; left: 10px; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: #302621e8; border: 1px solid #d3a37d88; color: #f4d5b5; font-size: 12px; font-weight: 600; }
+.cinema-featured-group.count-1 .rank-1 { left: 28.5%; }
+.cinema-featured-group.count-2 .rank-1 { left: 43%; width: 47%; }
+.cinema-featured-group.count-2 .rank-2 { left: 5%; width: 47%; }
+@media (min-width:601px) and (max-width:1000px) { .cinema-featured-group { height: auto; } }
+@media (max-width:600px) { .cinema-featured-group { height: auto; aspect-ratio: 1.3; margin: 10px auto; } }
+.cinema-featured-movie img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.cinema-featured-placeholder { display: grid; place-items: center; height: 100%; padding: 24px; background: #70303a; color: #f5e4cd; text-align: center; font-size: 25px; }
+.cinema-intro em, .cinema-auth-story em { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; color: #d3a37d; }
+.cinema-intro-copy > p { color: #c6b5a7; font-size: 14px; line-height: 1.9; margin-top: 23px; }
+.cinema-intro-actions { display: flex; align-items: center; gap: 30px; margin-top: 30px; }
+.cinema-intro-actions a { color: #eddfd1; font-size: 13px; text-decoration: none; }
+.cinema-intro-actions .cinema-primary { padding: 17px 25px; background: #963b46; border-radius: 100px; color: white; display: flex; gap: 28px; }
+.cinema-intro-note { display: flex; align-items: center; gap: 12px; color: #c4ae9b; margin-top: 38px; font-size: 11px; }
+.cinema-intro-note span { color: #d3a37d; font-size: 24px; }
+.cinema-poster-stage { position: relative; align-self: center; height: 390px; min-width: 0; }
+.cinema-stage-poster { display: block; position: absolute; width: 43%; height: 90%; top: 6%; left: 0; transform: rotate(-12deg); border: 6px solid #695343; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 35px #140c0b70; background: #302621; transition: transform .3s; }
+.cinema-stage-poster img { width: 100%; height: 100%; object-fit: cover; }
+.cinema-stage-poster span { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent,#1c1515); padding: 35px 12px 12px; color: #fff; font-size: 12px; }
+.cinema-stage-poster.poster-1 { left: 27%; top: 0; z-index: 2; transform: rotate(0); }
+.cinema-stage-poster.poster-2 { left: 54%; transform: rotate(12deg); }
+.cinema-stage-poster:hover { transform: translateY(-10px); z-index: 3; }
+.cinema-stage-seal { position: absolute; bottom: -15px; right: -10px; z-index: 4; background: #d2aa80; color: #422f25; border: 1px dashed #70513a; outline: 7px solid #d2aa80; width: 88px; height: 88px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 8px; letter-spacing: 1.4px; transform: rotate(12deg); }
+.cinema-stage-seal strong { font-size: 19px; line-height: 1; }
+.cinema-stage-fallback { height: 100%; border: 1px solid #84624c; border-radius: 160px 160px 10px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: repeating-radial-gradient(ellipse at bottom, transparent 0 20px, #c28e6220 21px 22px); text-align: center; }
+.cinema-stage-fallback > span { font-size: 80px; font-weight: 900; color: #d3a37d; }
+.cinema-stage-fallback p { font-size: 9px; letter-spacing: 4px; margin: 5px 0 28px; }
+.cinema-stage-fallback b { font-size: 23px; line-height: 1.5; font-weight: 400; }
+.cinema-marquee { display: flex; justify-content: space-around; gap: 30px; overflow: hidden; white-space: nowrap; background: #e8dccd; padding: 16px 4%; color: #956d51; font-size: 12px; }
+.cinema-marquee span { color: #594536; font-size: 10px; letter-spacing: 2px; }
+.cinema-section-label { width: min(1240px,90%); margin: 38px auto 14px; display: flex; justify-content: space-between; color: #80664f; font-size: 10px; letter-spacing: 1px; }
+.customer-layout .home-hero { width: min(1240px,90%); margin: auto; aspect-ratio: 2.76/1; border-radius: 18px; background: #302621; }
+.customer-layout .hero-control { width: 36px; height: 36px; border-radius: 50%; font-size: 28px; background: #302621b3; }
+.customer-layout .hero-dots button.active { background: #d2aa80; }
+.customer-layout .home-movies { padding: 64px 0 35px; width: min(1240px,90%); margin: auto; }
+.cinema-section-heading { display: flex; justify-content: space-between; align-items: end; margin-bottom: 28px; gap: 18px; }
+.cinema-section-heading h2 { font-size: clamp(28px,3vw,40px); font-weight: 550; letter-spacing: -1.5px; }
+.cinema-section-heading > a { color: #842b35; font-size: 12px; text-decoration: none; white-space: nowrap; }
+.customer-layout .movie-content-layout { display: block; }
+.customer-layout .side-banner { display: none; }
+.customer-layout .movie-tabs { justify-content: flex-start; gap: 8px; border: 0; padding: 0; margin: 0 0 32px; overflow-x: auto; }
+.customer-layout .movie-tabs button { flex-shrink: 0; font-size: 12px; padding: 12px 20px; border: 1px solid #d9cbbb; border-radius: 100px; background: transparent; color: #776253; font-weight: 600; }
+.customer-layout .movie-tabs button.active { background: #302621; border-color: #302621; color: #fff5e6; }
+.customer-layout .movie-tabs button::after { display: none; }
+.customer-layout .movie-list { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 26px; }
+.customer-layout .movie-card { border: none; background: transparent; box-shadow: none; border-radius: 0; overflow: visible; }
+.customer-layout .movie-poster-button { display: block; aspect-ratio: 2/3; height: auto; border-radius: 12px; background: #e3d6c8; box-shadow: 0 8px 18px #47301a13; }
+.customer-layout .movie-poster { height: 100%; object-fit: cover; }
+.customer-layout .movie-card-content { padding: 18px 0 0; }
+.customer-layout .movie-card-content h3 { font-size: 17px; color: #302621; line-height: 1.4; }
+.customer-layout .movie-card-content p, .customer-layout .movie-card-content > span { color: #786859; font-size: 12px; }
+.customer-layout .buy-ticket-button { background: #842b35; border-radius: 7px; color: white; min-height: 43px; box-shadow: none; font-size: 12px; letter-spacing: .6px; margin-top: 16px; }
+.customer-layout .buy-ticket-button:hover { background: #5c2028; }
+
+
+
+
+
+
+
+
+.cinema-footer { background: #2b211d; color: #d4c2b1; padding: 16px max(5%,calc((100% - 1240px)/2)) 22px; }
+
+
+.cinema-footer .cinema-kicker { color: #bb906d; }
+
+.cinema-footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; padding: 35px 0; }
+.cinema-footer-grid img { width: 90px; margin-bottom: 15px; }
+.cinema-footer-grid p { font-size: 12px; line-height: 1.9; }
+.cinema-footer-grid h3 { font-size: 10px; letter-spacing: 1.7px; margin: 5px 0 18px; color: #b58a68; }
+.cinema-footer-grid a { display: block; color: #d4c2b1; font-size: 12px; text-decoration: none; margin-top: 14px; }
+.cinema-footer-bottom { display: flex; justify-content: space-between; gap: 20px; border-top: 1px solid #564235; padding-top: 20px; font-size: 10px; color: #aa917b; }
+.customer-layout :is(.movies-page,.showtimes-page,.seat-page,.combo-page,.promotion-page,.member-page) { background: var(--cream); }
+.customer-layout .movies-page { padding: 50px max(5%,calc((100% - 1240px)/2)) 75px; }
+.cinema-page-heading { padding: 0 0 35px; margin-bottom: 30px; border-bottom: 1px solid #d8cbbb; }
+.cinema-page-heading h1 { font-size: clamp(34px,4vw,56px); line-height: 1.13; letter-spacing: -2px; font-weight: 500; margin-bottom: 20px; }
+.cinema-page-heading p { color: #76665c; font-size: 14px; }
+.customer-layout :is(.showtimes-panel,.seat-summary,.checkout-section,.checkout-summary,.my-order-card,.member-panel,.member-sidebar,.promotion-card) { background: #fffdf9; border: 1px solid #dfd4c7; border-radius: 16px; box-shadow: 0 7px 25px #49302005; }
+.cinema-booking-progress { display: flex; justify-content: center; gap: 40px; padding: 25px 5%; border-bottom: 1px solid #dfd4c7; background: #eee5d9; }
+.cinema-booking-progress > div { display: flex; align-items: center; gap: 12px; color: #8e7d6c; }
+.cinema-booking-progress span { display: grid; place-items: center; border: 1px solid #bfab96; border-radius: 50%; width: 32px; height: 32px; font-size: 10px; flex-shrink: 0; }
+.cinema-booking-progress strong { font-size: 12px; font-weight: 500; }
+.cinema-booking-progress .reached { color: #842b35; }
+.cinema-booking-progress .reached span { background: #842b35; border-color: #842b35; color: white; }
+.customer-layout .showtimes-heading { background: #3b2924; border-radius: 18px; padding: 42px; border-bottom: 4px solid #ad7654; }
+.customer-layout .showtimes-heading span { color: #dbb18d; }
+.customer-layout .showtimes-heading p { color: #d1bfb0; }
+.customer-layout .showtimes-dates { gap: 8px; border: none; padding: 8px 0; }
+.customer-layout .showtimes-dates button { border: 1px solid #e0d3c3; border-radius: 12px; padding: 16px; background: #f7f0e7; }
+.customer-layout .showtimes-dates button.active { background: #842b35; color: white; border-color: #842b35; }
+.customer-layout .showtime-button { border-radius: 9px; border-color: #c9b29a; background: #fffdf9; color: #5e4431; }
+.customer-layout .showtime-button:hover { background: #842b35; color: white; border-color: #842b35; }
+.customer-layout .seat-map-panel { background: #2e2521; color: #f3e7d9; border: 1px solid #5b4436; box-shadow: none; }
+.customer-layout .seat-map-panel h1 { color: #f3e7d9; }
+.customer-layout :is(.seat-showtime,.seat-legend,.seat-price-note,.seat-footer-total strong,.seat-countdown strong) { color: #c4b19f; }
+.customer-layout .seat-map-panel .seat-footer { border-color: #614b3c; }
+.customer-layout .seat-map-panel :is(.seat-footer-total b,.seat-countdown b) { color: #edc09b; }
+.customer-layout .screen { border-color: #cca478; color: #c4a789; background: linear-gradient(#d0a27818,transparent); padding: 24px 12px; }
+.customer-layout .screen::after { background: #745d49; }
+.customer-layout .seat.selected { background: #a44855; border-color: #e3a2a9; color: white; }
+.customer-layout .seat-summary { top: 20px; }
+.customer-layout :is(.continue-button,.member-button,.login-button) { background: #842b35; box-shadow: none; border-radius: 9px; }
+.customer-layout .continue-button:disabled { background: #b4a9a0; }
+.customer-layout :is(.combo-total,.modal-total) { color: #842b35; }
+.customer-layout .checkout-section { padding: 26px; }
+.customer-layout .combo-card { border-color: #dfd4c7; border-radius: 12px; background: #f7f1e8; }
+.customer-layout .checkout-section :is(h1,h2), .customer-layout .seat-summary h2 { color: #70303a; }
+.customer-layout :is(.customer-grid input,.promotion-select) { border-color: #d6c8b7; border-radius: 8px; background: #fffdf9; }
+.customer-layout .my-tickets-page { min-height: 65vh; padding-top: 48px; padding-bottom: 65px; }
+.customer-layout .my-tickets-page > h1 { color: #3e2f25; font-size: clamp(27px,3vw,40px); letter-spacing: -1px; font-weight: 550; }
+.customer-layout .ticket-filter { border-bottom-color: #dfd4c7; gap: 10px; }
+.customer-layout .ticket-filter button { border-radius: 100px; padding: 12px 22px; color: #76604d; }
+.customer-layout .ticket-filter button.active { background: #842b35; color: white; border-color: #842b35; }
+.customer-layout .order-qr { border-left: 1px dashed #d1bda6; background: #f8f2e9; }
+.customer-layout .my-tickets-page .detail-button { background: #842b35; color: #fff; border: 1px solid #842b35; border-radius: 8px; min-height: 44px; padding: 11px 22px; font-size: 14px; font-weight: 600; line-height: 1.4; cursor: pointer; }
+.customer-layout .my-tickets-page .detail-button:hover { background: #5c2028; color: #fff; border-color: #5c2028; }
+.customer-layout .my-tickets-page .detail-button:focus-visible { outline: 3px solid #b27849; outline-offset: 3px; }
+.customer-layout .promotion-heading { padding: 28px 0 36px; border-bottom: 1px solid #d7c6b4; }
+.customer-layout .promotion-heading h1 { font-size: clamp(28px,4vw,46px); color: #3e2f25; letter-spacing: -1.5px; }
+.customer-layout .promotion-card { overflow: hidden; transition: transform .2s; }
+.customer-layout .promotion-card:hover { transform: translateY(-5px); }
+.customer-layout .promotion-content { padding: 24px; }
+.customer-layout .promotion-value { color: #842b35; }
+.customer-layout .promotion-image { background: #e9dccb; }
+.customer-layout .member-heading { padding-bottom: 26px; border-bottom: 1px solid #dfd4c7; }
+.customer-layout .member-heading h1 { font-size: clamp(30px,3.5vw,44px); font-weight: 550; }
+.customer-layout .member-overview { background: #3b2924; color: #f6e9dc; border-color: #3b2924; padding: 30px; }
+.customer-layout .member-welcome p, .customer-layout .member-welcome small { color: #d0bba8; }
+.customer-layout .member-welcome a, .customer-layout .member-small-label { color: #e2b48f; }
+.customer-layout .member-avatar { color: #842b35; background: #ead9c8; }
+.customer-layout .member-nav [aria-current] { background: #f0e4d8; color: #842b35; }
+.customer-layout .member-fields input, .customer-layout .member-fields select { background: #fffdf9; border-color: #d9ccbc; }
+.customer-layout .member-ticket-banner { background: #eadfce; border-color: #d6bfa5; }
+.customer-page .login-page { display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: 65px; max-width: 1160px; margin: auto; min-height: 75vh; padding: 65px 30px; background: transparent; }
+.customer-page .login-box { background: #fffdf9; border: 1px solid #dfd4c7; box-shadow: 0 15px 45px #4832210a; border-radius: 20px; padding: 36px; width: 100%; max-width: none; margin: 0; }
+.cinema-auth-story { padding: 20px 0; }
+.cinema-auth-story h2 { font-size: clamp(36px,4.5vw,60px); line-height: 1.2; letter-spacing: -2px; font-weight: 450; }
+.cinema-auth-story em { color: #842b35; }
+.cinema-auth-story > p { max-width: 350px; line-height: 1.9; color: #786455; margin: 25px 0; font-size: 14px; }
+.cinema-auth-art { background: #70303a; color: #e8c9a5; border: 1px dashed #c69870; outline: 9px solid #70303a; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; transform: rotate(-7deg); width: 80%; margin: 55px 15px; min-height: 180px; box-shadow: 12px 18px 0 #dbc8b3; }
+.cinema-auth-art span { font-size: 60px; font-weight: 900; font-style: italic; }
+.cinema-auth-art small { font-size: 9px; letter-spacing: 2px; }
+.cinema-auth-caption { font-size: 10px; letter-spacing: 3px; color: #97785f; }
+.customer-page .auth-tab.active { color: #842b35; border-color: #842b35; }
+.customer-page .login-form :is(input,select) { border-color: #d9cbb9; border-radius: 8px; background: #fffdf9; }
+.customer-page .login-button { background: #842b35; border-radius: 100px; }
+.customer-layout :is(.trailer-modal,.order-modal) { border-radius: 18px; }
+@media (max-width:1100px) { .cinema-navigation { gap: 20px; } .cinema-navigation nav { gap: 16px; } .cinema-account-name > span:last-child { display: none; } .cinema-intro { padding-top: 50px; padding-bottom: 45px; min-height: auto; } .cinema-poster-stage { height: 320px; } }
+@media (max-width:800px) { .cinema-navigation { flex-wrap: wrap; gap: 15px; padding: 16px 0 0; } .cinema-brand { margin-right: auto; } .cinema-navigation nav { order: 3; width: 100%; justify-content: space-between; overflow-x: auto; gap: 20px; } .cinema-navigation nav a { font-size: 12px; } .cinema-intro { gap: 22px; } .cinema-intro h1 { font-size: 48px; } .cinema-intro-copy > p { font-size: 12px; } .cinema-intro-actions { gap: 15px; } .cinema-intro-actions .cinema-primary { padding: 14px 18px; gap: 12px; } .cinema-poster-stage { height: 270px; } .cinema-stage-seal { width: 65px; height: 65px; font-size: 6px; } .cinema-stage-seal strong { font-size: 14px; } .customer-layout .movie-list { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 20px; }  .customer-page .login-page { gap: 30px; padding: 40px 5%; } .customer-page .login-box { padding: 25px; } }
+@media (max-width:600px) { .cinema-topline { font-size: 8px; padding: 9px 5%; letter-spacing: .8px; } .cinema-topline > span:last-child { display: none; } .cinema-brand img { width: 83px; height: 36px; } .cinema-navigation nav { gap: 19px; } .cinema-navigation nav a { font-size: 11px; } .cinema-intro { grid-template-columns: 1fr; padding: 36px 7% 42px; gap: 35px; } .cinema-intro h1 { font-size: 55px; } .cinema-intro-note { margin-top: 24px; } .cinema-poster-stage { height: 330px; width: 90%; margin: 0 auto; } .cinema-marquee { justify-content: flex-start; gap: 20px; } .customer-layout .home-hero { width: 94%; border-radius: 9px; } .cinema-section-label { margin-top: 25px; font-size: 8px; } .customer-layout .hero-control { width: 26px; height: 26px; font-size: 22px; } .customer-layout .hero-dots { bottom: 8px; } .customer-layout .hero-control-prev { left: 8px; } .customer-layout .hero-control-next { right: 8px; } .customer-layout .home-movies { padding-top: 38px; } .cinema-section-heading h2 { font-size: 29px; } .customer-layout .movie-list { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px 14px; } .customer-layout .movie-card-content h3 { font-size: 14px; } .customer-layout .movie-tabs button { padding: 10px 15px; font-size: 10px; }  .cinema-footer { padding-top: 8px; } .cinema-footer-grid { grid-template-columns: 1fr 1fr; gap: 25px; } .cinema-footer-grid > div:first-child { grid-column: 1/-1; } .cinema-footer-bottom { flex-direction: column; gap: 8px; }  .customer-layout .showtimes-heading { padding: 25px; } .customer-layout .checkout-section { padding: 20px; } .customer-page .login-page { grid-template-columns: 1fr; gap: 20px; padding: 30px 5%; } .cinema-auth-art,.cinema-auth-caption { display: none; } .cinema-auth-story { padding: 0; } .cinema-auth-story h2 { font-size: 38px; } .cinema-auth-story > p { margin: 16px 0 5px; } .customer-layout .my-tickets-page { padding-left: 5%; padding-right: 5%; } }
+@media (max-width:600px) { .cinema-booking-progress { gap: 18px; padding: 18px 5%; } .cinema-booking-progress > div { flex-direction: column; gap: 7px; text-align: center; flex: 1; } .cinema-booking-progress strong { font-size: 10px; } }
+@media (prefers-reduced-motion:reduce) { :is(.customer-layout,.customer-page) *, :is(.customer-layout,.customer-page) *::before, :is(.customer-layout,.customer-page) *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }

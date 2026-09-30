@@ -10,6 +10,18 @@ function authHeaders() {
     };
 }
 
+export async function getFeaturedMovies(signal) {
+    const response = await fetch(`${API_URL}/phims/noi-bat`, {
+        headers: { Accept: "application/json" },
+        signal,
+    });
+    if (!response.ok) {
+        throw new Error("Không thể tải phim nổi bật.");
+    }
+    const result = await response.json();
+    return result.data;
+}
+
 export async function getMovies() {
     const response = await fetch(`${API_URL}/phims`, {
         headers: {

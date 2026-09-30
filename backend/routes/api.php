@@ -108,6 +108,8 @@ Route::apiResource('khuyen-mais', KhuyenMaiController::class)
     ]);
 
 // Phim
+Route::get('phims/noi-bat', [PhimController::class, 'featured']);
+
 Route::apiResource('phims', PhimController::class)
     ->only(['index', 'show'])
     ->parameters([
@@ -222,14 +224,14 @@ Route::middleware('auth:sanctum')->group(function () {
         ->parameters([
             've-ghes' => 'maVe',
         ]);
-Route::get('my-tickets', [
-    VeGheController::class,
-    'myTickets',
-]);
-Route::get('my-orders', [
-    DonHangController::class,
-    'myOrders',
-]);
+    Route::get('my-tickets', [
+        VeGheController::class,
+        'myTickets',
+    ]);
+    Route::get('my-orders', [
+        DonHangController::class,
+        'myOrders',
+    ]);
     /*
     |--------------------------------------------------------------------------
     | COMBO TRONG ĐƠN HÀNG

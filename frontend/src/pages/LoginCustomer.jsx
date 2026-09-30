@@ -333,7 +333,11 @@ const [activeTab, setActiveTab] = useState(initialTab);
       {/* =========================
           LOGIN / REGISTER
       ========================= */}
-      <main className="login-page">
+      <main className="login-page" id="customer-content">
+        <aside className="cinema-auth-story">
+          <h2>Cùng CGV tận hưởng <em>điện ảnh.</em></h2>
+          <div className="cinema-auth-art" aria-hidden="true"><span>CGV</span></div>
+        </aside>
 
         <div className="login-box">
 

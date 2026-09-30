@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import "./Header.css";
 
 function Header() {
@@ -63,83 +63,19 @@ const isLoggedIn = Boolean(token && khachHang);
         localStorage.removeItem("vaiTro");
         localStorage.removeItem("taiKhoan");
         localStorage.removeItem("khachHang");
+        setKhachHang(null);
     };
 
     return (
-        <header className="header">
-
-            {/* Thanh đỏ phía trên */}
-            <div className="header-top">
-                <div className="header-container header-login">
-
-                    {isLoggedIn ? (
-                        <>
-                            <span>
-                                Xin chào,{" "}
-                                <strong>
-                                    {khachHang?.hoTen || "Khách hàng"}
-                                </strong>
-                            </span>
-
-                            <span>|</span>
-
-                            <button
-                                type="button"
-                                onClick={handleLogout}
-                                disabled={logoutLoading}
-                            >
-                                {logoutLoading
-                                    ? "ĐANG ĐĂNG XUẤT..."
-                                    : "ĐĂNG XUẤT"}
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            <a href="/login">Đăng nhập</a>
-                            <span>|</span>
-                            <a href="/register">Đăng ký</a>
-                        </>
-                    )}
-
-                </div>
+        <header className="cinema-header">
+            <a className="cinema-skip" href="#customer-content">Đi đến nội dung</a>
+            <div className="cinema-topline"><span>CGV AEON MALL HÀ ĐÔNG</span><span>Điện ảnh kết nối cảm xúc <i>✦</i></span></div>
+            <div className="cinema-navigation">
+                <Link to="/home" className="cinema-brand" aria-label="CGV — Trang chủ"><img src="/banners/cgvlogo.png" alt="CGV" /><span>BEYOND THE SCREEN</span></Link>
+                <nav aria-label="Điều hướng chính"><NavLink to="/movies">Khám phá phim</NavLink><NavLink to="/my-tickets">Vé của tôi</NavLink><NavLink to="/tin-tuc">Tin tức & ưu đãi</NavLink><NavLink to="/thanh-vien">Thành viên</NavLink></nav>
+                <div className="cinema-account">{isLoggedIn ? <><Link to="/thanh-vien" className="cinema-account-name"><span className="cinema-avatar">{khachHang?.hoTen?.trim().slice(0, 1) || "C"}</span><span>{khachHang?.hoTen || "Tài khoản"}</span></Link><button onClick={handleLogout} disabled={logoutLoading}>{logoutLoading ? "Đang thoát…" : "Đăng xuất"}</button></> : <Link className="cinema-login" to="/login">Đăng nhập <span>↗</span></Link>}</div>
             </div>
-
-            {/* Logo + Menu */}
-            <div className="header-main">
-                <div className="header-container header-content">
-
-                    <a href="/home" className="logo">
-                        <img
-                            className="logo-image"
-                            src="/banners/cgvlogo.png"
-                            alt="CGV AEON MALL HÀ ĐÔNG"
-                        />
-                    </a>
-
-                    <nav className="header-menu">
-
-                        <a href="/movies">
-                            PHIM
-                        </a>
-                        <a href="/my-tickets">
-                            VÉ CỦA TÔI
-                        </a>
-
-                        <a href="/tin-tuc">
-                            TIN TỨC & ƯU ĐÃI
-                        </a>
-
-                        <a href="/thanh-vien">
-                            THÀNH VIÊN
-                        </a>
-
-                    </nav>
-
-                </div>
-            </div>
-
         </header>
     );
 }
-
 export default Header;
