@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Header.css";
 
@@ -6,9 +6,15 @@ function Header() {
     const navigate = useNavigate();
     const [logoutLoading, setLogoutLoading] = useState(false);
 
-    const khachHang = JSON.parse(
+    const [khachHang, setKhachHang] = useState(() => JSON.parse(
         localStorage.getItem("khachHang") || "null"
-    );
+    ));
+
+    useEffect(() => {
+        const updateCustomer = () => setKhachHang(JSON.parse(localStorage.getItem("khachHang") || "null"));
+        window.addEventListener("customer-profile-updated", updateCustomer);
+        return () => window.removeEventListener("customer-profile-updated", updateCustomer);
+    }, []);
 
     const token = localStorage.getItem("token");
 

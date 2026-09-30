@@ -30,6 +30,7 @@ import OrderManagement from "./pages/OrderManagement";
 import CounterSale from "./pages/CounterSale";
 import NhanVienManagement from "./pages/NhanVienManagement";
 import TinTucUuDai from "./pages/TinTucUuDai";
+import Membership from "./pages/Membership";
 
 
 // =========================
@@ -174,6 +175,16 @@ function App() {
             <CustomerLayout>
               <HomeCustomer />
             </CustomerLayout>
+          }
+        />
+        <Route
+          path="/thanh-vien"
+          element={
+            <CustomerRoute>
+              <CustomerLayout>
+                <Membership />
+              </CustomerLayout>
+            </CustomerRoute>
           }
         />
 <Route
