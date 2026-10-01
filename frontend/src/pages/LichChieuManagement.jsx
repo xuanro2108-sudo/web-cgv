@@ -4,6 +4,7 @@ import {
 } from "react";
 
 import "./LichChieuManagement.css";
+import { showtimeStatus } from "../utils/showtimeStatus";
 
 const API =
   "http://127.0.0.1:8000/api";
@@ -19,6 +20,11 @@ const emptyForm = {
 };
 
 function LichChieuManagement() {
+  const [currentTime, setCurrentTime] = useState(Date.now);
+  useEffect(() => {
+    const timer = window.setInterval(() => setCurrentTime(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
   const [items, setItems] =
     useState([]);
 
@@ -914,7 +920,7 @@ function LichChieuManagement() {
           </option>
 
           <option value="HOAT_DONG">
-            Hoạt động
+            Chưa hủy
           </option>
 
           <option value="NGUNG_HOAT_DONG">
@@ -1009,6 +1015,7 @@ function LichChieuManagement() {
                     const active =
                       item.trangThai ===
                       "HOAT_DONG";
+                    const displayStatus = showtimeStatus(item, currentTime);
 
                     return (
 
@@ -1068,14 +1075,10 @@ function LichChieuManagement() {
 
                           <span
                             className={
-                              active
-                                ? "schedule-status active"
-                                : "schedule-status cancelled"
+                              `schedule-status ${displayStatus.className}`
                             }
                           >
-                            {active
-                              ? "Hoạt động"
-                              : "Đã hủy"}
+                            {displayStatus.label}
                           </span>
 
                         </td>

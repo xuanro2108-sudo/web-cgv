@@ -28,6 +28,11 @@ const emptyMovie = {
   trangThai: "SAP_CHIEU",
 };
 
+const todayDate = () => {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+};
+
 const fields = [
   ["maPhim", "Mã phim", "text", 50],
   ["tenPhim", "Tên phim", "text", 255],
@@ -145,7 +150,7 @@ export default function MovieManagement() {
         )
       );
     } else {
-      setForm({ ...emptyMovie });
+      setForm({ ...emptyMovie, ngayKhoiChieu: todayDate() });
     }
 
     setFormError("");
@@ -198,6 +203,11 @@ export default function MovieManagement() {
       setFormError(
         `Vui lòng không để trống: ${missingFields.join(", ")}.`
       );
+      return;
+    }
+
+    if (!editing && data.ngayKhoiChieu && data.ngayKhoiChieu < todayDate()) {
+      setFormError("Ngày khởi chiếu phải từ hôm nay trở đi.");
       return;
     }
 
@@ -655,7 +665,9 @@ export default function MovieManagement() {
                       }
                       required={requiredFieldNames.has(name)}
                       min={
-                        type === "number"
+                        name === "ngayKhoiChieu" && !editing
+                          ? todayDate()
+                          : type === "number"
                           ? 1
                           : name ===
                               "ngayKetThuc"
@@ -701,38 +713,6 @@ export default function MovieManagement() {
                   </label>
                 )
               )}
-
-
-              {/* TRẠNG THÁI */}
-              <label>
-                Trạng thái
-
-                <select
-                  value={form.trangThai}
-                  disabled={busy}
-                  onChange={(event) =>
-                    setForm({
-                      ...form,
-                      trangThai:
-                        event.target.value,
-                    })
-                  }
-                >
-                  {Object.entries(
-                    statuses
-                  ).map(
-                    ([value, label]) => (
-                      <option
-                        key={value}
-                        value={value}
-                      >
-                        {label}
-                      </option>
-                    )
-                  )}
-                </select>
-
-              </label>
 
 
               {/* MÔ TẢ */}

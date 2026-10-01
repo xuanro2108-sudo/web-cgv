@@ -8,10 +8,14 @@ async function request(path = "", options = {}) {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
+    }).catch((error) => {
+        if (error.name === "AbortError") throw error;
+        throw new Error("Không thể kết nối đến máy chủ. Vui lòng thử lại.");
     });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) {
-        const error = new Error(result.message || "Không thể xử lý yêu cầu. Vui lòng thử lại.");
+        const messages = { 401: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.", 403: "Bạn không có quyền thực hiện thao tác này.", 422: "Vui lòng kiểm tra các thông tin bên dưới.", 429: "Bạn thao tác quá nhanh. Vui lòng thử lại sau ít phút." };
+        const error = new Error(messages[response.status] || "Không thể xử lý yêu cầu. Vui lòng thử lại.");
         error.status = response.status;
         error.fields = result.errors || {};
         throw error;

@@ -1,0 +1,23 @@
+.internal-profile-trigger { display: flex; flex-direction: column; gap: 7px; width: 100%; border: 0; background: transparent; color: white; text-align: left; cursor: pointer; font: inherit; }
+.internal-profile-trigger:hover { background: #ffffff12; }
+.internal-profile-trigger strong { overflow-wrap: anywhere; }
+.internal-profile-trigger:focus-visible { outline: 2px solid #fff; outline-offset: -4px; }
+.internal-profile-dialog { margin: auto; width: min(510px, 92vw); max-height: 88vh; overflow-y: auto; border: none; border-radius: 16px; padding: 28px; color: #302621; background: #fff; box-shadow: 0 24px 65px #0004; }
+.internal-profile-dialog::backdrop { background: #0007; }
+.internal-profile-heading { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 24px; }
+.internal-profile-heading h2 { font-size: 22px; }
+.internal-profile-heading button { border: 0; background: #f3f3f3; border-radius: 8px; width: 38px; height: 38px; font-size: 24px; cursor: pointer; }
+.internal-profile-dialog fieldset { border: 0; min-width: 0; }
+.internal-profile-dialog label { display: block; margin: 18px 0; font-size: 14px; font-weight: 600; }
+.internal-profile-dialog label > span { color: #a82330; }
+.internal-profile-dialog input { display: block; width: 100%; margin-top: 8px; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font: inherit; }
+.internal-profile-dialog input[aria-invalid="true"] { border-color: #b22232; }
+.internal-profile-dialog small { display: block; margin-top: 6px; font-weight: 400; }
+.internal-profile-error { color: #b22232; font-size: 13px; line-height: 1.6; }
+.internal-profile-success { color: #22643f; background: #edf8ef; padding: 12px; border-radius: 8px; line-height: 1.6; }
+.internal-profile-meta { font-size: 13px; color: #666; line-height: 1.9; margin-bottom: 20px; }
+.internal-profile-save { width: 100%; background: #98162b; color: white; border: none; padding: 13px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+.internal-profile-dialog :disabled { opacity: .65; cursor: wait; }
+.internal-profile-tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 12px; }
+.internal-profile-tabs button { border: none; padding: 10px 14px; border-radius: 8px; background: #f4f4f4; cursor: pointer; color: #555; font-weight: 600; }
+.internal-profile-tabs button[aria-pressed="true"] { background: #98162b; color: white; }

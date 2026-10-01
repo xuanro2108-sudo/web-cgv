@@ -193,6 +193,13 @@ const [activeTab, setActiveTab] = useState(initialTab);
     setRegisterError("");
     setRegisterMessage("");
 
+    const today = new Date();
+    const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    if (registerData.ngaySinh && registerData.ngaySinh >= todayString) {
+      setRegisterError("Ngày sinh phải nhỏ hơn ngày hiện tại.");
+      return;
+    }
+
     // =========================
     // KIỂM TRA SỐ ĐIỆN THOẠI
     // =========================

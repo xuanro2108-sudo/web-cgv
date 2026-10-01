@@ -5,6 +5,7 @@ import {
 } from "react-router-dom";
 
 import "./Dashboard.css";
+import InternalProfile from "../components/InternalProfile";
 
 function Dashboard({ children }) {
   const navigate = useNavigate();
@@ -58,11 +59,6 @@ function Dashboard({ children }) {
   // =========================
   // THÔNG TIN TÀI KHOẢN
   // =========================
-  const taiKhoan = JSON.parse(
-    localStorage.getItem("taiKhoan") ||
-      "null"
-  );
-
   const vaiTro =
     localStorage.getItem("vaiTro");
 
@@ -324,22 +320,7 @@ function Dashboard({ children }) {
         {/* =========================
             THÔNG TIN TÀI KHOẢN
         ========================= */}
-        <div className="dashboard-user">
-
-          <strong>
-            {taiKhoan?.tenDangNhap ||
-              "Tài khoản"}
-          </strong>
-
-          <span>
-            {getRoleName()}
-          </span>
-
-          <small>
-            Đang hoạt động
-          </small>
-
-        </div>
+        <InternalProfile roleName={getRoleName()} />
 
 
         {/* =========================
