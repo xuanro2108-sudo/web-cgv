@@ -4,11 +4,21 @@ import "./Movies.css";
 
 import { getMovies } from "../services/movieService";
 
+function normalizeMovieSearch(value) {
+    return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[đĐ]/g, "d")
+        .toLocaleLowerCase("vi")
+        .trim();
+}
+
 function Movies() {
     const navigate = useNavigate();
 
     const [movies, setMovies] = useState([]);
     const [activeMovieTab, setActiveMovieTab] = useState("showing");
+    const [searchQuery, setSearchQuery] = useState("");
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -61,16 +71,21 @@ function Movies() {
         loadMovies();
     }, []);
 
+    const normalizedSearchQuery = normalizeMovieSearch(searchQuery);
     const visibleMovies = movies.filter((movie) => {
+        let matchesTab = true;
+
         if (activeMovieTab === "upcoming") {
-            return movie.trangThai === "SAP_CHIEU";
+            matchesTab = movie.trangThai === "SAP_CHIEU";
+        } else if (activeMovieTab === "showing") {
+            matchesTab = movie.trangThai !== "SAP_CHIEU";
         }
 
-        if (activeMovieTab === "showing") {
-            return movie.trangThai !== "SAP_CHIEU";
-        }
+        const matchesSearch = normalizeMovieSearch(movie.tenPhim).includes(
+            normalizedSearchQuery
+        );
 
-        return true;
+        return matchesTab && matchesSearch;
     });
 
     return (
@@ -121,6 +136,25 @@ function Movies() {
                 </button>
             </div>
 
+            <div className="movie-search">
+                <input
+                    type="search"
+                    aria-label="Tìm phim"
+                    placeholder="Nhập tên phim cần tìm..."
+                    value={searchQuery}
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                />
+                {searchQuery && (
+                    <button
+                        type="button"
+                        onClick={() => setSearchQuery("")}
+                        aria-label="Xóa tìm kiếm"
+                    >
+                        Xóa
+                    </button>
+                )}
+            </div>
+
             {/* LOADING */}
             {loading && (
                 <p className="movie-message">
@@ -138,9 +172,19 @@ function Movies() {
             {/* KHÔNG CÓ PHIM */}
             {!loading &&
                 !error &&
+                !normalizedSearchQuery &&
                 visibleMovies.length === 0 && (
                     <p className="movie-message">
                         Hiện chưa có phim trong danh mục này.
+                    </p>
+                )}
+
+            {!loading &&
+                !error &&
+                normalizedSearchQuery &&
+                visibleMovies.length === 0 && (
+                    <p className="movie-message">
+                        Không tìm thấy phim phù hợp.
                     </p>
                 )}
 

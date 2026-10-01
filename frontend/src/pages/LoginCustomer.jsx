@@ -195,7 +195,17 @@ const [activeTab, setActiveTab] = useState(initialTab);
 
     const today = new Date();
     const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-    if (registerData.ngaySinh && registerData.ngaySinh >= todayString) {
+    if (!registerData.ngaySinh) {
+      setRegisterError("Vui lòng chọn ngày sinh.");
+      return;
+    }
+
+    if (!registerData.gioiTinh) {
+      setRegisterError("Vui lòng chọn giới tính.");
+      return;
+    }
+
+    if (registerData.ngaySinh >= todayString) {
       setRegisterError("Ngày sinh phải nhỏ hơn ngày hiện tại.");
       return;
     }
@@ -533,6 +543,8 @@ const [activeTab, setActiveTab] = useState(initialTab);
                   name="ngaySinh"
                   value={registerData.ngaySinh}
                   onChange={handleRegisterChange}
+                  onInvalid={() => setRegisterError("Vui lòng chọn ngày sinh.")}
+                  required
                 />
 
                 {/* GIỚI TÍNH */}
@@ -544,6 +556,8 @@ const [activeTab, setActiveTab] = useState(initialTab);
                   name="gioiTinh"
                   value={registerData.gioiTinh}
                   onChange={handleRegisterChange}
+                  onInvalid={() => setRegisterError("Vui lòng chọn giới tính.")}
+                  required
                 >
 
                   <option value="">

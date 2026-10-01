@@ -110,13 +110,13 @@ class AuthController extends Controller
             ],
 
             'ngaySinh' => [
-                'nullable',
+                'required',
                 'date',
                 'before:today',
             ],
 
             'gioiTinh' => [
-                'nullable',
+                'required',
                 'in:NAM,NU',
             ],
 
@@ -127,8 +127,11 @@ class AuthController extends Controller
                 'confirmed',
             ],
         ], [
+            'ngaySinh.required' => 'Vui lòng chọn ngày sinh.',
             'ngaySinh.date' => 'Ngày sinh không hợp lệ.',
             'ngaySinh.before' => 'Ngày sinh phải nhỏ hơn ngày hiện tại.',
+            'gioiTinh.required' => 'Vui lòng chọn giới tính.',
+            'gioiTinh.in' => 'Vui lòng chọn giới tính hợp lệ.',
             'email.required' => 'Vui lòng nhập email.',
             'email.email' => 'Email không đúng định dạng.',
             'email.regex' => 'Vui lòng sử dụng địa chỉ Gmail hợp lệ.',
@@ -147,45 +150,19 @@ class AuthController extends Controller
             // =========================
             // SINH MÃ KHÁCH HÀNG
             // =========================
-            $lastKhachHang = KhachHang::orderBy(
+            $maKH = $this->nextSequentialCode(
+                KhachHang::class,
                 'maKH',
-                'desc'
-            )->first();
-
-            $nextKH = $lastKhachHang
-                ? ((int) substr(
-                    $lastKhachHang->maKH,
-                    2
-                )) + 1
-                : 1;
-
-            $maKH = 'KH'.str_pad(
-                $nextKH,
-                3,
-                '0',
-                STR_PAD_LEFT
+                'KH'
             );
 
             // =========================
             // SINH MÃ TÀI KHOẢN
             // =========================
-            $lastTaiKhoan = TaiKhoan::orderBy(
+            $maTK = $this->nextSequentialCode(
+                TaiKhoan::class,
                 'maTK',
-                'desc'
-            )->first();
-
-            $nextTK = $lastTaiKhoan
-                ? ((int) substr(
-                    $lastTaiKhoan->maTK,
-                    2
-                )) + 1
-                : 1;
-
-            $maTK = 'TK'.str_pad(
-                $nextTK,
-                3,
-                '0',
-                STR_PAD_LEFT
+                'TK'
             );
 
             // =========================
@@ -246,6 +223,28 @@ class AuthController extends Controller
 
             'taiKhoan' => $result['taiKhoan'],
         ], 201);
+    }
+
+    private function nextSequentialCode(
+        string $modelClass,
+        string $column,
+        string $prefix
+    ): string {
+        $highestNumber = 0;
+        $pattern = '/^'.preg_quote($prefix, '/').'([0-9]+)$/';
+
+        foreach ($modelClass::query()->pluck($column) as $existingCode) {
+            if (preg_match($pattern, (string) $existingCode, $matches) === 1) {
+                $highestNumber = max($highestNumber, (int) $matches[1]);
+            }
+        }
+
+        return $prefix.str_pad(
+            (string) ($highestNumber + 1),
+            3,
+            '0',
+            STR_PAD_LEFT
+        );
     }
 
     // =========================
