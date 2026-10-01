@@ -374,6 +374,9 @@
   font-weight: 700;
 }
 
+.schedule-status.upcoming { background: #fff1cc; color: #805600; }
+.schedule-status.finished { background: #e8ebef; color: #4b5563; }
+.schedule-status.unknown { background: #f1f1f1; color: #666; }
 .schedule-status.active {
   background: #dcfce7;
 

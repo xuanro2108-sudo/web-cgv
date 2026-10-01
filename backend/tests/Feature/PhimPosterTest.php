@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Phim;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -12,6 +13,35 @@ use Tests\TestCase;
 class PhimPosterTest extends TestCase
 {
     use LazilyRefreshDatabase;
+
+    public function test_movie_status_is_derived_and_stale_movies_are_synchronized(): void
+    {
+        $this->travelTo(Carbon::parse('2026-10-01 12:00:00', 'Asia/Ho_Chi_Minh'));
+        $this->manager();
+        $this->postJson('/api/phims', ['maPhim' => 'AUTO', 'tenPhim' => 'Auto', 'ngayKhoiChieu' => '2026-10-01', 'ngayKetThuc' => '2026-10-02', 'trangThai' => 'DA_CHIEU'])
+            ->assertCreated()->assertJsonPath('data.trangThai', 'DANG_CHIEU');
+        $this->patchJson('/api/phims/AUTO', ['ngayKhoiChieu' => '2026-10-02', 'ngayKetThuc' => '2026-10-03'])
+            ->assertOk()->assertJsonPath('data.trangThai', 'SAP_CHIEU');
+        Phim::create(['maPhim' => 'OLD', 'tenPhim' => 'Old', 'ngayKhoiChieu' => '2026-09-01', 'ngayKetThuc' => '2026-09-30', 'trangThai' => 'SAP_CHIEU']);
+        Phim::create(['maPhim' => 'CURRENT', 'tenPhim' => 'Current', 'ngayKhoiChieu' => '2026-09-01', 'ngayKetThuc' => '2026-10-01', 'trangThai' => 'SAP_CHIEU']);
+        $this->getJson('/api/phims')->assertOk();
+        $this->assertDatabaseHas('phims', ['maPhim' => 'OLD', 'trangThai' => 'DA_CHIEU']);
+        $this->assertDatabaseHas('phims', ['maPhim' => 'CURRENT', 'trangThai' => 'DANG_CHIEU']);
+        $this->travelTo(Carbon::parse('2026-10-04 00:00:00', 'Asia/Ho_Chi_Minh'));
+        $this->getJson('/api/phims/AUTO')->assertOk()->assertJsonPath('data.trangThai', 'DA_CHIEU');
+    }
+
+    public function test_new_movie_release_date_cannot_be_in_the_past(): void
+    {
+        $this->freezeTime();
+        $this->manager();
+        $payload = ['maPhim' => 'DATE', 'tenPhim' => 'Date test', 'trangThai' => 'SAP_CHIEU'];
+        $this->postJson('/api/phims', [...$payload, 'ngayKhoiChieu' => today()->subDay()->toDateString()])
+            ->assertUnprocessable()->assertJsonPath('errors.ngayKhoiChieu.0', 'Ngày khởi chiếu phải từ hôm nay trở đi.');
+        $this->assertDatabaseMissing('phims', ['maPhim' => 'DATE']);
+        $this->postJson('/api/phims', [...$payload, 'ngayKhoiChieu' => today()->toDateString()])->assertCreated();
+        $this->postJson('/api/phims', [...$payload, 'maPhim' => 'FUTURE', 'ngayKhoiChieu' => today()->addDay()->toDateString()])->assertCreated();
+    }
 
     private function poster(): UploadedFile
     {

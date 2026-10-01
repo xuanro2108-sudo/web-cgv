@@ -60,14 +60,31 @@ export default function Membership() {
         event.preventDefault();
         setErrors({});
         setNotice(null);
-        if (tab === "security" && passwords.matKhauMoi !== passwords.matKhauMoi_confirmation) {
-            setErrors({ matKhauMoi_confirmation: ["Mật khẩu xác nhận chưa khớp."] });
+        const validationErrors = {};
+        if (tab === "profile") {
+            if (!form.hoTen.trim()) validationErrors.hoTen = ["Vui lòng nhập họ và tên."];
+            if (!form.soDienThoai.trim()) validationErrors.soDienThoai = ["Vui lòng nhập số điện thoại."];
+            else if (!/^0[0-9]{9}$/.test(form.soDienThoai.trim())) validationErrors.soDienThoai = ["Số điện thoại phải gồm 10 chữ số và bắt đầu bằng số 0."];
+            if (!form.email.trim()) validationErrors.email = ["Vui lòng nhập email."];
+            else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) validationErrors.email = ["Email không đúng định dạng."];
+            if (form.ngaySinh && form.ngaySinh > maxBirthday) validationErrors.ngaySinh = ["Ngày sinh không được ở tương lai."];
+        } else {
+            if (!passwords.matKhauHienTai.trim()) validationErrors.matKhauHienTai = ["Vui lòng nhập mật khẩu hiện tại."];
+            if (!passwords.matKhauMoi.trim()) validationErrors.matKhauMoi = ["Vui lòng nhập mật khẩu mới."];
+            else if (passwords.matKhauMoi.length < 8) validationErrors.matKhauMoi = ["Mật khẩu mới phải có ít nhất 8 ký tự."];
+            else if (passwords.matKhauMoi === passwords.matKhauHienTai) validationErrors.matKhauMoi = ["Mật khẩu mới phải khác mật khẩu hiện tại."];
+            if (!passwords.matKhauMoi_confirmation.trim()) validationErrors.matKhauMoi_confirmation = ["Vui lòng xác nhận mật khẩu mới."];
+            else if (passwords.matKhauMoi !== passwords.matKhauMoi_confirmation) validationErrors.matKhauMoi_confirmation = ["Mật khẩu xác nhận chưa khớp."];
+        }
+        if (Object.keys(validationErrors).length) {
+            setErrors(validationErrors);
+            setNotice({ type: "error", text: "Vui lòng kiểm tra các thông tin bên dưới." });
             return;
         }
         setSaving(true);
         try {
             if (tab === "profile") {
-                const { data } = await saveMember({ ...form, hoTen: form.hoTen.trim(), email: form.email.trim(), ngaySinh: form.ngaySinh || null, gioiTinh: form.gioiTinh || null });
+                const { data } = await saveMember({ ...form, hoTen: form.hoTen.trim(), soDienThoai: form.soDienThoai.trim(), email: form.email.trim(), ngaySinh: form.ngaySinh || null, gioiTinh: form.gioiTinh || null });
                 setMember(data);
                 setForm(profileValues(data));
                 localStorage.setItem("khachHang", JSON.stringify(data));
@@ -120,7 +137,7 @@ export default function Membership() {
                             <section className="member-panel">
                                 <div className="member-panel-heading"><div><h2>{tab === "profile" ? "Thông tin cá nhân" : "Bảo mật tài khoản"}</h2><p>{tab === "profile" ? "Cập nhật hồ sơ để CGV có thể đồng hành cùng bạn tốt hơn." : "Sử dụng mật khẩu riêng để bảo vệ tài khoản của bạn."}</p></div><Icon name={tab === "profile" ? "user" : "lock"} /></div>
                                 {notice && <div className={`member-notice ${notice.type}`} role={notice.type === "error" ? "alert" : "status"}>{notice.text}</div>}
-                                <form onSubmit={submit}>
+                                <form onSubmit={submit} noValidate>
                                     <fieldset disabled={saving} className="member-fields">
                                         {tab === "profile" ? <div className="member-form-grid">
                                             <label>Họ và tên <span>*</span><input name="hoTen" autoComplete="name" value={form.hoTen} onChange={(e) => setForm({ ...form, hoTen: e.target.value })} required maxLength={255} {...fieldProps("hoTen")} />{fieldError("hoTen")}</label>

@@ -10,12 +10,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
 
 class PhimController extends Controller
 {
     public function featured(): JsonResponse
     {
+        Phim::synchronizeStatuses();
         $revenue = DB::table('ve_ghes as vg')
             ->join('lich_chieus as lc', 'lc.maLichChieu', '=', 'vg.maLichChieu')
             ->whereColumn('lc.maPhim', 'phims.maPhim')
@@ -29,8 +29,8 @@ class PhimController extends Controller
 
         $movies = Phim::query()
             ->where('trangThai', 'DANG_CHIEU')
-            ->where(fn ($query) => $query->whereNull('ngayKhoiChieu')->orWhereDate('ngayKhoiChieu', '<=', today()))
-            ->where(fn ($query) => $query->whereNull('ngayKetThuc')->orWhereDate('ngayKetThuc', '>=', today()))
+            ->where(fn ($query) => $query->whereNull('ngayKhoiChieu')->orWhereDate('ngayKhoiChieu', '<=', now('Asia/Ho_Chi_Minh')->toDateString()))
+            ->where(fn ($query) => $query->whereNull('ngayKetThuc')->orWhereDate('ngayKetThuc', '>=', now('Asia/Ho_Chi_Minh')->toDateString()))
             ->orderByDesc($revenue)
             ->orderByDesc('ngayKhoiChieu')
             ->orderBy('maPhim')
@@ -45,6 +45,7 @@ class PhimController extends Controller
      */
     public function index()
     {
+        Phim::synchronizeStatuses();
         $phims = Phim::orderByDesc('created_at')->paginate(10);
 
         return response()->json($phims);
@@ -64,15 +65,15 @@ class PhimController extends Controller
             'thoiLuong' => ['nullable', 'integer', 'min:1'],
             'daoDien' => ['nullable', 'string', 'max:255'],
             'dienVien' => ['nullable', 'string'],
-            'ngayKhoiChieu' => ['nullable', 'date'],
+            'ngayKhoiChieu' => ['nullable', 'date', 'after_or_equal:today'],
             'ngayKetThuc' => ['nullable', 'date', 'after_or_equal:ngayKhoiChieu'],
             'moTa' => ['nullable', 'string'],
             'hinhAnh' => ['nullable', 'string', 'max:255'],
             'anh' => ['sometimes', 'required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'trailer' => ['nullable', 'url'],
-            'trangThai' => ['required', Rule::in(['SAP_CHIEU', 'DANG_CHIEU', 'DA_CHIEU'])],
         ], [
             'maPhim.unique' => 'Mã phim đã trùng với một phim khác. Vui lòng nhập mã phim khác.',
+            'ngayKhoiChieu.after_or_equal' => 'Ngày khởi chiếu phải từ hôm nay trở đi.',
         ]);
 
         $phim = $this->saveWithPoster($request, new Phim, $data);
@@ -88,6 +89,7 @@ class PhimController extends Controller
      */
     public function show(string $maPhim)
     {
+        Phim::synchronizeStatuses();
         $phim = Phim::findOrFail($maPhim);
 
         return response()->json([
@@ -117,7 +119,6 @@ class PhimController extends Controller
             'hinhAnh' => ['nullable', 'string', 'max:255'],
             'anh' => ['sometimes', 'required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'trailer' => ['nullable', 'url'],
-            'trangThai' => ['sometimes', 'required', Rule::in(['SAP_CHIEU', 'DANG_CHIEU', 'DA_CHIEU'])],
         ]);
 
         $this->saveWithPoster($request, $phim, $data);
@@ -138,7 +139,9 @@ class PhimController extends Controller
             if ($path) {
                 $data['hinhAnh'] = url('/storage/'.$path);
             }
-            $phim->fill($data)->save();
+            $phim->fill($data);
+            $phim->trangThai = $phim->statusForDates();
+            $phim->save();
         } catch (\Throwable $error) {
             if ($path) {
                 Storage::disk('public')->delete($path);

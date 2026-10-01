@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+
 use App\Http\Controllers\Controller;
 use App\Models\KhuyenMai;
 use App\Models\OrderAccess;
@@ -28,18 +29,18 @@ class KhuyenMaiController extends Controller
 
         $query = KhuyenMai::withCount('donHangs');
 
-        if (!empty($data['trangThai'])) {
+        if (! empty($data['trangThai'])) {
             $query->where('trangThai', $data['trangThai']);
         }
 
         if (($search = trim($data['q'] ?? '')) !== '') {
             $pattern = '%'
-                . str_replace(
+                .str_replace(
                     ['!', '%', '_'],
                     ['!!', '!%', '!_'],
                     $search
                 )
-                . '%';
+                .'%';
 
             $query->where(function (Builder $query) use ($pattern): void {
                 $query
@@ -218,6 +219,7 @@ class KhuyenMaiController extends Controller
             'ngayBatDau' => [
                 $required,
                 'date_format:Y-m-d',
+                ...($promotion ? [] : ['after_or_equal:today']),
             ],
 
             'ngayKetThuc' => [
@@ -232,6 +234,8 @@ class KhuyenMaiController extends Controller
                     'NGUNG_HOAT_DONG',
                 ]),
             ],
+        ], [
+            'ngayBatDau.after_or_equal' => 'Ngày bắt đầu phải từ hôm nay trở đi.',
         ]);
 
         if ($promotion) {

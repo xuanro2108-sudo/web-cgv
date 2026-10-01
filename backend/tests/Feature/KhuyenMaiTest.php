@@ -13,6 +13,20 @@ class KhuyenMaiTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
+    public function test_new_promotion_starts_today_or_later(): void
+    {
+        $this->freezeTime();
+        $user = $this->customer();
+        $user->update(['vaiTro' => 'QUAN_LY']);
+        Sanctum::actingAs($user);
+        $payload = ['maKM' => 'DATE', 'tenKM' => 'Date test', 'hinhAnh' => 'https://example.com/banner.jpg', 'hinhThuc' => 'GIAM_GIA', 'giaTri' => 10000, 'donToiThieu' => 0, 'ngayKetThuc' => today()->addDays(10)->toDateString()];
+        $this->postJson('/api/khuyen-mais', [...$payload, 'ngayBatDau' => today()->subDay()->toDateString()])
+            ->assertUnprocessable()->assertJsonPath('errors.ngayBatDau.0', 'Ngày bắt đầu phải từ hôm nay trở đi.');
+        $this->assertDatabaseMissing('khuyen_mais', ['maKM' => 'DATE']);
+        $this->postJson('/api/khuyen-mais', [...$payload, 'ngayBatDau' => today()->toDateString()])->assertCreated();
+        $this->postJson('/api/khuyen-mais', [...$payload, 'maKM' => 'FUTURE', 'ngayBatDau' => today()->addDay()->toDateString()])->assertCreated();
+    }
+
     public function test_promotion_image_upload_replace_remove_and_validation(): void
     {
         Storage::fake('public');

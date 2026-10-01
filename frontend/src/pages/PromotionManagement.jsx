@@ -16,6 +16,10 @@ const money = (value) =>
     }).format(Number(value) || 0);
 
 const day = (value) => value?.slice(0, 10) || "";
+const todayDate = () => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+};
 
 const date = (value) =>
     day(value)
@@ -115,7 +119,7 @@ function PromotionDialog({
 
     const [form, setForm] = useState(() => {
         if (!item) {
-            return { ...empty };
+            return { ...empty, ngayBatDau: todayDate() };
         }
 
         return Object.fromEntries(
@@ -202,6 +206,11 @@ function PromotionDialog({
 
             if (mode === "create") {
                 payload = { ...form };
+                if (payload.ngayBatDau && payload.ngayBatDau < todayDate()) {
+                    setFields({ ngayBatDau: ["Ngày bắt đầu phải từ hôm nay trở đi."] });
+                    setError("Ngày bắt đầu không hợp lệ.");
+                    return;
+                }
             }
 
             if (mode === "edit") {
@@ -617,7 +626,8 @@ function PromotionDialog({
                                 {field(
                                     "ngayBatDau",
                                     "Ngày bắt đầu",
-                                    "date"
+                                    "date",
+                                    { min: mode === "create" ? todayDate() : undefined }
                                 )}
 
                                 {field(

@@ -158,6 +158,8 @@ Route::apiResource('combos', ComboSanPhamController::class)
 */
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::patch('auth/internal/profile', [AuthController::class, 'updateInternalProfile']);
+    Route::patch('auth/internal/password', [AuthController::class, 'changeInternalPassword'])->middleware('throttle:5,1');
 
     /*
     |--------------------------------------------------------------------------
