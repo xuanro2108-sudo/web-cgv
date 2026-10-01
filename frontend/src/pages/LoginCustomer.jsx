@@ -3,6 +3,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "./LoginCustomer.css";
 import Header from "../components/common/Header/Header";
 
+const birthdayError = "Ngày sinh phải nhỏ hơn ngày hiện tại.";
+const getMaxBirthday = () => {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  return `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, "0")}-${String(yesterday.getDate()).padStart(2, "0")}`;
+};
+
 function LoginCustomer({ initialTab = "login" }) {
   // =========================
   // CHUYỂN TRANG
@@ -65,6 +72,15 @@ const [activeTab, setActiveTab] = useState(initialTab);
   // =========================
   const handleRegisterChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "ngaySinh") {
+      const invalidBirthday = value && value > getMaxBirthday();
+      e.target.setCustomValidity(invalidBirthday ? birthdayError : "");
+      setRegisterData({ ...registerData, ngaySinh: value });
+      setRegisterError(invalidBirthday ? birthdayError : "");
+      setRegisterMessage("");
+      return;
+    }
 
     // Chỉ cho số điện thoại nhập số
     if (name === "soDienThoai") {
@@ -192,6 +208,11 @@ const [activeTab, setActiveTab] = useState(initialTab);
 
     setRegisterError("");
     setRegisterMessage("");
+
+    if (registerData.ngaySinh && registerData.ngaySinh > getMaxBirthday()) {
+      setRegisterError(birthdayError);
+      return;
+    }
 
     // =========================
     // KIỂM TRA SỐ ĐIỆN THOẠI
@@ -524,6 +545,8 @@ const [activeTab, setActiveTab] = useState(initialTab);
                 <input
                   type="date"
                   name="ngaySinh"
+                  max={getMaxBirthday()}
+                  autoComplete="bday"
                   value={registerData.ngaySinh}
                   onChange={handleRegisterChange}
                 />
