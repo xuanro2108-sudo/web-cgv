@@ -95,34 +95,44 @@ class ThanhToanController extends Controller
             $data['transactionContent'] ?? null,
         ]));
         $amount = (float) ($data['transferAmount'] ?? $data['amount'] ?? 0);
-        $payment = ThanhToan::whereIn('phuongThuc', ['SEPAY_QR', 'CHUYEN_KHOAN'])
+        $normalizedContent = mb_strtoupper($content, 'UTF-8');
+        $candidates = ThanhToan::whereIn('phuongThuc', ['SEPAY_QR', 'CHUYEN_KHOAN'])
             ->whereIn('trangThai', ['CHO_THANH_TOAN', 'THANH_CONG'])
             ->with(['donHang.khachHang'])
-            ->get()
-            ->first(function (ThanhToan $candidate) use ($content, $amount) {
-                // Match by exact amount first if provided
-                $candidateAmount = (int) round((float) $candidate->soTien * 100);
-                $incomingAmount = (int) round($amount * 100);
-                if ($incomingAmount > 0 && $candidateAmount !== $incomingAmount) {
-                    return false;
-                }
-                // Match by maGiaoDich
-                if ($candidate->maGiaoDich && Str::contains($content, $candidate->maGiaoDich)) {
-                    return true;
-                }
-                // Match by maDonHang
-                if ($candidate->maDonHang && Str::contains($content, $candidate->maDonHang)) {
-                    return true;
-                }
-                // Match by customer phone number
-                $phone = $candidate->donHang?->khachHang?->soDienThoai;
-                $digits = $phone ? preg_replace('/\D/', '', $phone) : '';
-                if ($digits !== '' && Str::contains($content, $digits)) {
-                    return true;
-                }
-                // Fallback: if amount matches and payment exists in last 30 minutes
-                return $candidateAmount === $incomingAmount;
-            });
+            ->orderByDesc('created_at')
+            ->get();
+
+        $payment = $candidates->first(function (ThanhToan $candidate) use ($normalizedContent, $amount) {
+            $candidateMaGiaoDich = mb_strtoupper((string) ($candidate->maGiaoDich ?? ''), 'UTF-8');
+            $candidateMaDonHang = mb_strtoupper((string) ($candidate->maDonHang ?? ''), 'UTF-8');
+
+            if ($candidateMaGiaoDich !== '' && Str::contains($normalizedContent, $candidateMaGiaoDich)) {
+                return true;
+            }
+
+            if ($candidateMaDonHang !== '' && Str::contains($normalizedContent, $candidateMaDonHang)) {
+                return true;
+            }
+
+            return false;
+        }) ?? $candidates->first(function (ThanhToan $candidate) use ($normalizedContent, $amount) {
+            $candidateAmount = (int) round((float) $candidate->soTien * 100);
+            $incomingAmount = (int) round($amount * 100);
+
+            if ($incomingAmount <= 0 || $candidateAmount !== $incomingAmount) {
+                return false;
+            }
+
+            $phone = $candidate->donHang?->khachHang?->soDienThoai;
+            $digits = $phone ? preg_replace('/\D/', '', $phone) : '';
+            if ($digits !== '' && Str::contains($normalizedContent, $digits)) {
+                return true;
+            }
+
+            $paymentAgeMinutes = $candidate->created_at ? now()->diffInMinutes($candidate->created_at) : 0;
+
+            return $candidate->donHang?->trangThai === 'CHO_THANH_TOAN' && $paymentAgeMinutes <= 30;
+        });
 
         if (! $payment) {
             return response()->json([
@@ -140,22 +150,40 @@ class ThanhToanController extends Controller
         }
 
         $result = DB::transaction(function () use ($payment) {
-            $order = DonHang::whereKey($payment->maDonHang)->lockForUpdate()->firstOrFail();
+            $order = DonHang::whereKey($payment->maDonHang)->lockForUpdate()->first();
+            if (! $order) {
+                return ['data' => $payment->fresh(), 'status' => 200, 'message' => 'Đơn hàng không còn tồn tại.'];
+            }
+
             $lockedPayment = $order->thanhToan()->lockForUpdate()->firstOrFail();
-            abort_unless($lockedPayment->trangThai === 'CHO_THANH_TOAN', 409, 'Thanh toán đã được xử lý.');
-            abort_unless($order->trangThai === 'CHO_THANH_TOAN' && ! $order->daHetHan(), 409, 'Đơn hàng không còn hiệu lực.');
+            if ($lockedPayment->trangThai === 'THANH_CONG') {
+                return ['data' => $lockedPayment->fresh(), 'status' => 200, 'message' => 'Thanh toán đã được xử lý.'];
+            }
+
+            if ($order->trangThai !== 'CHO_THANH_TOAN' || $order->daHetHan()) {
+                return ['data' => $lockedPayment->fresh(), 'status' => 200, 'message' => 'Đơn hàng không còn hiệu lực.'];
+            }
 
             $lockedPayment->update(['trangThai' => 'THANH_CONG', 'ngayThanhToan' => now()]);
             $order->veGhes()->where('trangThai', 'GIU_CHO')->update(['trangThai' => 'DA_DAT']);
             $order->update(['trangThai' => 'DA_THANH_TOAN', 'maQR' => 'QR'.Str::random(40)]);
 
-            return $lockedPayment->fresh();
+            return ['data' => $lockedPayment->fresh(), 'status' => 200];
         }, 3);
 
-        if (! $result->emailDaGui) {
-            $this->sendTicketEmail($result);
+        $status = $result['status'] ?? 200;
+        unset($result['status']);
+
+        if (($result['data']->trangThai ?? null) === 'THANH_CONG' && ! $result['data']->emailDaGui) {
+            $this->sendTicketEmail($result['data']);
         }
-        return response()->json(['success' => true, 'data' => $result]);
+
+        return response()->json(
+            array_key_exists('message', $result)
+                ? ['success' => true, 'message' => $result['message'], 'data' => $result['data']]
+                : ['success' => true, 'data' => $result['data']],
+            $status
+        );
     }
 
     public function confirm(Request $request, string $maTT): JsonResponse
